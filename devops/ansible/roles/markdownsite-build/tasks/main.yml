@@ -115,6 +115,14 @@
     group: minion
     mode: 0600
 
+- name: Install ~minion/.ssh/config
+  copy:
+    dest: /home/minion/.ssh/config
+    src: "{{ role_path }}/files/ssh_config"
+    owner: minion
+    group: minion
+    mode: 0600
+
 - name: Install ~minion/.ssh/id_rsa_ansible (for ansible-playbook)
   copy:
     dest: /home/minion/.ssh/id_rsa_ansible

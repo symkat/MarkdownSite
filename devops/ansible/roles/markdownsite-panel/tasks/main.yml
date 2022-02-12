@@ -179,6 +179,7 @@
   git:
     repo: "{{ config.markdownsite_repo }}"
     dest: /home/manager/markdownsite
+    accept_hostkey: true
   become: true
   become_user: manager
 
