@@ -1,77 +1,32 @@
-%%  cascade layout { title => 'Homepage',
+%%  cascade layout { title => $site.domain ~ ' status',
 %%      header_title => $site.domain ~ ' status'
 %%  }
 
 %%  override sidebar_top -> {
-    <!-- Search widget-->
     <div class="card mb-4">
-        <div class="card-header">Ledgend</div>
+        <div class="card-header">Information</div>
         <div class="card-body">
-
-            <div class="alert alert-secondary" role="alert">
-                <div class="spinner-grow spinner-grow-sm" role="status">
-                    <span class="visually-hidden">Waiting...</span>
+            <p>Domain: <a target="_blank" href="http://[% $site.domain %]/">[% $site.domain %]</a></p>
+            <form method="post" action="[% $c.url_for( 'do_import' ) %]">
+                <div class="input-group">
+                    <input type="hidden" name="repo" value="[% $site.repo %]">
+                    <button class="btn btn-primary" id="button-add" type="submit">Rebuild</button>
                 </div>
-                This is in the queue
-            </div>
-
-            <div class="alert alert-primary" role="alert">
-                <div class="spinner-grow spinner-grow-sm" role="status">
-                    <span class="visually-hidden">Waiting...</span>
-                </div>
-                This is being done 
-            </div>
-
-            <div class="alert alert-success" role="alert">
-                This is done 
-            </div>
-
-            <div class="alert alert-danger" role="alert">
-                There was a problem
-            </div>
+            </form>
 
         </div>
     </div>
-
-%%  }
+%% }
 
 %%  override panel -> {
-        <p>This is the status page for [% $site.domain %]<p>
-
 %%      for $site.get_builds() -> $build {
         <div class="card mb-4">
             <div class="card-header">Build [% $build.id %] on [% $build.date %]</div>
             <div class="card-body">
 
-%%          if ( $build.is_clone_complete ) {
-            <div class="alert alert-primary" role="alert">
-                Clone Repo
-            </div>
-%%          } else {
-            <div class="alert alert-secondary" role="alert">
-                <div class="spinner-grow spinner-grow-sm" role="status">
-                    <span class="visually-hidden">Waiting...</span>
-                </div>
-                Clone Repo
-            </div>
-%%          }
-
-%%          if ( $build.is_build_complete == 1 ) {
-            <div class="alert alert-primary" role="alert">
-                Clone Repo
-            </div>
-%%          } else {
-            <div class="alert alert-secondary" role="alert">
-                <div class="spinner-grow spinner-grow-sm" role="status">
-                    <span class="visually-hidden">Waiting...</span>
-                </div>
-                Build Website
-            </div>
-%%          }
-
 
 %%          if ( $build.is_deploy_complete == 1 ) {
-            <div class="alert alert-primary" role="alert">
+            <div class="alert alert-success" role="alert">
                 Deploy Repo
             </div>
 %%          } else {
@@ -83,10 +38,34 @@
             </div>
 %%          }
 
+%%          if ( $build.is_build_complete == 1 ) {
+            <div class="alert alert-success" role="alert">
+                Build Repo
+            </div>
+%%          } else {
+            <div class="alert alert-secondary" role="alert">
+                <div class="spinner-grow spinner-grow-sm" role="status">
+                    <span class="visually-hidden">Waiting...</span>
+                </div>
+                Build Website
+            </div>
+%%          }
 
-%%#          for $build.logs -> $log {
-%%#                <p>[% $log.event %] - [% $log.line %]</p>
-%%#          }
+
+
+%%          if ( $build.is_clone_complete ) {
+            <div class="alert alert-success" role="alert">
+                Clone Repo
+            </div>
+%%          } else {
+            <div class="alert alert-secondary" role="alert">
+                <div class="spinner-grow spinner-grow-sm" role="status">
+                    <span class="visually-hidden">Waiting...</span>
+                </div>
+                Clone Repo
+            </div>
+%%          }
+
             </div>
         </div>
 
