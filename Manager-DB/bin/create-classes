@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+CLASS_NAME="MarkdownSite::Manager::DB"
+
+# Generate a random 8 character name for the docker container that holds the PSQL
+# database.
+PSQL_NAME=$(cat /dev/urandom | LC_ALL=C tr -dc 'a-zA-Z' | fold -w 8 | head -n 1)
+
+# Launch a PSQL Instance
+PSQL_DOCKER=`docker run --rm --name $PSQL_NAME -e POSTGRES_PASSWORD=dbic -e POSTGRES_USER=dbic -e POSTGRES_DB=dbic -d \
+    --mount type=bind,src=$PWD/etc/schema.sql,dst=/docker-entrypoint-initdb.d/schema.sql postgres:11`
+
+docker run --rm --link $PSQL_NAME:psqldb --mount type=bind,src=$PWD,dst=/app symkat/schema_builder /bin/build-schema $CLASS_NAME
+
+docker kill $PSQL_DOCKER
+
+sudo chown -R $USER:$USER lib
