@@ -1,0 +1,147 @@
+---
+- name: Update all packages to their latest version
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+
+- name: Install packages
+  apt:
+    name: [ 'gnupg2', 'curl' ]
+
+- name: Add the ansible key.
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: 93C4A3FD7BB9C367
+
+- name: Install ansible.list for apt.
+  copy:
+    dest: /etc/apt/sources.list.d/ansible.list
+    content: "deb http://ppa.launchpad.net/ansible/ansible/ubuntu focal main"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install packages
+  apt:
+    name: [
+      'ansible',
+      'git',
+      'build-essential',
+      'cpanminus',
+      'libssl-dev',
+      'libpq-dev',
+      'libz-dev',
+      'libexpat1-dev',
+      'vim',
+      'postgresql-contrib',
+      'postgresql-client',
+    ]
+    state: present
+
+- name: "Install /tmp/{{ config.versions.manager}}"
+  copy:
+    dest: "/tmp/{{ config.versions.manager}}"
+    src: "{{ role_path }}/files/builds/{{ config.versions.manager}}"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Install /tmp/{{ config.versions.db }}"
+  copy:
+    dest: "/tmp/{{ config.versions.db }}"
+    src: "{{ role_path }}/files/builds/{{ config.versions.db }}"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install DBD::Pg with force
+  shell: cpanm --force DBD::Pg
+
+- name: Install MarkdownSite::Manager::DB
+  shell: "cpanm {{ config.versions.db }}"
+  args:
+    chdir: /tmp
+
+- name: Install MarkdownSite::Manager
+  shell: "cpanm {{ config.versions.manager }}"
+  args:
+    chdir: /tmp
+
+- name: Install /etc/markdownsite.yml
+  template:
+    src: "{{ role_path }}/templates/markdownsite.yml.j2"
+    dest: /etc/markdownsite.yml
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Create /etc/lighttpd/conf.d
+  file:
+    state: directory
+    path: /etc/lighttpd/conf.d
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create minion user
+  user:
+    name: minion
+    shell: /bin/bash
+    comment: Minion User Account
+
+- name: Create ~minion/.ssh
+  file:
+    state: directory
+    path: /home/minion/.ssh
+    owner: minion
+    group: minion
+    mode: 0700
+
+- name: Create ~minion/.ssh/authorized_keys from ~root
+  copy:
+    dest: /home/minion/.ssh/authorized_keys
+    src: /root/.ssh/authorized_keys
+    remote_src: true
+    owner: minion
+    group: minion
+    mode: 0600
+
+- name: Install ~minion/.ssh/id_rsa (for git clone)
+  copy:
+    dest: /home/minion/.ssh/id_rsa
+    src: "{{ role_path }}/files/id_rsa/id_rsa_deploy"
+    owner: minion
+    group: minion
+    mode: 0600
+
+- name: Install ~minion/.ssh/id_rsa_ansible (for ansible-playbook)
+  copy:
+    dest: /home/minion/.ssh/id_rsa_ansible
+    src: "{{ role_path }}/files/id_rsa/id_rsa_ansible"
+    owner: minion
+    group: minion
+    mode: 0600
+
+- name: Install ansible roles for deployment
+  copy:
+    src: "{{ role_path }}/files/ansible/"
+    dest: "/etc/ansible"
+    mode: '0644'
+    directory_mode: '0755'
+    owner: 'root'
+    group: 'root'
+
+- name: Install markdownsite.worker.service file.
+  copy:
+    dest: /etc/systemd/system/markdownsite.worker.service
+    src: "{{ role_path }}/files/markdownsite.worker.service"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Start markdownsite.worker
+  service:
+    name: markdownsite.worker
+    state: started
+    enabled: true

@@ -1,0 +1,11 @@
+
+$HTTP["host"] =~ "^{{ site.domain }}$" {
+    server.document-root = "/var/www/{{ site.domain }}/html"
+
+    server.errorlog      = "/var/log/lighttpd/{{ site.domain }}.error.log"
+    accesslog.filename   = "/var/log/lighttpd/{{ site.domain }}.access.log"
+
+    url.rewrite-if-not-file = (
+        "^(/.*)$" => "/cgi-bin/markdownsite.cgi$1"
+    )
+}

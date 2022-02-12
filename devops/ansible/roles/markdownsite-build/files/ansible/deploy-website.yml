@@ -1,0 +1,10 @@
+---
+
+- name: Deploy Website
+  remote_user: root
+  hosts: all
+  vars:
+    ansible_ssh_common_args: -oControlMaster=auto -oControlPersist=60s -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no -i/home/minion/.ssh/id_rsa_ansible
+    site: "{{ lookup('file', lookup('env', 'MARKDOWNSITE_CONFIG') ) | from_yaml }}"
+  roles:
+    - deploy-website
