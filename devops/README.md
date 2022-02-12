@@ -7,7 +7,7 @@ This guide documents how to install MarkdownSite.  It is written from the perspe
 You will want to setup the following:
 
 | Domain Name            | Server | IP Address     | Private IP      |
-| ---------------------- | ------ | -------------- | =============== |
+| ---------------------- | ------ | -------------- | --------------- |
 | serve.markdownsite.com | Serve  | 192.155.87.155 | 192.168.143.35  |
 | build.markdownsite.com | Build  | 45.79.99.161   | 192.168.212.133 |
 | panel.markdownsite.com | Panel  | 45.33.35.224   | 192.168.192.220 |
