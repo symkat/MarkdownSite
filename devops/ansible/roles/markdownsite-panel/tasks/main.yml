@@ -1,0 +1,197 @@
+---
+- name: Update all packages to their latest version
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+
+- name: Install packages
+  apt:
+    name: [
+      'git',
+      'build-essential',
+      'cpanminus',
+      'libssl-dev',
+      'libpq-dev',
+      'libz-dev',
+      'libexpat1-dev',
+      'vim',
+      'postgresql-client',
+      'postgresql-contrib',
+      'postgresql',
+      'python3-psycopg2',
+      'nginx',
+      'certbot',
+      'curl',
+      'python3-certbot-nginx',
+    ]
+    state: present
+
+- name: "Install /tmp/{{ config.versions.manager}}"
+  copy:
+    dest: "/tmp/{{ config.versions.manager}}"
+    src: "{{ role_path }}/files/builds/{{ config.versions.manager}}"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Install /tmp/{{ config.versions.db }}"
+  copy:
+    dest: "/tmp/{{ config.versions.db }}"
+    src: "{{ role_path }}/files/builds/{{ config.versions.db }}"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install DBD::Pg with force
+  shell: cpanm --force DBD::Pg
+
+- name: Install MarkdownSite::Manager::DB
+  shell: "cpanm {{ config.versions.db }}"
+  args:
+    chdir: /tmp
+
+- name: Install MarkdownSite::Manager
+  shell: "cpanm {{ config.versions.manager }}"
+  args:
+    chdir: /tmp
+
+- name: Install /etc/markdownsite.yml
+  template:
+    src: "{{ role_path }}/templates/markdownsite.yml.j2"
+    dest: /etc/markdownsite.yml
+    owner: root
+    group: root
+    mode: 0644
+
+- name: start postgresql
+  service:
+    name: postgresql
+    state: started
+    enabled: true
+
+- name: Create db user account for markdownsite
+  postgresql_user:
+    name: "{{ config.database.markdownsite.user }}"
+    password: "{{ config.database.markdownsite.pass }}"
+    state: present
+  become_user: postgres
+  become: true
+
+- name: Create db user account for minion
+  postgresql_user:
+    name: "{{ config.database.minion.user }}"
+    password: "{{ config.database.minion.pass }}"
+    state: present
+  become_user: postgres
+  become: true
+
+- name: Create markdown database
+  postgresql_db:
+    name: "{{ config.database.markdownsite.name }}"
+    owner: "{{ config.database.markdownsite.user }}"
+    state: present
+  become_user: postgres
+  become: true
+
+- name: Create minion database
+  postgresql_db:
+    name: "{{ config.database.minion.name }}"
+    owner: "{{ config.database.minion.user }}"
+    state: present
+  become_user: postgres
+  become: true
+
+- name: Create manager user
+  user:
+    name: manager
+    shell: /bin/bash
+    comment: MarkdownSite Manager User Account
+
+- name: Create ~manager/.ssh
+  file:
+    state: directory
+    path: /home/manager/.ssh
+    owner: manager
+    group: manager
+    mode: 0700
+
+- name: Install ~manager/.ssh/id_rsa (for git clone)
+  copy:
+    dest: /home/manager/.ssh/id_rsa
+    src: "{{ role_path }}/files/id_rsa"
+    owner: manager
+    group: manager
+    mode: 0600
+
+- name: Create ~manager/.ssh/authorized_keys from ~root
+  copy:
+    dest: /home/manager/.ssh/authorized_keys
+    src: /root/.ssh/authorized_keys
+    remote_src: true
+    owner: manager
+    group: manager
+    mode: 0600
+
+- name: Install markdownsite.panel.service file.
+  copy:
+    dest: /etc/systemd/system/markdownsite.panel.service
+    src: "{{ role_path }}/files/markdownsite.panel.service"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install /etc/nginx/sites-enabled/{{ config.panel.domain }}
+  template:
+    src: "{{ role_path }}/templates/nginx-domain.conf"
+    dest: "/etc/nginx/sites-enabled/{{ config.panel.domain }}"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Grant users joe and simon access to databases sales and logistics from ipv6 localhost ::1/128 using peer authentication.
+  postgresql_pg_hba:
+    dest: /etc/postgresql/13/main/pg_hba.conf
+    contype: host
+    source: "{{ item.address }}/32" 
+    method: md5
+    create: true
+  with_items: "{{ config.database.allow_addresses }}"
+
+- name: Ensure the default Apache port is 8080
+  lineinfile:
+    path: /etc/postgresql/13/main/postgresql.conf
+    regexp: '^listen_addresses '
+    insertafter: '^#listen_addresses'
+    line: "listen_addresses = 'localhost,{{ config.database.bind }}'"
+
+- name: start postgresql
+  service:
+    name: postgresql
+    state: restarted
+
+- name: start nginx
+  service:
+    name: nginx
+    state: restarted
+
+- name: "Git clone from {{ config.markdownsite_repo }}"
+  git:
+    repo: "{{ config.markdownsite_repo }}"
+    dest: /home/manager/markdownsite
+  become: true
+  become_user: manager
+
+- name: Import the database
+  shell: mds-manager dbc < /home/manager/markdownsite/Manager-DB/etc/schema.sql > /home/manager/markdownsite/Manager-DB/etc/schema.log
+  args:
+    creates: /home/manager/markdownsite/Manager-DB/etc/schema.log
+  become: true
+  become_user: manager
+
+# Start markdownsite.panel
+- name: Start Markdownsite Panel
+  service:
+    name: markdownsite.panel
+    state: started
+    enabled: true
