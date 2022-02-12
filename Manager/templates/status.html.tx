@@ -1,0 +1,95 @@
+%%  cascade layout { title => 'Homepage',
+%%      header_title => $site.domain ~ ' status'
+%%  }
+
+%%  override sidebar_top -> {
+    <!-- Search widget-->
+    <div class="card mb-4">
+        <div class="card-header">Ledgend</div>
+        <div class="card-body">
+
+            <div class="alert alert-secondary" role="alert">
+                <div class="spinner-grow spinner-grow-sm" role="status">
+                    <span class="visually-hidden">Waiting...</span>
+                </div>
+                This is in the queue
+            </div>
+
+            <div class="alert alert-primary" role="alert">
+                <div class="spinner-grow spinner-grow-sm" role="status">
+                    <span class="visually-hidden">Waiting...</span>
+                </div>
+                This is being done 
+            </div>
+
+            <div class="alert alert-success" role="alert">
+                This is done 
+            </div>
+
+            <div class="alert alert-danger" role="alert">
+                There was a problem
+            </div>
+
+        </div>
+    </div>
+
+%%  }
+
+%%  override panel -> {
+        <p>This is the status page for [% $site.domain %]<p>
+
+%%      for $site.get_builds() -> $build {
+        <div class="card mb-4">
+            <div class="card-header">Build [% $build.id %] on [% $build.date %]</div>
+            <div class="card-body">
+
+%%          if ( $build.is_clone_complete ) {
+            <div class="alert alert-primary" role="alert">
+                Clone Repo
+            </div>
+%%          } else {
+            <div class="alert alert-secondary" role="alert">
+                <div class="spinner-grow spinner-grow-sm" role="status">
+                    <span class="visually-hidden">Waiting...</span>
+                </div>
+                Clone Repo
+            </div>
+%%          }
+
+%%          if ( $build.is_build_complete == 1 ) {
+            <div class="alert alert-primary" role="alert">
+                Clone Repo
+            </div>
+%%          } else {
+            <div class="alert alert-secondary" role="alert">
+                <div class="spinner-grow spinner-grow-sm" role="status">
+                    <span class="visually-hidden">Waiting...</span>
+                </div>
+                Build Website
+            </div>
+%%          }
+
+
+%%          if ( $build.is_deploy_complete == 1 ) {
+            <div class="alert alert-primary" role="alert">
+                Deploy Repo
+            </div>
+%%          } else {
+            <div class="alert alert-secondary" role="alert">
+                <div class="spinner-grow spinner-grow-sm" role="status">
+                    <span class="visually-hidden">Waiting...</span>
+                </div>
+                Deploy Website
+            </div>
+%%          }
+
+
+%%#          for $build.logs -> $log {
+%%#                <p>[% $log.event %] - [% $log.line %]</p>
+%%#          }
+            </div>
+        </div>
+
+
+%%      }
+%%  }

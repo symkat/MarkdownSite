@@ -1,0 +1,20 @@
+%%  cascade layout { title => 'Homepage',
+%%      header_title    => 'Welcome MarkdownSite',
+%%      header_subtitle => 'Create a website from a git repo in one-click!'
+%%      
+%%  }
+
+%% override panel -> {
+        <!-- Search widget-->
+        <div class="card mb-4">
+            <div class="card-header">Create or update your markdownsite.</div>
+            <div class="card-body">
+                <form method="post" action="[% $c.url_for( 'do_import' ) %]">
+                    <div class="input-group">
+                        <input class="form-control" name="repo"   type="text" placeholder="git repo url" aria-label="Enter git repo url" aria-describedby="button-add" />
+                        <button class="btn btn-primary" id="button-add" type="submit">Build</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+%%  }
