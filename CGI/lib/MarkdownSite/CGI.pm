@@ -7,13 +7,11 @@ use Cwd qw( getcwd );
 use Cache::Memcached::Fast;
 
 sub startup ($self) {
-
     my $domain = $ENV{HTTP_HOST};
     my $r_path = $ENV{PATH_INFO};
 
     # Load config from the given domain url...
     $self->plugin('NotYAMLConfig', { file => "/var/www/$domain/config.yml" });
-
 
     my $mem = Cache::Memcached::Fast->new({
         servers   => [ { address => '127.0.0.1:11211' } ],
@@ -64,16 +62,15 @@ sub startup ($self) {
 
             # Stash the metadata and rendered markdown so the templates may use it.
             $c->stash->{md} = {
-                %{$md->metadata},
+                %{$md->metadata || {}},
                 body   => $md->result,
                 source => $content,
             };
 
             # Set the template to use.
-            $c->stash->{template} = sprintf("%s/%s",
-                $md->metadata->{theme}    || 'default',
-                $md->metadata->{template} || 'page',
-            );
+            my $theme    = $md->metadata ? $md->metadata->{theme}    || 'default' : 'default';
+            my $template = $md->metadata ? $md->metadata->{template} || 'page'    : 'page';
+            $c->stash->{template} = sprintf("%s/%s", $theme, $template );
 
             # Serve and cache if it's an .html file.
             if ( $r_path =~ /\.html$/ ) {
@@ -84,6 +81,10 @@ sub startup ($self) {
                 Mojo::File->new( "/var/www/$domain/html" )->child( @filepaths )->make_path->child($filename)->spurt($html);
                 return;
             }
+
+            # Now /about /about/ / won't get cached.  If we make index.html files, they don't seem to work
+            # with the url remapping when things don't exist... we could cache and send_file from here? TODO
+            # Or maybe dig into lighty and see if I'm missing something....
         });
     }
 
