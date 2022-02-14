@@ -54,6 +54,48 @@ __PACKAGE__->table("site");
   data_type: 'text'
   is_nullable: 0
 
+=head2 max_static_file_count
+
+  data_type: 'integer'
+  default_value: 10
+  is_nullable: 0
+
+=head2 max_static_file_size
+
+  data_type: 'integer'
+  default_value: 2
+  is_nullable: 0
+
+=head2 max_markdown_file_count
+
+  data_type: 'integer'
+  default_value: 20
+  is_nullable: 0
+
+=head2 minutes_wait_after_build
+
+  data_type: 'integer'
+  default_value: 10
+  is_nullable: 0
+
+=head2 builds_per_hour
+
+  data_type: 'integer'
+  default_value: 3
+  is_nullable: 0
+
+=head2 builds_per_day
+
+  data_type: 'integer'
+  default_value: 12
+  is_nullable: 0
+
+=head2 is_supporter
+
+  data_type: 'boolean'
+  default_value: false
+  is_nullable: 0
+
 =head2 is_enabled
 
   data_type: 'boolean'
@@ -80,6 +122,20 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "domain",
   { data_type => "text", is_nullable => 0 },
+  "max_static_file_count",
+  { data_type => "integer", default_value => 10, is_nullable => 0 },
+  "max_static_file_size",
+  { data_type => "integer", default_value => 2, is_nullable => 0 },
+  "max_markdown_file_count",
+  { data_type => "integer", default_value => 20, is_nullable => 0 },
+  "minutes_wait_after_build",
+  { data_type => "integer", default_value => 10, is_nullable => 0 },
+  "builds_per_hour",
+  { data_type => "integer", default_value => 3, is_nullable => 0 },
+  "builds_per_day",
+  { data_type => "integer", default_value => 12, is_nullable => 0 },
+  "is_supporter",
+  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
   "is_enabled",
   { data_type => "boolean", default_value => \"true", is_nullable => 0 },
   "created_at",
@@ -146,8 +202,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-02-07 00:07:02
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:1dlWgzxdIrmJYkuT4FRPHQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-02-14 15:57:24
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ddij+qgPwKq+xag3eAzgZQ
 
 sub get_builds {
     my ( $self ) = @_;

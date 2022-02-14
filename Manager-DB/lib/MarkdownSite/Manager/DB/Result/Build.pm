@@ -60,37 +60,71 @@ __PACKAGE__->table("build");
   data_type: 'text'
   is_nullable: 1
 
-=head2 is_clone_complete
+=head2 is_clone_start
 
   data_type: 'boolean'
   default_value: false
   is_nullable: 0
 
-=head2 is_build_complete
+=head2 is_clone_end
 
   data_type: 'boolean'
   default_value: false
   is_nullable: 0
 
-=head2 is_deploy_complete
+=head2 is_clone_error
 
   data_type: 'boolean'
   default_value: false
   is_nullable: 0
 
-=head2 is_complete
+=head2 clone_error
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 is_build_start
 
   data_type: 'boolean'
   default_value: false
   is_nullable: 0
 
-=head2 has_error
+=head2 is_build_end
 
   data_type: 'boolean'
   default_value: false
   is_nullable: 0
 
-=head2 error_message
+=head2 is_build_error
+
+  data_type: 'boolean'
+  default_value: false
+  is_nullable: 0
+
+=head2 build_error
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 is_deploy_start
+
+  data_type: 'boolean'
+  default_value: false
+  is_nullable: 0
+
+=head2 is_deploy_end
+
+  data_type: 'boolean'
+  default_value: false
+  is_nullable: 0
+
+=head2 is_deploy_error
+
+  data_type: 'boolean'
+  default_value: false
+  is_nullable: 0
+
+=head2 deploy_error
 
   data_type: 'text'
   is_nullable: 1
@@ -117,17 +151,29 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "download_url",
   { data_type => "text", is_nullable => 1 },
-  "is_clone_complete",
+  "is_clone_start",
   { data_type => "boolean", default_value => \"false", is_nullable => 0 },
-  "is_build_complete",
+  "is_clone_end",
   { data_type => "boolean", default_value => \"false", is_nullable => 0 },
-  "is_deploy_complete",
+  "is_clone_error",
   { data_type => "boolean", default_value => \"false", is_nullable => 0 },
-  "is_complete",
+  "clone_error",
+  { data_type => "text", is_nullable => 1 },
+  "is_build_start",
   { data_type => "boolean", default_value => \"false", is_nullable => 0 },
-  "has_error",
+  "is_build_end",
   { data_type => "boolean", default_value => \"false", is_nullable => 0 },
-  "error_message",
+  "is_build_error",
+  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
+  "build_error",
+  { data_type => "text", is_nullable => 1 },
+  "is_deploy_start",
+  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
+  "is_deploy_end",
+  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
+  "is_deploy_error",
+  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
+  "deploy_error",
   { data_type => "text", is_nullable => 1 },
   "created_at",
   {
@@ -182,8 +228,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-02-09 07:00:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:GcZ4oSyrcjUaM1Q4PcMb2w
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-02-14 15:57:24
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:g7MKA80DNm1laiZInCFs3Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
