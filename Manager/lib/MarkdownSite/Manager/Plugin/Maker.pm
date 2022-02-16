@@ -8,6 +8,20 @@ use YAML;
 
 sub register ( $self, $app, $config ) {
 
+    $app->minion->add_task( remove_markdownsite => sub ( $job, $domain ) {
+
+        foreach my $deploy_address ( @{$job->app->config->{deploy_addresses}} ) {
+            run3( ['ansible-playbook', '-i', $deploy_address, '--extra-vars', "domain=$domain", '/etc/ansible/purge-website.yml' ], \undef, \my $out, \my $err );
+	    foreach my $line ( split /\n/, $out ) {
+                print "out => $line\n";
+            }
+	    foreach my $line ( split /\n/, $err ) {
+                print "err => $line\n";
+            }
+        }
+
+    });
+
     $app->minion->add_task( build_markdownsite => sub ( $job, $site_id ) {
         # Make a build directory $temp_dir/build, create a build for it.
         my $build_dir = Mojo::File->tempdir( 'build-XXXXXX', CLEANUP => 0 );
@@ -78,14 +92,18 @@ sub register ( $self, $app, $config ) {
 
             if ( $do_reassign ) {
 
+                my $old_domain = $site->domain;
+
                 $build->create_related( 'build_logs', { event  => 'set_domain',
-                    detail => sprintf("Domain name changed from %s to %s", $site->domain, $repo_yaml->{domain}) }
+                    detail => sprintf("Domain name changed from %s to %s", $old_domain, $repo_yaml->{domain}) }
                 );
 
                 $site->domain( $repo_yaml->{domain} );
                 $site->update;
 
-                # TODO: queue a minion job to purge the current website
+                # Queue a minion job to purge the current website.
+                $job->app->minion->enqueue( remove_markdownsite => [ $old_domain ] );
+
                 # Queue a job to build this site, and then exit this job.
                 $job->app->minion->enqueue( build_markdownsite => [ $site->id ] );
 
