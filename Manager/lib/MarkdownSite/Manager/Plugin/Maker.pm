@@ -9,118 +9,133 @@ use YAML;
 sub register ( $self, $app, $config ) {
 
     $app->minion->add_task( remove_markdownsite => sub ( $job, $domain ) {
+        $job->note( _mds_template => 'remove_markdownsite.tx' );
 
+        my @logs;
         foreach my $deploy_address ( @{$job->app->config->{deploy_addresses}} ) {
             run3( ['ansible-playbook', '-i', $deploy_address, '--extra-vars', "domain=$domain", '/etc/ansible/purge-website.yml' ], \undef, \my $out, \my $err );
-	    foreach my $line ( split /\n/, $out ) {
-                print "out => $line\n";
-            }
-	    foreach my $line ( split /\n/, $err ) {
-                print "err => $line\n";
-            }
+            $job->note( removed_site => 1 );
+
+            push @logs, "Host: $deploy_address", " ";
+            push @logs, "---STDOUT---", " ", split( /\n/, $out );
+            push @logs, "---STDERR---", " ", split( /\n/, $err );
         }
 
+        $job->finish( \@logs );
     });
 
     $app->minion->add_task( build_markdownsite => sub ( $job, $site_id ) {
-        # Make a build directory $temp_dir/build, create a build for it.
-        my $build_dir = Mojo::File->tempdir( 'build-XXXXXX', CLEANUP => 0 );
-        $build_dir->child('build')->make_path;
+        $job->note( _mds_template => 'build_markdownsite.tx' );
 
         my $site = $job->app->db->site( $site_id );
 
-        my $build = $site->create_related( 'builds', {
-            build_dir => $build_dir->to_string,
-        });
+        die "Error: No site found for site_id: $site_id"
+            unless $site;
+
+        # Create a directory to build the markdownsite.
+        #
+        # build-RANDOM/
+        #   /src            - Repository cloned from git.
+        #   /build          -
+        #   /build/html     -
+        #   /build/pages    -
+        #   /build/site.yml -
+        #
+        my $build_dir = Mojo::File->tempdir( 'build-XXXXXX', CLEANUP => 0 );
+        $build_dir->child('build')->make_path;
+
+        # Create a build record in the database for the site.
+        my $build = $site->create_related( 'builds', { build_dir => $build_dir->to_string });
+
+        my @logs;
 
         #==
         # Clone Repo
         #==
         run3( ['git', 'clone', $build->site->repo, "$build_dir/src" ], \undef, \my $out, \my $err );
-        foreach my $line ( split /\n/, $out ) {
-            $build->create_related( 'build_logs', { event  => 'info:ansible', detail => $line } );
-        }
+        push @logs, "Running: git clone " . $build->site->repo . " $build_dir/src";
+        push @logs, "---STDOUT---", " ", split( /\n/, $out );
+        push @logs, "---STDERR---", " ", split( /\n/, $err );
+
         foreach my $line ( split /\n/, $err ) {
             # TODO: Cause common errors and then make sure I catch and report them to the user.
-            $build->create_related( 'build_logs', { event  => 'warn:ansible', detail => $line } );
         }
 
         # Load the .markdown.yml config file.
         my $repo_yaml = {};
         if ( -e "$build_dir/src/.markdownsite.yml" ) {
-            $build->create_related( 'build_logs', { event  => 'info', detail => "Loading .markdownsite.yml config." } );
-            $repo_yaml = YAML::LoadFile( "$build_dir/src/.markdownsite.yml" ) ;
+            push @logs, "Loading .markdownsite.yml config.";
+            # TODO -- test malformed file / might need try::tiny
+            $repo_yaml = YAML::LoadFile( "$build_dir/src/.markdownsite.yml" );
         }
 
         $repo_yaml->{webroot} ||= 'webroot';
         $repo_yaml->{site}    ||= 'site';
         $repo_yaml->{branch}  ||= 'master';
+        $repo_yaml->{domain}  ||= $site->domain;
 
         my $settings = {
             webroot => sprintf( "%s/%s", "$build_dir/src", $repo_yaml->{webroot} ),
             site    => sprintf( "%s/%s", "$build_dir/src", $repo_yaml->{site}    ),
+            branch  =>  $repo_yaml->{branch},
+
+            ( $repo_yaml->{domain} ne $site->domain
+                # We have a domain mismatch, the user wants to change the domain.
+                ? (
+                    old_domain => $site->domain,
+                    domain     => $repo_yaml->{domain},
+                )
+                # No domain name change..
+                : (
+                    domain     => $site->domain,
+                )
+            ),
         };
 
+        # NO $repo_yaml past this point.
 
         # If the branch the user's site is in is not master, switch branches.
-        if ( $repo_yaml->{branch} ne 'master' ) {
+        if ( $settings->{branch} ne 'master' ) {
             # TODO: Checkout the branch the user has their site in.
 
         }
 
         # The domain name in the user's repo is different than the site's configuration,
         # check if the user is a sponser and if so, remap their domain.
-        if ( exists $repo_yaml->{domain} and $repo_yaml->{domain} ne $site->domain ) {
-
-            my $do_reassign = 1;
+        if ( exists $settings->{old_domain} ) {
             # TODO:
             # check site.is_sponser -> return if false
 
             # check that domain is a valid domain -> return if false
-            if ( $repo_yaml->{domain} !~ /^((?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+[A-Za-z]{2,6}$/ ) {
-                # Error: Invalid domain name.
-                $build->create_related( 'build_logs', { event  => 'set_domain', detail => sprintf("Domain %s is invalid.", $repo_yaml->{domain}) } );
-                $do_reassign = 0;
+            if ( $settings->{domain} !~ /^((?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+[A-Za-z]{2,6}$/ ) {
+                $job->fail( { error => "Invalid domain name " . $settings->{domain}, logs => \@logs });
+                return;
             }
 
             # check that no other site has this domain -> return if false
-
-            if ( $job->app->db->site( { domain => $repo_yaml->{domain} } ) ) {
-                $build->create_related( 'build_logs', { event  => 'set_domain', detail => "Domain is invalid." } );
-                $do_reassign = 0;
-            }
-
-            if ( $do_reassign ) {
-
-                my $old_domain = $site->domain;
-
-                $build->create_related( 'build_logs', { event  => 'set_domain',
-                    detail => sprintf("Domain name changed from %s to %s", $old_domain, $repo_yaml->{domain}) }
-                );
-
-                $site->domain( $repo_yaml->{domain} );
-                $site->update;
-
-                # Queue a minion job to purge the current website.
-                $job->app->minion->enqueue( remove_markdownsite => [ $old_domain ] );
-
-                # Queue a job to build this site, and then exit this job.
-                $job->app->minion->enqueue( build_markdownsite => [ $site->id ] );
-
-                $build->create_related( 'build_logs', { event  => 'set_domain',
-                    detail => "Domain name updated -- scheduling new jobs for purge/import and returning." }
-                );
-
-                # Mark all build steps as complete -- I don't like this.... why don't I like this?
-
+            if ( $job->app->db->site( { domain => $settings->{domain} } ) ) {
+                $job->fail( { error => "Domain name " . $settings->{domain} . " is already in use.", logs => \@logs });
                 return;
-
             }
 
+            push @logs, sprintf("Domain name changed from %s to %s", $settings->{old_domain}, $settings->{domain} );
+
+            $site->domain( $settings->{domain} );
+            $site->update;
+
+            # Queue a minion job to purge the current website.
+            $job->app->minion->enqueue( remove_markdownsite => [ $settings->{old_domain} ] => { notes => { '_mds_sid_' . $site->id => 1 } } );
+
+            # Queue a job to build this site, and then exit this job.
+            $job->app->minion->enqueue( build_markdownsite => [ $site->id ] => { notes => { '_mds_sid_' . $site->id => 1 } });
+
+            push @logs, "Domain name updated -- scheduling new jobs for purge/import and returning.";
+
+            $job->finish( \@logs );
+            return;
         }
 
-        $build->is_clone_complete(1);
-        $build->update;
+        $job->note( is_clone_complete => 1 );
 
         #==
         # Build Static Files For Webroot
@@ -128,10 +143,7 @@ sub register ( $self, $app, $config ) {
         # TODO: Use Mojo::File to iterate the files, and throw errors on exceeding file size / file count limits..
         if ( -d $settings->{webroot} ) {
             dircopy( $settings->{webroot}, "$build_dir/build/html" );
-            $build->create_related( 'build_logs', {
-                event  => 'make_static',
-                detail => 'created static directory from ' . $settings->{webroot},
-            });
+            push @logs, 'created static directory from ' . $settings->{webroot};
         }
 
         #==
@@ -141,10 +153,7 @@ sub register ( $self, $app, $config ) {
         # TODO: Use Mojo::File to iterate the files, and throw errors on exceeding file count limits.
         if ( -d $settings->{site} ) {
             dircopy( $settings->{site}, "$build_dir/build/pages" );
-            $build->create_related( 'build_logs', {
-                event  => 'make_pages',
-                detail => 'created pages directory from ' . $settings->{site},
-            });
+            push @logs, 'created pages directory from ' . $settings->{site},
         }
 
         #==
@@ -158,30 +167,21 @@ sub register ( $self, $app, $config ) {
             })
         );
 
-        $build->is_build_complete(1);
-        $build->update;
+        $job->note( is_build_complete => 1 );
 
         # Go to the build directory and make $build_dir/.
         $ENV{MARKDOWNSITE_CONFIG} = Mojo::File->new($build->build_dir)->child('build')->child('site.yml');
 
         foreach my $deploy_address ( @{$job->app->config->{deploy_addresses}} ) {
             run3( ['ansible-playbook', '-i', $deploy_address, '/etc/ansible/deploy-website.yml' ], \undef, \my $out, \my $err );
-	    foreach my $line ( split /\n/, $out ) {
-                $build->create_related( 'build_logs', { event  => 'info:ansible', detail => $line } );
-            }
-	    foreach my $line ( split /\n/, $err ) {
-                $build->create_related( 'build_logs', { event  => 'warn:ansible', detail => $line } );
-            }
+            push @logs, "Running: ansible-playbook -i $deploy_address /etc/ansible/deploy-website.yml";
+            push @logs, "---STDOUT---", " ", split( /\n/, $out );
+            push @logs, "---STDERR---", " ", split( /\n/, $err );
+
         }
 
-        $build->is_deploy_complete(1);
-        $build->update;
-
-        $build->create_related( 'build_logs', { event  => 'status:info', detail => 'finished', });
-
-        # Delete the build directory.
-        $build->is_complete(1);
-        $build->update;
+        $job->note( is_deploy_complete => 1 );
+        $job->finish( \@logs );
     });
 };
 
