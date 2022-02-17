@@ -45,7 +45,7 @@ sub register ( $self, $app, $config ) {
         $build_dir->child('build')->make_path;
 
         # Create a build record in the database for the site.
-        my $build = $site->create_related( 'builds', { build_dir => $build_dir->to_string });
+        my $build = $site->create_related( 'builds', { build_dir => $build_dir->to_string, job_id => $job->id });
 
         my @logs;
 
