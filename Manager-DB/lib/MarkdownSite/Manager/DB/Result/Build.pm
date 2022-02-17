@@ -50,84 +50,15 @@ __PACKAGE__->table("build");
   is_foreign_key: 1
   is_nullable: 0
 
+=head2 job_id
+
+  data_type: 'integer'
+  is_nullable: 0
+
 =head2 build_dir
 
   data_type: 'text'
   is_nullable: 0
-
-=head2 download_url
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 is_clone_start
-
-  data_type: 'boolean'
-  default_value: false
-  is_nullable: 0
-
-=head2 is_clone_end
-
-  data_type: 'boolean'
-  default_value: false
-  is_nullable: 0
-
-=head2 is_clone_error
-
-  data_type: 'boolean'
-  default_value: false
-  is_nullable: 0
-
-=head2 clone_error
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 is_build_start
-
-  data_type: 'boolean'
-  default_value: false
-  is_nullable: 0
-
-=head2 is_build_end
-
-  data_type: 'boolean'
-  default_value: false
-  is_nullable: 0
-
-=head2 is_build_error
-
-  data_type: 'boolean'
-  default_value: false
-  is_nullable: 0
-
-=head2 build_error
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 is_deploy_start
-
-  data_type: 'boolean'
-  default_value: false
-  is_nullable: 0
-
-=head2 is_deploy_end
-
-  data_type: 'boolean'
-  default_value: false
-  is_nullable: 0
-
-=head2 is_deploy_error
-
-  data_type: 'boolean'
-  default_value: false
-  is_nullable: 0
-
-=head2 deploy_error
-
-  data_type: 'text'
-  is_nullable: 1
 
 =head2 created_at
 
@@ -147,34 +78,10 @@ __PACKAGE__->add_columns(
   },
   "site_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  "job_id",
+  { data_type => "integer", is_nullable => 0 },
   "build_dir",
   { data_type => "text", is_nullable => 0 },
-  "download_url",
-  { data_type => "text", is_nullable => 1 },
-  "is_clone_start",
-  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
-  "is_clone_end",
-  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
-  "is_clone_error",
-  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
-  "clone_error",
-  { data_type => "text", is_nullable => 1 },
-  "is_build_start",
-  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
-  "is_build_end",
-  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
-  "is_build_error",
-  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
-  "build_error",
-  { data_type => "text", is_nullable => 1 },
-  "is_deploy_start",
-  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
-  "is_deploy_end",
-  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
-  "is_deploy_error",
-  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
-  "deploy_error",
-  { data_type => "text", is_nullable => 1 },
   "created_at",
   {
     data_type     => "timestamp with time zone",
@@ -197,21 +104,6 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 build_logs
-
-Type: has_many
-
-Related object: L<MarkdownSite::Manager::DB::Result::BuildLog>
-
-=cut
-
-__PACKAGE__->has_many(
-  "build_logs",
-  "MarkdownSite::Manager::DB::Result::BuildLog",
-  { "foreign.build_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 site
 
 Type: belongs_to
@@ -228,20 +120,10 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-02-14 15:57:24
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:g7MKA80DNm1laiZInCFs3Q
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-02-17 01:22:05
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:R5HkFHbk8gfea0n1J/5PNQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 
-sub get_build_logs {
-    my ( $self ) = @_;
-
-    return [ map { +{
-        event => $_->event,
-        line  => $_->detail,
-        extra => $_->extra,
-        date  => $_->created_at->strftime( "%F %T %Z" ),
-    } } $self->search_related( 'build_logs', { }, { order_by => { -ASC => 'created_at' } } ) ];
-}
 1;

@@ -210,12 +210,8 @@ sub get_builds {
 
     return [ map { +{
         id                 => $_->id,
+        job_id             => $_->job_id,
         date               => $_->created_at->strftime( "%F %T %Z" ),
-        logs               => $_->get_build_logs,
-        is_clone_complete  => $_->is_clone_complete,
-        is_build_complete  => $_->is_build_complete,
-        is_deploy_complete => $_->is_deploy_complete,
-        is_complete        => $_->is_complete,
     } } $self->search_related( 'builds', { }, { order_by => { -DESC => 'created_at' } } ) ];
 }
 
