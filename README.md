@@ -13,7 +13,9 @@ MarkdownSite includes command line tools to manage hosted sites.  These commands
 | dbc        | Connect to the DB ( < schema.sql works, too )        |
 
 
-## Diagram
+## Diagrams
+
+Note: You may need to tab away and back for these diagrams to render.
 
 ### Operating Overview
 
@@ -28,8 +30,9 @@ flowchart TB
 
     end
     subgraph two[Build Node]
-    b1[MarkdownSite::Manager Worker]
-    b1 <-- PSQL Private IP --> a1
+    b1[Clone & Build Website]
+    b2[MarkdownSite::Manager Worker]
+    b2 <-- PSQL Private IP --> a1
     end
     subgraph three[Serve Node]
     c1[Lighttpd]
@@ -37,15 +40,12 @@ flowchart TB
     c3[MarkdownSite::CGI]
     c1 <-- Static File Exists --> c2
     c1 <-- No File Exists--> c3
-    c3 -- Generate & Store HTML Page From Markdown--> c2
+    c3 -- Generate & Store HTML Page From Markdown--> c2  
     end
 
-    two -- Ansible SSH--> three
-
-    q[Internet User] -- View Hosted Website -->c1
-    z[Internet User] -- Submit Git Repo For Hosting -->a3
+    b1 -- Ansible SSH--> three
+    q[Internet User] <-- View Hosted Website -->c1
+    z[MarkdownSite User] <-- Submit Git Repo For Hosting -->a3
 ```
-
-
 
 
