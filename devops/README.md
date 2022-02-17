@@ -72,9 +72,18 @@ ansible-playbook -i '45.33.35.224,' install-panel.yml
 
 # Setup SSL
 ssh root@45.33.35.224
-certbot --nginx -d markdownsite.com -d www.markdownsite.com -n
+certbot --nginx -d markdownsite.com -d www.markdownsite.com -n --agree-tos --email 
 ```
 
 ## Testing The Setup
+
+
+## Resetting the DB
+
+The database can be clean reset with the panel-reset-db.yml playbook.
+
+```bash
+ansible-playbook -i '45.33.35.224,' panel-reset-db.yml
+```
 
 
