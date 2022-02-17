@@ -44,6 +44,18 @@
 %%                  if ( $header_subtitle ) {
                     <p class="lead mb-0">[% $header_subtitle %]</p>
 %%                  }
+%%                  if ( $show_import ) {
+                    <div class="card mt-5 mx-5">
+                        <div class="card-body">
+                            <form method="post" action="[% $c.url_for( 'do_import' ) %]">
+                                <div class="input-group">
+                                    <input class="form-control" name="repo" type="text" placeholder="Git Repo URL (git@... https://...)" aria-label="Enter git repo url" aria-describedby="button-add" />
+                                    <button class="btn btn-primary" id="button-add" type="submit">Build my site!</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+%%                  }
                 </div>
             </div>
         </header>
@@ -68,46 +80,29 @@
 
 %%                  }
 
-                    <!-- Search widget-->
+                    <!-- Quick Start-->
                     <div class="card mb-4">
                         <div class="card-header">How does it work?</div>
                         <div class="card-body">
                             <ol>
-                                <li>We clone your repo.</li>
-                                <li>Markdown files in site/ are rendered.</li>
-                                <li>All files in webroot/ are treated as static.</li>
-                                <li>Your markdown site is then online!</li>
+                                <li>Enter your repo and click <strong>Build my site!</strong></li>
+                                <li>Status page shows build progress.</li>
+                                <li>Your web page is online!</p>
                             </ol>
                         </div>
                     </div>
 
-                    <!-- Search widget-->
+                    <!-- Who am I-->
                     <div class="card mb-4">
-                        <div class="card-header">Example repos?</div>
+                        <div class="card-header">Who are you?</div>
                         <div class="card-body">
-                            <p>You could fork <a href="https://github.com/symkat/hello.markdownsite.net">this example</a> and go from there.</p>
+                            <p>I'm <a href="https://symkat.com/" title="Kate Parkhurst's Homepage">Kate</a> and I like to build things.  This is an example of something I like building, and if you'd like you can <a href="https://github.com/symkat/MarkdownSite/">see the code</a>.</p>
                         </div>
                     </div>
-
-                    <!-- Search widget-->
-                    <div class="card mb-4">
-                        <div class="card-header">Example website?</div>
-                        <div class="card-body">
-                            <p>The example repo's website can be found <a href="http://s7kpjifn.markdownsite.net/">here</a>.</p>
-                        </div>
-                    </div>
-
-                    <div class="card mb-4">
-                        <div class="card-header">My repo is private, can I use this?</div>
-                        <div class="card-body">
-                            <p>If it can be reached online -- you could add the <a href="/sshkey.txt">ssh deploy key</a> so markdownsite can access your repository.</p>
-                        </div>
-                    </div>
-
-
                 </div>
             </div>
         </div>
+
         <!-- Footer-->
         <footer class="py-5 bg-dark">
             <div class="container"><p class="m-0 text-center text-white">Thanks!</p></div>

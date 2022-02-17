@@ -1,20 +1,43 @@
 %%  cascade layout { title => 'Homepage',
 %%      header_title    => 'Welcome MarkdownSite',
-%%      header_subtitle => 'Create a website from a git repo in one-click!'
-%%      
+%%      header_subtitle => 'Create a website from a git repo in one-click!',
+%%      show_import     => 1,
 %%  }
 
 %% override panel -> {
         <!-- Search widget-->
         <div class="card mb-4">
-            <div class="card-header">Create or update your markdownsite.</div>
+            <div class="card-header">What is this?</div>
             <div class="card-body">
-                <form method="post" action="[% $c.url_for( 'do_import' ) %]">
-                    <div class="input-group">
-                        <input class="form-control" name="repo"   type="text" placeholder="git repo url" aria-label="Enter git repo url" aria-describedby="button-add" />
-                        <button class="btn btn-primary" id="button-add" type="submit">Build</button>
-                    </div>
-                </form>
+                <p>This is a tool that lets you create a website from markdown files in your git repository.</p>
+
+                <p>For example, when <a href="https://github.com/symkat/hello.markdownsite.net">this repository</a> is entered above, it creates <a href="http://d420a1fm.markdownsite.net/">this webpage</a>.</p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">What should my repo look like?</div>
+            <div class="card-body">
+                <p>Markdown files in the directory site/ are rendered.  Files in webroot/ are treated as static files.</p>
+
+                <p>The markdown file should have a ‘web.path’ key and a header section, for example:</p>
+
+                <pre>
+                    ---
+                    title: About
+                    web.path: /about
+                    ---
+
+                    This is hello.markdownsite.net/about
+                </pre>
+
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">What if my repo is private?</div>
+            <div class="card-body">
+                <p>If it can be reached online -- you could add the <a href="/sshkey.txt">ssh deploy key</a> so markdownsite can access your repository.</p>
             </div>
         </div>
 %%  }

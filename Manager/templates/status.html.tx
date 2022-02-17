@@ -18,57 +18,118 @@
     </div>
 %% }
 
+%%  override begin_html_head -> {
+%%      if ( $c.minion.jobs({ states => [ 'inactive', 'active' ], notes => [ '_mds_sid_' ~ $site.id ] } ).total >= 1 ) { 
+            <meta http-equiv="refresh" content="5;" />
+%%      }
+%%  } 
+
 %%  override panel -> {
 %%      for $site.get_builds() -> $build {
-        <div class="card mb-4">
-            <div class="card-header">Build [% $build.id %] on [% $build.date %]</div>
-            <div class="card-body">
+            [% # $c.minion.job($build.job_id).info | dump %]
 
 
-%%          if ( $build.is_deploy_complete == 1 ) {
-            <div class="alert alert-success" role="alert">
-                Deploy Repo
-            </div>
-%%          } else {
-            <div class="alert alert-secondary" role="alert">
-                <div class="spinner-grow spinner-grow-sm" role="status">
-                    <span class="visually-hidden">Waiting...</span>
+%%          my $job = $c.minion.job($build.job_id).info;
+%%          if ( $job.state == 'finished' ) {
+            <div class="card mb-4">
+                <div class="card-header alert-success">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                    </svg>
+                    Build [% $build.id %] completed successfully.  (Queued: [% $build.date %])
+                    <button class="btn" data-bs-toggle="collapse" data-bs-target="#job_window_[% $job.id %]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-down" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                        </svg>
+                    </button>
                 </div>
-                Deploy Website
-            </div>
-%%          }
+                <div id="job_window_[% $job.id %]" class="card-body [% $~build.is_first ?  '' : 'collapse' %]">
+%%                  include '_status_milestone.tx' { milestone => { is_complete => $job.notes.is_deploy_complete, text => 'Deploy to Webserver' } }
 
-%%          if ( $build.is_build_complete == 1 ) {
-            <div class="alert alert-success" role="alert">
-                Build Repo
-            </div>
-%%          } else {
-            <div class="alert alert-secondary" role="alert">
-                <div class="spinner-grow spinner-grow-sm" role="status">
-                    <span class="visually-hidden">Waiting...</span>
+%%                  include '_status_milestone.tx' { milestone => { is_complete => $job.notes.is_build_complete,  text => 'Build Website' } }
+
+%%                  include '_status_milestone.tx' { milestone => { is_complete => $job.notes.is_clone_complete,  text => 'Clone Repo & Check Settings' } }
+
+                    <hr />
+                    <button class="btn" data-bs-toggle="collapse" data-bs-target="#job_log_window_[% $job.id %]">View Logs</button>
+
+                    <div id="job_log_window_[% $job.id %]" class="card-body collapse">
+                        <hr />
+                
+                        <pre>
+%%                      for $job.result -> $line {
+%%                          $line ~ "\n"
+%%                      }
+                        </pre>
+                    </div>
                 </div>
-                Build Website
             </div>
-%%          }
-
-
-
-%%          if ( $build.is_clone_complete ) {
-            <div class="alert alert-success" role="alert">
-                Clone Repo
+%%          } elsif ( $job.state == 'inactive' ) {
+%% #
+%% # TODO - The build record isn't made when the job is queued, but during its execution so we don't 
+%% #        actually have these.... fix that.... think about how.  Maybe we change build to jobs and 
+%% #        then create the record at the time the job is scheduled, or decide the job iterator works.
+%% #        
+            <div class="card mb-4 alert-warning">
+                <div class="card-header">Build [% $build.id %] pending build.  (Queued: [% $build.date %])</div>
             </div>
-%%          } else {
-            <div class="alert alert-secondary" role="alert">
-                <div class="spinner-grow spinner-grow-sm" role="status">
-                    <span class="visually-hidden">Waiting...</span>
+%%          } elsif ( $job.state == 'failed' ) {
+            <div class="card mb-4 alert-danger">
+                <div class="card-header">
+                    <!-- Failed -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                    Build Failed
                 </div>
-                Clone Repo
+                <div class="card-body">
+
+%%                  include '_status_milestone.tx' { milestone => { is_complete => $job.notes.is_deploy_complete, text => 'Deploy to Webserver' } }
+
+%%                  include '_status_milestone.tx' { milestone => { is_complete => $job.notes.is_build_complete,  text => 'Build Website' } }
+
+%%                  include '_status_milestone.tx' { milestone => { is_complete => $job.notes.is_clone_complete,  text => 'Clone Repo & Check Settings' } }
+                
+                    <div class="card-body">
+                        <hr />
+                        <p>Error Reported: <strong>[% $job.result.error %]</strong></p>
+                        <hr />
+
+                        <pre>
+%%                      for $job.result.logs -> $line {
+%%                          $line ~ "\n"
+%%                      }
+                        </pre>
+                    </div>
+                </div>
             </div>
+
+%%          } elsif ( $job.state == 'active' ) {
+            <div class="card mb-4">
+                <div class="card-header alert-warning">
+                    <div class="spinner-grow spinner-grow-sm" role="status">
+                        <span class="visually-hidden"Building...</span>
+                    </div>
+
+                    Building [% $build.id %].  (Queued: [% $build.date %])
+                </div>
+                <div id="job_window_[% $job.id %]" class="card-body [% $~build.is_first ?  '' : 'collapse' %]">
+
+%%                  include '_status_milestone.tx' { milestone => { is_complete => $job.notes.is_deploy_complete, text => 'Deploy to Webserver' } }
+
+%%                  include '_status_milestone.tx' { milestone => { is_complete => $job.notes.is_build_complete,  text => 'Build Website' } }
+
+%%                  include '_status_milestone.tx' { milestone => { is_complete => $job.notes.is_clone_complete,  text => 'Clone Repo & Check Settings' } }
+                
+                </div>
+            </div>
+
+%%          } else {
+            <div class="card mb-4 alert-warning">
+                <div class="card-header">Build [% $build.id %] in unexpected state: [% $job.state %]</div>
+            </div>
+
 %%          }
-
-            </div>
-        </div>
-
-
 %%      }
 %%  }
