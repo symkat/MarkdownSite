@@ -7,12 +7,17 @@
         <div class="card-header">Information</div>
         <div class="card-body">
             <p>Domain: <a target="_blank" href="http://[% $site.domain %]/">[% $site.domain %]</a></p>
+            <p>Repo: [% $site.repo %]</p>
+            <hr />
             <form method="post" action="[% $c.url_for( 'do_import' ) %]">
                 <div class="input-group">
                     <input type="hidden" name="repo" value="[% $site.repo %]">
                     <button class="btn btn-primary" id="button-add" type="submit">Rebuild</button>
                 </div>
             </form>
+            <hr />
+            <p><strong>Command Line Rebuild</strong></p>
+            <p style="font-family: monospace">curl -XPOST -d'repo=[% $site.repo %]' https://markdownsite.com/import</p>
 
         </div>
     </div>
