@@ -55,11 +55,6 @@ __PACKAGE__->table("build");
   data_type: 'integer'
   is_nullable: 0
 
-=head2 build_dir
-
-  data_type: 'text'
-  is_nullable: 0
-
 =head2 created_at
 
   data_type: 'timestamp with time zone'
@@ -80,8 +75,6 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "job_id",
   { data_type => "integer", is_nullable => 0 },
-  "build_dir",
-  { data_type => "text", is_nullable => 0 },
   "created_at",
   {
     data_type     => "timestamp with time zone",
@@ -120,8 +113,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-02-17 01:22:05
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:R5HkFHbk8gfea0n1J/5PNQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-02-18 16:00:21
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:9XNI8WciOUfgp0gVpoob1w
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

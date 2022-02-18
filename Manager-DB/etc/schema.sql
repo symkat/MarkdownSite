@@ -2,8 +2,8 @@ CREATE EXTENSION IF NOT EXISTS citext;
 
 CREATE TABLE site (
     id                          serial          PRIMARY KEY,
-    repo                        text            not null unique,
-    domain                      text            not null unique,
+    repo                        citext          not null unique,
+    domain                      citext          not null unique,
 
     -- Settings: File Allowances
     max_static_file_count       int             not null default 10,
@@ -26,6 +26,5 @@ CREATE TABLE build (
     id                          serial          PRIMARY KEY,
     site_id                     int             not null references site(id),
     job_id                      int             not null, -- For minion->job($id)
-    build_dir                   text            not null,
     created_at                  timestamptz     not null default current_timestamp
 );

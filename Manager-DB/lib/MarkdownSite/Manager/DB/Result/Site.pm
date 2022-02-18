@@ -46,12 +46,12 @@ __PACKAGE__->table("site");
 
 =head2 repo
 
-  data_type: 'text'
+  data_type: 'citext'
   is_nullable: 0
 
 =head2 domain
 
-  data_type: 'text'
+  data_type: 'citext'
   is_nullable: 0
 
 =head2 max_static_file_count
@@ -119,9 +119,9 @@ __PACKAGE__->add_columns(
     sequence          => "site_id_seq",
   },
   "repo",
-  { data_type => "text", is_nullable => 0 },
+  { data_type => "citext", is_nullable => 0 },
   "domain",
-  { data_type => "text", is_nullable => 0 },
+  { data_type => "citext", is_nullable => 0 },
   "max_static_file_count",
   { data_type => "integer", default_value => 10, is_nullable => 0 },
   "max_static_file_size",
@@ -202,8 +202,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-02-14 15:57:24
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ddij+qgPwKq+xag3eAzgZQ
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-02-18 16:00:21
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:J+OMaN5oUHs157y7p5odkA
 
 sub get_builds {
     my ( $self ) = @_;
