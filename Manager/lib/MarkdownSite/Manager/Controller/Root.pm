@@ -27,6 +27,12 @@ sub post_import ( $c ) {
     if ( $site ) {
         $c->log->info( "This repo already exists -- reloading markdownsite." );
 
+        if ( ! $site->get_build_allowance->{can_build} ) {
+            $c->log->info( "This repo has exceeded the build allowance -- rejecting job." );
+            $c->redirect_to( $c->url_for( 'show_status', { id => $site->id  } )->query( reject_job => 1 ) );
+            return;
+        }
+
         my $job_id = $c->minion->enqueue( build_markdownsite => [ $site->id ] => { notes => { '_mds_sid_' . $site->id => 1 } } );
         $site->create_related( 'builds', { job_id => $job_id } );
         $c->redirect_to( $c->url_for( 'show_status', { id => $site->id  } ) );

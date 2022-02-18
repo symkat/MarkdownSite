@@ -21,6 +21,21 @@
 
         </div>
     </div>
+    <div class="card mb-4">
+        <div class="card-header">Limits</div>
+        <div class="card-body">
+
+%%          my $sba = $site.get_build_allowance
+            
+%%          include '_status_limit.tx' { message => 'Building allowed', is_over_limit => ! $sba.can_build }
+<hr />
+%%          include '_status_limit.tx' { message => 'Minutes Between Builds', is_over_limit => ! $sba.wait_minutes.can_build }
+%%          include '_status_limit.tx' { message => 'Builds Per Hour',        is_over_limit => ! $sba.builds_over_hour.can_build }
+%%          include '_status_limit.tx' { message => 'Builds Per Day',         is_over_limit => ! $sba.builds_over_day.can_build }
+
+
+        </div>
+    </div>
 %% }
 
 %%  override begin_html_head -> {
@@ -30,8 +45,35 @@
 %%  } 
 
 %%  override panel -> {
+
+%%  if ( $c.param('reject_job') == 1 ) {
+        <div class="card mb-4 alert alert-danger">
+            <div class="card-header">
+                <!-- Failed -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                </svg>
+                Build Rejected
+            </div>
+            <div class="card-body">
+%%          my $sba = $site.get_build_allowance
+            <p>Rules</p>
+            <ul>
+                <li>Must wait [% $sba.wait_minutes.required %] between builds.  You have waited [% $sba.wait_minutes.current %] minutes.</li>
+                <li>In one hour, [% $sba.builds_over_hour.allowed %] builds are allowed.  You have built [% $sba.builds_over_hour.used %] times in that time.</li>
+                <li>In one day, [% $sba.builds_over_day.allowed %] builds are allowed.  You have built [% $sba.builds_over_day.used %] times in that time.</li>
+            </ul>
+            
+
+
+            </div>
+        </div>
+%%  }
+
 %%      for $site.get_builds() -> $build {
             [% # $c.minion.job($build.job_id).info | dump %]
+    
 
 
 %%          my $job = $c.minion.job($build.job_id).info;
