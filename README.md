@@ -11,6 +11,7 @@ MarkdownSite includes command line tools to manage hosted sites.  These commands
 | edit-site  | Change the configuration of a hosted site.           |
 | show-site  | Show the config and build logs for a hosted site.    |
 | dbc        | Connect to the DB ( < schema.sql works, too )        |
+| db-dump    | Dump the markdownsite DB with pg\_dump               |
 
 
 ## Diagrams
