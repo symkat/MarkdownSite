@@ -44,16 +44,13 @@ sub register ( $self, $app, $config ) {
         my $build_dir = Mojo::File->tempdir( 'build-XXXXXX', CLEANUP => 0 );
         $build_dir->child('build')->make_path;
 
-        # Create a build record in the database for the site.
-        my $build = $site->create_related( 'builds', { build_dir => $build_dir->to_string, job_id => $job->id });
-
         my @logs;
 
         #==
         # Clone Repo
         #==
-        run3( ['git', 'clone', $build->site->repo, "$build_dir/src" ], \undef, \my $out, \my $err );
-        push @logs, "Running: git clone " . $build->site->repo . " $build_dir/src";
+        run3( ['git', 'clone', $site->repo, "$build_dir/src" ], \undef, \my $out, \my $err );
+        push @logs, "Running: git clone " . $site->repo . " $build_dir/src";
         push @logs, "---STDOUT---", " ", split( /\n/, $out );
         push @logs, "---STDERR---", " ", split( /\n/, $err );
 
@@ -123,11 +120,13 @@ sub register ( $self, $app, $config ) {
             $site->domain( $settings->{domain} );
             $site->update;
 
-            # Queue a minion job to purge the current website.
-            $job->app->minion->enqueue( remove_markdownsite => [ $settings->{old_domain} ] => { notes => { '_mds_sid_' . $site->id => 1 } } );
+            # Queue a minion job to purge the current website, associate it with the site builds..
+            my $remove_mds_id = $job->app->minion->enqueue( remove_markdownsite => [ $settings->{old_domain} ] => { notes => { '_mds_sid_' . $site->id => 1 } } );
+            $site->create_related( 'builds', { job_id => $remove_mds_id } );
 
             # Queue a job to build this site, and then exit this job.
-            $job->app->minion->enqueue( build_markdownsite => [ $site->id ] => { notes => { '_mds_sid_' . $site->id => 1 } });
+            my $build_mds_id = $job->app->minion->enqueue( build_markdownsite => [ $site->id ] => { notes => { '_mds_sid_' . $site->id => 1 } });
+            $site->create_related( 'builds', { job_id => $build_mds_id } );
 
             push @logs, "Domain name updated -- scheduling new jobs for purge/import and returning.";
 
@@ -149,7 +148,8 @@ sub register ( $self, $app, $config ) {
         #==
         # Build Markdown Page Store
         #==
-        chdir $build->build_dir;
+        chdir $build_dir->to_string
+            or die "Error: Failed to enter " . $build_dir->to_string;
         # TODO: Use Mojo::File to iterate the files, and throw errors on exceeding file count limits.
         if ( -d $settings->{site} ) {
             dircopy( $settings->{site}, "$build_dir/build/pages" );
@@ -162,7 +162,7 @@ sub register ( $self, $app, $config ) {
         #         probably this one.
         Mojo::File->new($build_dir)->child('build')->child('site.yml')->spurt(
             YAML::Dump({
-                domain  => $build->site->domain,
+                domain  => $site->domain,
                 www_dir => "$build_dir/build/",
             })
         );
@@ -170,7 +170,7 @@ sub register ( $self, $app, $config ) {
         $job->note( is_build_complete => 1 );
 
         # Go to the build directory and make $build_dir/.
-        $ENV{MARKDOWNSITE_CONFIG} = Mojo::File->new($build->build_dir)->child('build')->child('site.yml');
+        $ENV{MARKDOWNSITE_CONFIG} = Mojo::File->new($build_dir->to_string)->child('build')->child('site.yml');
 
         foreach my $deploy_address ( @{$job->app->config->{deploy_addresses}} ) {
             run3( ['ansible-playbook', '-i', $deploy_address, '/etc/ansible/deploy-website.yml' ], \undef, \my $out, \my $err );

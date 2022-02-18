@@ -27,7 +27,8 @@ sub post_import ( $c ) {
     if ( $site ) {
         $c->log->info( "This repo already exists -- reloading markdownsite." );
 
-        $c->minion->enqueue( build_markdownsite => [ $site->id ] => { notes => { '_mds_sid_' . $site->id => 1 } } );
+        my $job_id = $c->minion->enqueue( build_markdownsite => [ $site->id ] => { notes => { '_mds_sid_' . $site->id => 1 } } );
+        $site->create_related( 'builds', { job_id => $job_id } );
         $c->redirect_to( $c->url_for( 'show_status', { id => $site->id  } ) );
         return;
     }
@@ -52,7 +53,10 @@ sub post_import ( $c ) {
     
 
     # Send off the job to import the markdownsite.
-    $c->minion->enqueue( build_markdownsite => [ $site->id ] => { notes => { '_mds_sid_' . $site->id => 1 } } );
+    my $id = $c->minion->enqueue( build_markdownsite => [ $site->id ] => { notes => { '_mds_sid_' . $site->id => 1 } } );
+    
+    # Create a build record in the database for the site.
+    $site->create_related( 'builds', { job_id => $id } );
 
     $c->redirect_to( $c->url_for( 'show_status', { id => $site->id  } ) );
 
