@@ -20,7 +20,7 @@
 
 %%  override begin_html_head -> {
 %%      if ( $c.minion.jobs({ states => [ 'inactive', 'active' ], notes => [ '_mds_sid_' ~ $site.id ] } ).total >= 1 ) { 
-            <meta http-equiv="refresh" content="5;" />
+            <meta http-equiv="refresh" content="2;" />
 %%      }
 %%  } 
 
