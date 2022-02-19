@@ -50,12 +50,21 @@ sub register ( $self, $app, $config ) {
         # Clone Repo
         #==
         run3( ['git', 'clone', $site->repo, "$build_dir/src" ], \undef, \my $out, \my $err );
-        push @logs, "Running: git clone " . $site->repo . " $build_dir/src";
-        push @logs, "---STDOUT---", " ", split( /\n/, $out );
-        push @logs, "---STDERR---", " ", split( /\n/, $err );
+        push @logs, "--- Running: git clone " . $site->repo . " $build_dir/src";
+        push @logs, "> STDOUT", " ", split( /\n/, $out );
+        push @logs, "> STDERR", " ", split( /\n/, $err );
+        push @logs, "--- Done Running: git clone " . $site->repo . " $build_dir/src";
 
         foreach my $line ( split /\n/, $err ) {
-            # TODO: Cause common errors and then make sure I catch and report them to the user.
+            if ( $line =~ /^fatal: repository \'[^']+\' does not exist$/ ) {
+                $job->fail( { error => "Does not seem to be a valid repository.", logs => \@logs });
+                return;
+            }
+
+            if ( $line =~ /^fatal: Could not read from remote repository\.$/ ) {
+                $job->fail( { error => "Error: Permission denied - Valid access and repo?", logs => \@logs });
+                return;
+            }
         }
 
         # Load the .markdown.yml config file.
@@ -89,12 +98,21 @@ sub register ( $self, $app, $config ) {
             ),
         };
 
-        # NO $repo_yaml past this point.
-
         # If the branch the user's site is in is not master, switch branches.
         if ( $settings->{branch} ne 'master' ) {
-            # TODO: Checkout the branch the user has their site in.
+            run3( [ 'git', '-C', "$build_dir/src", 'checkout', $settings->{branch} ], \undef, \my $out, \my $err );
 
+            push @logs, "--- Running: git -C $build_dir/src checkout " . $settings->{branch};
+            push @logs, "> STDOUT---", " ", split( /\n/, $out );
+            push @logs, "> STDERR---", " ", split( /\n/, $err );
+            push @logs, "--- Done Running: git -C $build_dir/src checkout " . $settings->{branch};
+
+            foreach my $line ( split /\n/, $err ) {
+                if ( $line =~ /^error: pathspec \'[^']+\' did not match any file\(s\) known to git$/ ) {
+                    $job->fail( { error => "Failed to checkout branch " . $settings->{branch}, logs => \@logs });
+                    return;
+                }
+            }
         }
 
         # The domain name in the user's repo is different than the site's configuration,
@@ -139,21 +157,84 @@ sub register ( $self, $app, $config ) {
         #==
         # Build Static Files For Webroot
         #==
-        # TODO: Use Mojo::File to iterate the files, and throw errors on exceeding file size / file count limits..
         if ( -d $settings->{webroot} ) {
-            dircopy( $settings->{webroot}, "$build_dir/build/html" );
-            push @logs, 'created static directory from ' . $settings->{webroot};
+            push @logs, "--- Processing Static Files ---";
+
+            my $files = Mojo::File->new( $settings->{webroot} )->list_tree;
+
+            if ( $files->size > $site->max_static_file_count ) {
+                $job->fail( {
+                    error => "This site may have up to " . $site->max_static_file_count . " static files, however the webroot contains " . $files->size . " files.",
+                    logs => \@logs
+                });
+                return;
+            }
+
+            my $total_file_size = 0;
+
+            foreach my $file ( $files->each ) {
+                # Does file exceed size allowed?
+                if ( $file->stat->size >= ( $site->max_static_file_size * 1024 * 1024 ) ) {
+                    $job->fail( {
+                        error => sprintf("This site may have static files up to %d MiB, however %s exceeds this limit.",
+                            $site->max_static_file_size,
+                            $file->to_string
+                        ),
+                        logs => \@logs
+                    });
+                    return;
+                }
+
+                $total_file_size += $file->stat->size;
+
+                # TODO - Make this a site.max_static_webroot_size
+                if ( $total_file_size >= ( 50 * 1024 * 1024 ) ) {
+                    $job->fail( {
+                        error => "This site may have up to 50 MiB in static files, however the webroot exceeds this limit.",
+                        logs => \@logs
+                    });
+                    return;
+                }
+
+                Mojo::File->new( "$build_dir/build/html/" . $file->to_rel( $settings->{webroot} )->dirname )->make_path;
+                $file->move_to( "$build_dir/build/html/" . $file->to_rel( $settings->{webroot} ) );
+                push @logs, "File Processed:" . $file->to_rel($settings->{webroot});
+            }
+            push @logs, "--- Done Processing Static Files ---";
         }
 
         #==
         # Build Markdown Page Store
         #==
-        chdir $build_dir->to_string
-            or die "Error: Failed to enter " . $build_dir->to_string;
-        # TODO: Use Mojo::File to iterate the files, and throw errors on exceeding file count limits.
         if ( -d $settings->{site} ) {
-            dircopy( $settings->{site}, "$build_dir/build/pages" );
-            push @logs, 'created pages directory from ' . $settings->{site},
+            push @logs, "--- Processing MarkdownSite Files ---";
+
+            my $files = Mojo::File->new( $settings->{site} )->list_tree;
+
+            if ( $files->size > $site->max_markdown_file_count ) {
+                $job->fail( {
+                    error => "This site may have up to " . $site->max_markdown_file_count . " markdown files, however the site contains " . $files->size . " files.",
+                    logs => \@logs
+                });
+                return;
+            }
+
+            foreach my $file ( $files->each ) {
+                # Does file exceed size allowed?
+                if ( $file->stat->size >= ( 256 * 1024 ) ) {
+                    $job->fail( {
+                        error => "MarkdownSite limits markdown files to 256 KiB.  $file exceeds that.",
+                        logs => \@logs
+                    });
+                    return;
+                }
+
+                Mojo::File->new( "$build_dir/build/pages/" . $file->to_rel( $settings->{site} )->dirname )->make_path;
+                $file->move_to( "$build_dir/build/pages/" . $file->to_rel( $settings->{site} ) );
+                push @logs, "Markdown File Processed:" . $file->to_rel($settings->{site});
+
+            }
+            push @logs, "--- Done Processing MarkdownSite Files ---";
         }
 
         #==
@@ -174,10 +255,10 @@ sub register ( $self, $app, $config ) {
 
         foreach my $deploy_address ( @{$job->app->config->{deploy_addresses}} ) {
             run3( ['ansible-playbook', '-i', $deploy_address, '/etc/ansible/deploy-website.yml' ], \undef, \my $out, \my $err );
-            push @logs, "Running: ansible-playbook -i $deploy_address /etc/ansible/deploy-website.yml";
-            push @logs, "---STDOUT---", " ", split( /\n/, $out );
-            push @logs, "---STDERR---", " ", split( /\n/, $err );
-
+            push @logs, "--- Running: ansible-playbook -i $deploy_address /etc/ansible/deploy-website.yml";
+            push @logs, "> STDOUT", " ", split( /\n/, $out );
+            push @logs, "> STDERR", " ", split( /\n/, $err );
+            push @logs, "--- Done Running: ansible-playbook -i $deploy_address /etc/ansible/deploy-website.yml";
         }
 
         $job->note( is_deploy_complete => 1 );
