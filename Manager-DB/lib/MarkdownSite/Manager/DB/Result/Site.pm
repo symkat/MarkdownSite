@@ -57,13 +57,19 @@ __PACKAGE__->table("site");
 =head2 max_static_file_count
 
   data_type: 'integer'
-  default_value: 10
+  default_value: 100
   is_nullable: 0
 
 =head2 max_static_file_size
 
   data_type: 'integer'
   default_value: 2
+  is_nullable: 0
+
+=head2 max_static_webroot_size
+
+  data_type: 'integer'
+  default_value: 50
   is_nullable: 0
 
 =head2 max_markdown_file_count
@@ -90,7 +96,13 @@ __PACKAGE__->table("site");
   default_value: 12
   is_nullable: 0
 
-=head2 is_supporter
+=head2 build_priority
+
+  data_type: 'integer'
+  default_value: 1
+  is_nullable: 0
+
+=head2 can_change_domain
 
   data_type: 'boolean'
   default_value: false
@@ -123,9 +135,11 @@ __PACKAGE__->add_columns(
   "domain",
   { data_type => "citext", is_nullable => 0 },
   "max_static_file_count",
-  { data_type => "integer", default_value => 10, is_nullable => 0 },
+  { data_type => "integer", default_value => 100, is_nullable => 0 },
   "max_static_file_size",
   { data_type => "integer", default_value => 2, is_nullable => 0 },
+  "max_static_webroot_size",
+  { data_type => "integer", default_value => 50, is_nullable => 0 },
   "max_markdown_file_count",
   { data_type => "integer", default_value => 20, is_nullable => 0 },
   "minutes_wait_after_build",
@@ -134,7 +148,9 @@ __PACKAGE__->add_columns(
   { data_type => "integer", default_value => 3, is_nullable => 0 },
   "builds_per_day",
   { data_type => "integer", default_value => 12, is_nullable => 0 },
-  "is_supporter",
+  "build_priority",
+  { data_type => "integer", default_value => 1, is_nullable => 0 },
+  "can_change_domain",
   { data_type => "boolean", default_value => \"false", is_nullable => 0 },
   "is_enabled",
   { data_type => "boolean", default_value => \"true", is_nullable => 0 },
@@ -202,8 +218,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-02-18 16:00:21
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:J+OMaN5oUHs157y7p5odkA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-02-20 10:20:49
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XUyF5dfe8Hfav5Lmb0BztA
 
 use DateTime;
 
