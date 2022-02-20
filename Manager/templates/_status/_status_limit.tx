@@ -1,0 +1,12 @@
+<!-- begin _status_limit.tx -->
+<p>
+    <span class="[% $is_over_limit == 1 ? 'text-danger' : 'text-success' %]">
+%%      if ( $is_over_limit ) {
+%%          include '_svg/exclaim.tx'
+%%      } else { 
+%%          include '_svg/checkmark.tx'
+%%  }
+    </span>
+    <strong>[% $message %]</strong>
+</p>
+<!-- end _status_limit.tx -->

@@ -1,0 +1,16 @@
+<!-- Begin templates/_status_milestone.tx -->
+<div class="card mb-4">
+    <div class="card-header">
+%%  if ( $milestone.is_complete == 1 ) {
+        <!-- Done          -->
+        <span class="text-success" >
+%%         include '_svg/checkmark.tx'
+        </span>
+%% } else {
+        <!-- In Progress   -->
+%%      include '_svg/loading.tx'
+%%  }
+        [% $milestone.text %]
+    </div>
+</div>
+<!-- End templates/_status_milestone.tx -->
