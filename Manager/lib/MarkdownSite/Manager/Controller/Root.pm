@@ -33,7 +33,10 @@ sub post_import ( $c ) {
             return;
         }
 
-        my $job_id = $c->minion->enqueue( build_markdownsite => [ $site->id ] => { notes => { '_mds_sid_' . $site->id => 1 } } );
+        my $job_id = $c->minion->enqueue( build_markdownsite => [ $site->id ] => {
+            notes    => { '_mds_sid_' . $site->id => 1 },
+            priority => $site->build_priority,
+        });
         $site->create_related( 'builds', { job_id => $job_id } );
         $c->redirect_to( $c->url_for( 'show_status', { id => $site->id  } ) );
         return;
@@ -59,7 +62,10 @@ sub post_import ( $c ) {
     
 
     # Send off the job to import the markdownsite.
-    my $id = $c->minion->enqueue( build_markdownsite => [ $site->id ] => { notes => { '_mds_sid_' . $site->id => 1 } } );
+    my $id = $c->minion->enqueue( build_markdownsite => [ $site->id ] => { 
+        notes    => { '_mds_sid_' . $site->id => 1 },
+        priority => $site->build_priority,
+    });
     
     # Create a build record in the database for the site.
     $site->create_related( 'builds', { job_id => $id } );

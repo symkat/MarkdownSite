@@ -139,11 +139,18 @@ sub register ( $self, $app, $config ) {
             $site->update;
 
             # Queue a minion job to purge the current website, associate it with the site builds..
-            my $remove_mds_id = $job->app->minion->enqueue( remove_markdownsite => [ $settings->{old_domain} ] => { notes => { '_mds_sid_' . $site->id => 1 } } );
+            my $remove_mds_id = $job->app->minion->enqueue( remove_markdownsite => [ $settings->{old_domain} ] => {
+                notes    => { '_mds_sid_' . $site->id => 1 },
+                priority => $site->build_priority,
+            });
             $site->create_related( 'builds', { job_id => $remove_mds_id } );
 
-            # Queue a job to build this site, and then exit this job.
-            my $build_mds_id = $job->app->minion->enqueue( build_markdownsite => [ $site->id ] => { notes => { '_mds_sid_' . $site->id => 1 } });
+            # Queue a job to build this site after the first has been removed. Then exit this job - we're done.
+            my $build_mds_id = $job->app->minion->enqueue( build_markdownsite => [ $site->id ] => { 
+                notes    => { '_mds_sid_' . $site->id => 1 },
+                priority => $site->build_priority,
+                parents  => [ $remove_mds_id ],
+            });
             $site->create_related( 'builds', { job_id => $build_mds_id } );
 
             push @logs, "Domain name updated -- scheduling new jobs for purge/import and returning.";
