@@ -118,8 +118,11 @@ sub register ( $self, $app, $config ) {
         # The domain name in the user's repo is different than the site's configuration,
         # check if the user is a sponser and if so, remap their domain.
         if ( exists $settings->{old_domain} ) {
-            # TODO:
-            # check site.is_sponser -> return if false
+            # check that the site is allowed to customize its domain name.
+            if ( ! $site->can_change_domain ) {
+                $job->fail( { error => "Domain setting found, however this site may not change domain names.", logs => \@logs });
+                return;
+            }
 
             # check that domain is a valid domain -> return if false
             if ( $settings->{domain} !~ /^((?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+[A-Za-z]{2,6}$/ ) {
@@ -194,8 +197,8 @@ sub register ( $self, $app, $config ) {
 
                 $total_file_size += $file->stat->size;
 
-                # TODO - Make this a site.max_static_webroot_size
-                if ( $total_file_size >= ( 50 * 1024 * 1024 ) ) {
+                # If the total file size exceeds the max_static_webroot_size, fail the job.
+                if ( $total_file_size >= ( $site->max_static_webroot_size * 1024 * 1024 ) ) {
                     $job->fail( {
                         error => "This site may have up to 50 MiB in static files, however the webroot exceeds this limit.",
                         logs => \@logs
