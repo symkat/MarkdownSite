@@ -112,13 +112,13 @@
                 </div>
             </div>
 %%          } elsif ( $job.state == 'inactive' ) {
-%% #
-%% # TODO - The build record isn't made when the job is queued, but during its execution so we don't 
-%% #        actually have these.... fix that.... think about how.  Maybe we change build to jobs and 
-%% #        then create the record at the time the job is scheduled, or decide the job iterator works.
-%% #        
             <div class="card mb-4 alert-warning">
-                <div class="card-header">Build [% $build.id %] pending build.  (Queued: [% $build.date %])</div>
+                <div class="card-header">
+                    <div class="spinner-grow spinner-grow-sm" role="status">
+                        <span class="visually-hidden">Waiting...</span>
+                    </div>
+                    Build [% $build.id %] pending build.  (Queued: [% $build.date %])
+                </div>
             </div>
 %%          } elsif ( $job.state == 'failed' ) {
             <div class="card mb-4 alert-danger">
