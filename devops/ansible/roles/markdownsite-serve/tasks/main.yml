@@ -43,6 +43,14 @@
     group: root
     mode: 0644
 
+- name: Install /etc/lighttpd/rewrite.lua
+  copy:
+    dest: /etc/lighttpd/rewrite.lua
+    src: "{{ role_path }}/files/rewrite.lua"
+    owner: root
+    group: root
+    mode: 0644
+
 - name: Create /etc/lighttpd/conf.d
   file:
     state: directory
