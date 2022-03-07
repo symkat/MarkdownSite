@@ -1,0 +1,61 @@
+---
+- name: "Install /tmp/carbon-1.1.8.tar.gz"
+  get_url:
+    url: https://pkgs.frameworkhosting.com/carbon-1.1.8.tar.gz
+    dest: "/tmp/carbon-1.1.8.tar.gz"
+    checksum: sha256:88040b06ff50d111c7b237b4fedbc90173c51c3be7b66dda5a2369165c11df47
+
+- name: "Install /tmp/whisper-1.1.8.tar.gz"
+  get_url:
+    url: https://pkgs.frameworkhosting.com/whisper-1.1.8.tar.gz
+    dest: "/tmp/whisper-1.1.8.tar.gz"
+    checksum: sha256:55ee34e28fc49706f2874ecff19ad22b83b57421f0fa4b05b80c6d739232900b
+
+- name: "Unpack Carbon"
+  shell: tar -C /tmp -xf /tmp/carbon-1.1.8.tar.gz
+
+- name: "Unpack Whisper"
+  shell: tar -C /tmp -xf /tmp/whisper-1.1.8.tar.gz
+
+- name: "Install Carbon"
+  shell: python3 setup.py install
+  args:
+    chdir: /tmp/carbon-1.1.8
+
+- name: "Install Whisper"
+  shell: python3 setup.py install
+  args:
+    chdir: /tmp/whisper-1.1.8
+
+- name: "Install /opt/graphite/conf/carbon.conf"
+  copy:
+    dest: "/opt/graphite/conf/carbon.conf"
+    src: "{{ role_path }}/files/graphite/carbon.conf"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Install /opt/graphite/conf/storage-schemas.conf"
+  copy:
+    dest: "/opt/graphite/conf/storage-schemas.conf"
+    src: "{{ role_path }}/files/graphite/storage-schemas.conf"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Add the carbon.service file."
+  copy:
+    dest: "/etc/systemd/system/carbon.service"
+    src: "{{ role_path }}/files/graphite/carbon.service"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Ensure permissions on /opt/graphite/storage/
+  shell: chown -R graphite:graphite /opt/graphite/storage/
+
+- name: Start & Enable carbon
+  service:
+    name: nginx
+    enabled: true
+    state: restarted
