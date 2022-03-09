@@ -1,0 +1,74 @@
+---
+- name: Update all packages to their latest version
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+
+- name: Install packages
+  apt:
+    name: [
+       'lbzip2',
+       'libcurl4-openssl-dev',
+       'libgcrypt20-dev',
+       'build-essential',
+    ]
+    state: present
+
+- name: "Install /tmp/collectd-5.12.0.tar.bz2"
+  get_url:
+    url: https://pkgs.frameworkhosting.com/collectd-5.12.0.tar.bz2
+    dest: "/tmp/collectd-5.12.0.tar.bz2"
+    checksum: sha256:5bae043042c19c31f77eb8464e56a01a5454e0b39fa07cf7ad0f1bfc9c3a09d6
+
+- name: "Unpack CollectD"
+  shell: tar -C /tmp -xf /tmp/collectd-5.12.0.tar.bz2
+
+- name: "Configure CollectD"
+  shell: ./configure
+  args:
+    chdir: /tmp/collectd-5.12.0
+
+- name: "Install CollectD"
+  shell: make all install
+  args:
+    chdir: /tmp/collectd-5.12.0
+
+- name: "Add /opt/collectd/etc/collectd.conf"
+  copy:
+    dest: "/opt/collectd/etc/collectd.conf"
+    src: "{{ role_path }}/files/collectd/collectd.conf"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Add the collectd.service file."
+  copy:
+    dest: "/etc/systemd/system/collectd.service"
+    src: "{{ role_path }}/files/collectd/collectd.service"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Ensure /opt/collectd/auth_file
+  file:
+    state: touch
+    path: /opt/collectd/auth_file
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Add credentials to /opt/collectd/auth_file"
+  lineinfile:
+    path: /opt/collectd/auth_file
+    line: "{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  with_items: "{{ config.insight.collectd_auth }}"
+
+- name: "Start & enable collectd"
+  service:
+    name: collectd
+    enabled: true
+    state: restarted
