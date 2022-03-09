@@ -37,3 +37,8 @@
     name: grafana-server
     enabled: true
     state: restarted
+
+- name: Restart nginx
+  service:
+    name: nginx
+    state: restarted

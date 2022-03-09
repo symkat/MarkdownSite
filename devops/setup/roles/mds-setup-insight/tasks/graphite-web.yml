@@ -90,12 +90,6 @@
     enabled: true
     state: restarted
 
-- name: Start & Enable grafana
-  service:
-    name: grafana-server
-    enabled: true
-    state: restarted
-
 - name: Start & Enable nginx
   service:
     name: nginx

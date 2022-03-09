@@ -56,6 +56,6 @@
 
 - name: Start & Enable carbon
   service:
-    name: nginx
+    name: carbon
     enabled: true
     state: restarted
