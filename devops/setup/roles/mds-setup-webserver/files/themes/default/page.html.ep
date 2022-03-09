@@ -1,0 +1,8 @@
+<HTML>
+<HEAD>
+<TITLE><%= $md->{title} %></TITLE>
+</HEAD>
+<BODY>
+%== $md->{body}
+</BODY>
+</HTML>

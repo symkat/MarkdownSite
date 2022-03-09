@@ -1,0 +1,15 @@
+---
+- name: "Remove /etc/lighttpd/conf.d/{{ domain }}."
+  file:
+    path: "/etc/lighttpd/conf.d/{{ domain }}"
+    state: absent
+
+- name: "Remove any prexisting /var/www/{{ domain }}."
+  file:
+    path: "/var/www/{{ domain }}"
+    state: absent
+
+- name: "Reload lighttpd to stop serving {{ domain }}."
+  systemd:
+    name: lighttpd
+    state: reloaded
