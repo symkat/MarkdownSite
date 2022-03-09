@@ -75,6 +75,9 @@ ssh root@45.33.35.224
 certbot --nginx -d markdownsite.com -d www.markdownsite.com -n --agree-tos --email 
 ```
 
+
+
+
 ## Testing The Setup
 
 
@@ -86,4 +89,12 @@ The database can be clean reset with the panel-reset-db.yml playbook.
 ansible-playbook -i '45.33.35.224,' panel-reset-db.yml
 ```
 
+## Backing up Grafana
+
+Login to the server and stop the service with `systemctl stop grafana-server`, and then download the `/var/lib/grafana/grafana.db` file.
+
+## Restoring Grafana From Backup
+
+
+Login to the server and stop the service with `systemctl stop grafana-server`, and then upload the database backup to `/var/lib/grafana/grafana.db` and restart with `systemctl start grafana-server`.
 
