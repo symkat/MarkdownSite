@@ -1,0 +1,8 @@
+---
+- name: Config Management For MarkdownSite
+  remote_user: root
+  hosts: all
+  vars:
+    ansible_ssh_common_args: -oControlMaster=auto -oControlPersist=60s -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no
+  roles:
+    - mds-collectd

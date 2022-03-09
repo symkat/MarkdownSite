@@ -1,0 +1,55 @@
+---
+- name: Install packages
+  apt:
+    name: [
+       'lbzip2',
+       'libcurl4-openssl-dev',
+       'libgcrypt20-dev',
+       'build-essential',
+    ]
+    state: present
+
+- name: "Download collectd-5.12.0.tar.bz2"
+  get_url:
+    url: https://pkgs.frameworkhosting.com/collectd-5.12.0.tar.bz2
+    dest: "/usr/local/src/collectd-5.12.0.tar.bz2"
+    checksum: sha256:5bae043042c19c31f77eb8464e56a01a5454e0b39fa07cf7ad0f1bfc9c3a09d6
+
+- name: "Unpack CollectD"
+  shell: tar -C /usr/local/src -xf /usr/local/src/collectd-5.12.0.tar.bz2
+  args:
+    creates: /usr/local/src/collectd-5.12.0.tar.bz2
+
+- name: "Configure CollectD"
+  shell: ./configure
+  args:
+    chdir: /usr/local/src/collectd-5.12.0
+    creates: /usr/local/src/collectd-5.12.0/config.status
+
+- name: "Install CollectD"
+  shell: make all install
+  args:
+    chdir: /usr/local/src/collectd-5.12.0
+    creates: /opt/collectd/sbin/collectd
+
+- name: "Setup /opt/collectd/etc/collectd.conf"
+  template:
+    src: "{{ role_path }}/templates/collectd.conf.j2"
+    dest: /opt/collectd/etc/collectd.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Add the collectd.service file."
+  copy:
+    dest: "/etc/systemd/system/collectd.service"
+    src: "{{ role_path }}/files/collectd.service"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Start & enable collectd"
+  service:
+    name: collectd
+    enabled: true
+    state: restarted
