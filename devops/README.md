@@ -44,7 +44,9 @@ flowchart TB
     end
 ```
 
-The following guides explain the relationships in various situations.
+Below a few graphs will show the interaction of these components to for handling various types of events.
+
+<hr />
 
 ### Handle request to build repository
 
