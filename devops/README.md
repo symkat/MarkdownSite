@@ -81,6 +81,8 @@ flowchart TB
     b1 --  STEP 6: Minion deploys webroot, config, reloads lighty--> three
 ```
 
+<hr />
+
 ### Handle request to serve website
 
 #### If the file exists, the following path will be taken:
