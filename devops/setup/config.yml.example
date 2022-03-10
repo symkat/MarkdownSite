@@ -1,0 +1,122 @@
+# This section defines where to find the MarkdownSite packages.  They are downloaded
+# and then installed on various machine types.  If you would like to host them yourself,
+# update this section.
+markdownsite:
+  mds_cgi_module:        https://pkgs.frameworkhosting.com/MarkdownSite-CGI-0.001.tar.gz
+  mds_manager_module:    https://pkgs.frameworkhosting.com/MarkdownSite-Manager-0.001.tar.gz
+  mds_manager_db_module: https://pkgs.frameworkhosting.com/MarkdownSite-Manager-DB-1.tar.gz
+
+# The panel server hosts the postgresql database.
+#
+# This section is used to configure the panel server and will install
+# the users and setup the passwords.
+#
+# This section is also used to configure the markdownsite.yml config
+# file that tells build nodes where the minion database is, and tells
+# markdownsite where the markdownsite database is.
+#
+# Each allow_address is added to the pg_hba file so the hosts can
+# access the database.
+#
+# The bind key is used to additionally bind psql to another address,
+# this should be used to allow the build servers to connect.
+database:
+  allow_addresses:
+    - address: .....
+    - address: .....
+  bind: ..........
+  markdownsite:
+    user: .....
+    pass: ................................................
+    host: .........
+    name: markdownsite
+  minion:
+    user: .....
+    pass: ................................................
+    host: .........
+    name: minion
+
+deploy_address: 192.168.143.35
+
+# The IP address or hostname for the webserver-XX nodes, this
+# will be used by the build machines to deploy websites to the
+# network.  Each address will have the website deployed to it.
+deploy_addresses: 
+    - ..............
+    - ..............
+
+
+# The configuration for the insight server.
+#
+# insight.basic_auth is used for graphite-web access,
+#       you can generate username/password strings with the following:
+#       $ apt-get install apoache2-utils
+#       $ htpasswd -n user
+# 
+#       You will be prompted for a password and then a username/password
+#       combo will be printed.  Add that to basic_auth.
+#
+# insight.collectd_auth is used for collectd <-> collectd access
+#       The schema is 'user: password' in cleartext.  The values here
+#       will be used later to configure collectd nodes to connect to
+#       the insight server.  You should use one username/password set
+#       per server.
+# insight.graphite.secret_key -- random string for graphite config
+#
+# insight.graphite.domain     -- domain for graphite (nginx config)
+# insight.grafana.domain      -- domain for grafana (nginx config)
+#
+insight:
+  basic_auth: 
+    - 'admin:$apr1$Kdf5CUsG$7Oa30.pZC4bsE6FqeIZ3E/'
+    - ........
+  collectd_auth:
+    - 'panel: somePassWord'
+    - 'build-01: someOtherrPassWord'
+    - .............
+  graphite:
+    secret_key: ....................................................................
+    domain: graphite.markdownsite.com
+  grafana:
+    domain: grafana.markdownsite.com
+
+# The configuration for the panel.
+#
+# panel.domain            - domain name for serving the panel
+# panel.use_plausible     - enable configs for plausable
+# panel.markdownsite_repo - Configure where to checkout the MarkdownSite
+#                           repo, the panel is served directly from
+#                           markdownsite/manager, rather than the packaged
+#                           version.
+panel:
+  domain: markdownsite.com
+  use_plausible: 1
+  markdownsite_repo: git@github.com:symkat/MarkdownSite.git
+
+#
+# SSH Keys -- The ansible key is used between build <-> webservers for deploying
+#             the website.
+#             The deploy key is used between build <-> user repos for cloning,
+#             and the public key is given to users to give MarkdownSite access
+#             to their repos.
+#
+#             The new line between the private keys is required.
+#
+sshkeys:
+  ansible_private: |
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    ......................................................................
+    ......................................................................
+    ......................................................................
+    -----END OPENSSH PRIVATE KEY-----
+
+  deploy_private: |
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    ......................................................................
+    ......................................................................
+    ......................................................................
+    -----END OPENSSH PRIVATE KEY-----
+
+  ansible_public: "ssh-rsa AAAIQ== MarkdownSite Ansible Key"
+  deploy_public: "ssh-rsa AAAjQ== MarkdownSite Access Key"
+
