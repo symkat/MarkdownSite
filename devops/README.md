@@ -100,7 +100,7 @@ flowchart TB
     z3[Yes] --> z4[Serve Static File]
 ```
 
---
+<hr />
 
 #### If the file does not exist, the following path will be taken:
 
