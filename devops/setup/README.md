@@ -102,7 +102,7 @@ Consider the following network, called mysite.com where sites are hosted under s
 If one wanted to build this, after having written `config.yml`, the following commands would do so:
 
 ```bash
-./setup mds-setup-insight h12j4.somehost.com insight.mysite.com
+./setup mds-setup-insight h12j3.somehost.com insight.mysite.com
 
 ./setup mds-setup-panel 192.168.150 panel.mysite.com
 
