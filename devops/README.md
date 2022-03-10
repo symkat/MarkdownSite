@@ -81,7 +81,7 @@ flowchart TB
 
 ### Handle request to serve website
 
-If the file exists, the following path will be taken:
+#### If the file exists, the following path will be taken:
 
 ```mermaid
 flowchart TB
@@ -100,7 +100,9 @@ flowchart TB
     z3[Yes] --> z4[Serve Static File]
 ```
 
-If the file does not exist, the following path will be taken:
+--
+
+#### If the file does not exist, the following path will be taken:
 
 ```mermaid
 flowchart TB
@@ -121,24 +123,6 @@ flowchart TB
     z4 -- "STEP 4: Store markdownsite.cgi HTML body as<br>/var/www/foo.markdownsite.net/html/index.html<br>so future requests are served from disk."
     --> z5["Serve content to end user"]
     c2 --> z6[No] --> z7[Serve HTTP 404 to end user]
-```
-
-
-certbot --nginx -d markdownsite.com -d www.markdownsite.com -n --agree-tos --email youATdomain.com
-```
-
-
-
-
-## Testing The Setup
-
-
-## Resetting the DB
-
-The database can be clean reset with the panel-reset-db.yml playbook.
-
-```bash
-ansible-playbook -i '45.33.35.224,' panel-reset-db.yml
 ```
 
 ## Backup & Restore
