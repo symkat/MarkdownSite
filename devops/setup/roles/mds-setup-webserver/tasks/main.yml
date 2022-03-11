@@ -21,6 +21,7 @@
       'libpq-dev',
       'libpcre2-dev',
        'liblua5.4-dev',
+       'python3-certbot-dns-linode',
     ]
     state: present
 
@@ -38,7 +39,7 @@
   shell: tar -C /tmp -xf /tmp/lighttpd-1.4.64.tar.gz
 
 - name: "Configure Lighttpd"
-  shell: ./configure --with-lua
+  shell: ./configure --with-lua --with-openssl
   args:
     chdir: /tmp/lighttpd-1.4.64
 

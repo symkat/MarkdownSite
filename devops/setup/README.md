@@ -124,6 +124,40 @@ One would add the following DNS records (using the IP for h12j3.somehost.com and
 
 In this way, graphite and grafana are hosted on their own subdomains, and all subdomains for myhostingside.com resolve to the webserver-01 node.  Folks on the private network can access the panel node to add markdownsites, but it isn't on the public internet.  You could put them all on the Internet, or host them all on a private network, or whatever combination works for you.
 
+### Enable SSL
+
+The servers are setup, however there is no SSL yet.
+
+To configure SSL on the panel, login as root and run the following:
+
+```bash
+certbot --nginx -d markdownsite.com -d www.markdownsite.com -n --agree-tos --email youATdomain.com
+```
+
+Replace `markdownsite.com` and `www.markdownsite.com` with the domain that you are using for the panel.
+
+Then -- this assumes you use Linode DNS and have generated an API key for DNS changes -- on the webserver, create a credentials file:
+
+`/etc/letsencrypt/.credentials`
+```ini
+dns_linode_key = ......................................................
+dns_linode_version = 4
+```
+
+Once you have done this, run the following:
+
+```bash
+certbot certonly -d 'markdownsite.net' -d '*.markdownsite.net' \
+    --agree-tos --dns-linode --non-interactive                 \
+    --register-unsafely-without-email                          \
+    --dns-linode-credentials /etc/letsencrypt/.credentials     \
+    --dns-linode-propagation-seconds 180
+```
+
+Replace `markdownsite.net` and `*.markdownsite.net` with the host you have choosen to use for hosting.
+
+Finally, the build server has the file `/etc/ansible/roles/deploy-website/templates/lighttpd-conf-domain.j2` and this should be updated with the correct path for the SSL certificate.  Alternatively, you can edit that file in the mds-setup=build role and reconfigure the server with ansible.
+
 ### Enable Monitoring & Metrics
 
 Once the network is setup, collectd is left unconfigured.  This is because machines may be added or removed from the network, and the job of configuring collectd on an on-going basis is more for configuration management than for one-shot setups like this directory.

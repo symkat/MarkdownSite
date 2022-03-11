@@ -79,6 +79,7 @@ flowchart TB
 
     b1 <-- STEP 5: Minion worker gets job --> a1
     b1 --  STEP 6: Minion deploys webroot, config, reloads lighty--> three
+
 ```
 
 <hr />
