@@ -15,7 +15,7 @@
                         </a>
                     </div>
                     <div class="col-lg-4 mb-5 mb-lg-0">
-                        <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-building"></i></div>
+                        <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-markdown"></i></div>
                         <h2 class="h4 fw-bolder">Native Markdown Support</h2>
                         <p>
                             No HTML/CSS/JS -- Just write markdown files in <span style="font-family: monospace">site/</span> and they will be turned into a website.
@@ -27,7 +27,7 @@
                         </a>
                     </div>
                     <div class="col-lg-4">
-                        <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-toggles2"></i></div>
+                        <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-diagram-3-fill"></i></div>
                         <h2 class="h4 fw-bolder">Your Own MarkdownSite</h2>
                         <p>
                             MarkdownSite is an open-source project.  Installation documents, dev/ops tools, network diagrams, and code is freely available.
