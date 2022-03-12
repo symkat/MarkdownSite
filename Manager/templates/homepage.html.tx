@@ -55,11 +55,11 @@
                                 
                                 <div style="margin-top: 1em"></div>
                                 
-                                <a href="#!" ><img class="img-fluid" src="https://blogdb.org/screenshots/xZZz1tPCH2.jpg"></a>
+                                <a target="_blank" href="https://mds-example.markdownsite.net/" ><img class="img-fluid" src="/img/mds-markdownsite.jpg"></a>
                                 
                                 <div style="margin-top: 1em"></div>
                                 
-                                <div class="d-grid"><a class="btn btn-outline-primary" href="#!">See Repository</a></div>
+                                <div class="d-grid"><a class="btn btn-outline-primary" href="https://github.com/symkat/mds-example.markdownsite.net">See Repository</a></div>
                                 
                                 <div style="margin-top: 1em"></div>
 
@@ -75,7 +75,7 @@
                                 
                                 <div style="margin-top: 1em"></div>
                                 
-                                <a target="_blank" href="http://hugo-example.markdownsite.net/" ><img class="img-fluid" src="/img/hugo-markdownsite.jpg"></a>
+                                <a target="_blank" href="https://hugo-example.markdownsite.net/" ><img class="img-fluid" src="/img/hugo-markdownsite.jpg"></a>
                                 
                                 <div style="margin-top: 1em"></div>
                                 
@@ -95,7 +95,7 @@
                                 
                                 <div style="margin-top: 1em"></div>
                                 
-                                <a target="_blank" href="http://os-example.markdownsite.net/" ><img class="img-fluid" src="/img/os-markdownsite.jpg"></a>
+                                <a target="_blank" href="https://os-example.markdownsite.net/" ><img class="img-fluid" src="/img/os-markdownsite.jpg"></a>
                                 
                                 <div style="margin-top: 1em"></div>
                                 
