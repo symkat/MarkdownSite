@@ -212,7 +212,7 @@ LoadPlugin network
 #LoadPlugin tail
 #LoadPlugin tail_csv
 ##LoadPlugin tape
-#LoadPlugin tcpconns
+LoadPlugin tcpconns
 #LoadPlugin teamspeak2
 #LoadPlugin ted
 #LoadPlugin thermal
@@ -1836,12 +1836,13 @@ LoadPlugin network
 #   </File>
 #</Plugin>
 
-#<Plugin tcpconns>
-#	ListeningPorts false
-#	AllPortsSummary false
-#	LocalPort "25"
-#	RemotePort "25"
-#</Plugin>
+<Plugin tcpconns>
+	ListeningPorts false
+	AllPortsSummary false
+	LocalPort "22"
+	LocalPort "80"
+	LocalPort "443"
+</Plugin>
 
 #<Plugin teamspeak2>
 #	Host "127.0.0.1"
