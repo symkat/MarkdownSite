@@ -75,15 +75,15 @@
                                 
                                 <div style="margin-top: 1em"></div>
                                 
-                                <a href="#!" ><img class="img-fluid" src="https://blogdb.org/screenshots/xZZz1tPCH2.jpg"></a>
+                                <a target="_blank" href="http://hugo-example.markdownsite.net/" ><img class="img-fluid" src="/img/hugo-markdownsite.jpg"></a>
                                 
                                 <div style="margin-top: 1em"></div>
                                 
-                                <div class="d-grid"><a class="btn btn-outline-primary" href="#!">See Repository</a></div>
+                                <div class="d-grid"><a class="btn btn-outline-primary" target="_blank" href="https://github.com/symkat/hugo-example.markdownsite.net">See Repository</a></div>
 
                                 <div style="margin-top: 1em"></div>
 
-                                <p>This example uses <a href="">Hugo</a> to create the website.</p>
+                                <p>This example uses <a href="https://gohugo.io/">Hugo</a> to create the website.</p>
                             </div>
                         </div>
                     </div>
@@ -95,15 +95,15 @@
                                 
                                 <div style="margin-top: 1em"></div>
                                 
-                                <a href="#!" ><img class="img-fluid" src="https://blogdb.org/screenshots/xZZz1tPCH2.jpg"></a>
+                                <a target="_blank" href="http://os-example.markdownsite.net/" ><img class="img-fluid" src="/img/os-markdownsite.jpg"></a>
                                 
                                 <div style="margin-top: 1em"></div>
                                 
-                                <div class="d-grid"><a class="btn btn-outline-primary" href="#!">See Repository</a></div>
+                                <div class="d-grid"><a class="btn btn-outline-primary" target="_blank" href="https://github.com/symkat/os-example.markdownsite.net">See Repository</a></div>
                                 
                                 <div style="margin-top: 1em"></div>
 
-                                <p>This example uses raw html &amp; css to create the website.</p>
+                                <p>This example uses raw html, css, and some static images to create a website.</p>
                             </div>
                         </div>
                     </div>

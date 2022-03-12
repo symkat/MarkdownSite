@@ -75,7 +75,7 @@ sub register ( $self, $app, $config ) {
             $repo_yaml = YAML::LoadFile( "$build_dir/src/.markdownsite.yml" );
         }
 
-        $repo_yaml->{webroot} ||= 'webroot';
+        $repo_yaml->{webroot} ||= 'public';
         $repo_yaml->{site}    ||= 'site';
         $repo_yaml->{branch}  ||= 'master';
         $repo_yaml->{domain}  ||= $site->domain;
