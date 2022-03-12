@@ -1,18 +1,28 @@
-# MarkdownSite - Create a website from a git repo in one click.
-
 ![MarkdownSite Homepage](https://markdownsite.com/img/markdownsite.jpg)
 
-This is the codebase for [MarkdownSite](https://markdownsite.com/), an open-source hosting platform for static sites and markdown files.
+**This is the codebase for [MarkdownSite](https://markdownsite.com/), an open-source hosting platform for static sites and markdown files.**
 
 ## What Is MarkdownSite?
 
+MarkdownSite is a platform for hosting websites.
 
+People who want their websites hosted enter a git url for their repository.
+
+MarkdownSite downloads their repo and turns anything in `public/` into a static website hosted at a random subdomain.
+
+Anything MarkdownSite finds in `site/` that is an `.md` file will be rendered as HTML.
+
+Once MarkdownSite downloads and builds the website, it is sent to one or more webservers and accepts traffic from the Internet.
 
 ## How do I use MarkdownSite?
 
+You can use [MarkdownSite](https://markdownsite.com/) to host a website.
 
+You can build your own version of MarkdownSite to host as many websites as you want on your own infrastructure.  See the `devops/` directory for instructions on getting an instance running.
 
 ## Understanding MarkdownSite
+
+This is a birds-eye view of a three-node setup.
 
 ```mermaid
 flowchart TB
@@ -29,7 +39,7 @@ flowchart TB
     b2[MarkdownSite::Manager Worker]
     b2 <-- PSQL Private IP --> a1
     end
-    subgraph three[Serve Node]
+    subgraph three[WebServer Node]
     c1[Lighttpd]
     c2[Static Files]
     c3[MarkdownSite::CGI]
@@ -61,7 +71,6 @@ When one uses list-stes they will get a listing of the websites:
 ```bash
 manager@panel:~/markdownsite$ mds-manager list-sites
 ID   Domain                           Repository
-1    foobar.markdownsite.net          git@gitea.simcop2387.info:MarkdownSite/foobar.markdownsite.net.git
 4    vcbodxru.markdownsite.net        https://github.com/Perl/perl5.git
 2    os-example.markdownsite.net      git@github.com:symkat/os-example.markdownsite.com.git
 3    hugo-example.markdownsite.net    git@github.com:symkat/hugo.markdownsite.net.git
