@@ -14,7 +14,7 @@
         <link href="/css/styles.css" rel="stylesheet" />
     </head>
     <body>
-%%      include '_nav.tx' { nav_selected => 'home' }
+%%      include '_nav.tx' { nav_selected => 'contact' }
 
         <!-- Header-->
         <header class="bg-dark py-5">
@@ -22,15 +22,7 @@
                 <div class="row gx-5 justify-content-center">
                     <div class="col-lg-6">
                         <div class="text-center my-5">
-                            <h1 class="display-5 fw-bolder text-white mb-2">Create a website from a git repo in one click.</h1>
-                            <div class="card-body"> 
-                                <form method="post" action="[% $c.url_for( 'do_import' ) %]">
-                                    <div class="input-group">
-                                        <input class="form-control" name="repo" type="text" placeholder="Git Repo URL (git@... https://...)" aria-label="Enter git repo url" aria-describedby="button-add" />
-                                        <button class="btn btn-primary" id="button-add" type="submit">Build my site!</button>
-                                    </div>
-                                </form>
-                            </div>
+                            <h1 class="display-5 fw-bolder text-white mb-2">MarkdownSite Docs</h1>
                         </div>
                     </div>
                 </div>

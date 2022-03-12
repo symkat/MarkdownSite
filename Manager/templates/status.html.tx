@@ -1,166 +1,247 @@
-%%  cascade layout { title => $site.domain ~ ' status',
-%%      header_title => $site.domain ~ ' status'
-%%  }
-
-%%  override sidebar_top -> {
-    <div class="card mb-4">
-        <div class="card-header">Information</div>
-        <div class="card-body">
-            <p>Domain: <a target="_blank" href="http://[% $site.domain %]/">[% $site.domain %]</a></p>
-            <p>Repo: [% $site.repo %]</p>
-            <hr />
-            <form method="post" action="[% $c.url_for( 'do_import' ) %]">
-                <div class="input-group">
-                    <input type="hidden" name="repo" value="[% $site.repo %]">
-                    <button class="btn btn-primary" id="button-add" type="submit">Rebuild</button>
-                </div>
-            </form>
-            <hr />
-            <p><strong>Command Line Rebuild</strong></p>
-            <p style="font-family: monospace">curl -XPOST -d'repo=[% $site.repo %]' https://markdownsite.com/import</p>
-
-        </div>
-    </div>
-    <div class="card mb-4">
-        <div class="card-header">Limits</div>
-        <div class="card-body">
-
-%%          my $sba = $site.get_build_allowance
-            
-%%          include '_status/_status_limit.tx' { message => 'Building allowed', is_over_limit => ! $sba.can_build }
-<hr />
-%%          include '_status/_status_limit.tx' { message => 'Minutes Between Builds', is_over_limit => ! $sba.wait_minutes.can_build }
-%%          include '_status/_status_limit.tx' { message => 'Builds Per Hour',        is_over_limit => ! $sba.builds_over_hour.can_build }
-%%          include '_status/_status_limit.tx' { message => 'Builds Per Day',         is_over_limit => ! $sba.builds_over_day.can_build }
-
-
-        </div>
-    </div>
-%% }
-
-%%  override begin_html_head -> {
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>MarkdownSite - Manage [% $site.domain %]</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <!-- Bootstrap icons-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="/css/styles.css" rel="stylesheet" />
 %%      if ( $c.minion.jobs({ states => [ 'inactive', 'active' ], notes => [ '_mds_sid_' ~ $site.id ] } ).total >= 1 ) { 
-            <meta http-equiv="refresh" content="2;" />
+        <meta http-equiv="refresh" content="3;" />
 %%      }
-%%  } 
+    </head>
+    <body>
+%%      include '_nav.tx'
 
-%%  override panel -> {
 
-%%      if ( $c.param('reject_job') == 1 ) {
-        <div class="card mb-4 alert alert-danger">
-            <div class="card-header">
-%%              include '_svg/failed.tx'
-                Build Rejected
-            </div>
-            <div class="card-body">
-%%              my $sba = $site.get_build_allowance
-                <p>Rules</p>
-                <ul>
-                    <li>Must wait [% $sba.wait_minutes.required %] between builds.  You have waited [% $sba.wait_minutes.current %] minutes.</li>
-                    <li>In one hour, [% $sba.builds_over_hour.allowed %] builds are allowed.  You have built [% $sba.builds_over_hour.used %] times in that time.</li>
-                    <li>In one day, [% $sba.builds_over_day.allowed %] builds are allowed.  You have built [% $sba.builds_over_day.used %] times in that time.</li>
-                </ul>
+        <section class="py-5 border-bottom" id="features">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8">
+
+%% # Reject Job Panel.
+%%                  if ( $c.param('reject_job') == 1 ) {
+                        <div class="card mb-4 alert alert-danger">
+                            <div class="card-header">
+%%                              include '_svg/failed.tx'
+                                Build Rejected
+                            </div>
+                        <div class="card-body">
+%%                          my $sba = $site.get_build_allowance
+                            <p>Rules</p>
+                            <ul>
+                                <li>Must wait [% $sba.wait_minutes.required %] between builds.  You have waited [% $sba.wait_minutes.current %] minutes.</li>
+                                <li>In one hour, [% $sba.builds_over_hour.allowed %] builds are allowed.  You have built [% $sba.builds_over_hour.used %] times in that time.</li>
+                                <li>In one day, [% $sba.builds_over_day.allowed %] builds are allowed.  You have built [% $sba.builds_over_day.used %] times in that time.</li>
+                            </ul>
+                        </div>
+                    </div>
+%%                  }
+
+
+%% # Job Listings.
+%%                  for $site.get_builds() -> $build {
+%%                  my $job = $c.minion.job($build.job_id).info;
+
+
+%% # Finished Jobs.
+%%                  if ( $job.state == 'finished' ) {
+                    <div class="card mb-4">
+                        <div class="card-header alert-success">
+%%                          include '_svg/checkmark.tx'
+                            Build [% $build.id %] completed successfully.  (Queued: [% $build.date %])
+                            <button class="btn" data-bs-toggle="collapse" data-bs-target="#job_window_[% $job.id %]">
+%%                              include '_svg/chevron.tx'
+                            </button>
+                        </div>
+                        <div id="job_window_[% $job.id %]" class="card-body [% $~build.is_first ?  '' : 'collapse' %]">
+
+%%                          include '_status/_status_milestone.tx' { milestone => { is_complete => $job.notes.is_deploy_complete, text => 'Deploy to Webserver' } }
+
+%%                          include '_status/_status_milestone.tx' { milestone => { is_complete => $job.notes.is_build_complete,  text => 'Build Website' } }
+
+%%                          include '_status/_status_milestone.tx' { milestone => { is_complete => $job.notes.is_clone_complete,  text => 'Clone Repo & Check Settings' } }
+
+                            <hr />
+
+                            <button class="btn" data-bs-toggle="collapse" data-bs-target="#job_log_window_[% $job.id %]">View Logs</button>
+
+                            <div id="job_log_window_[% $job.id %]" class="card-body collapse">
+                                <hr />
+                                <pre>
+%%                              for $job.result -> $line {
+%%                                  $line ~ "\n"
+%%                              }
+                                </pre>
+                            </div>
+                        </div>
+                    </div>
+
+
+%% # Inactive Jobs.
+%%                  } elsif ( $job.state == 'inactive' ) {
+                    <div class="card mb-4 alert-warning">
+                        <div class="card-header">
+                            <div class="spinner-grow spinner-grow-sm" role="status">
+                                <span class="visually-hidden">Waiting...</span>
+                            </div>
+                            Build [% $build.id %] pending build.  (Queued: [% $build.date %])
+                        </div>
+                    </div>
+%%                  } elsif ( $job.state == 'failed' ) {
+                    <div class="card mb-4 alert-danger">
+                        <div class="card-header">
+%%                          include '_svg/failed.tx'
+                            Build Failed
+                        </div>
+                        <div class="card-body">
+
+%%                          include '_status/_status_milestone.tx' { milestone => { is_complete => $job.notes.is_deploy_complete, text => 'Deploy to Webserver' } }
+
+%%                          include '_status/_status_milestone.tx' { milestone => { is_complete => $job.notes.is_build_complete,  text => 'Build Website' } }
+
+%%                          include '_status/_status_milestone.tx' { milestone => { is_complete => $job.notes.is_clone_complete,  text => 'Clone Repo & Check Settings' } }
+                
+                            <div class="card-body">
+                                <hr />
+                                <p>Error Reported: <strong>[% $job.result.error %]</strong></p>
+                                <hr />
+
+                                <pre>
+%%                              for $job.result.logs -> $line {
+%%                                  $line ~ "\n"
+%%                              }
+                                </pre>
+                            </div>
+                        </div>
+                    </div>
+
+
+%% # Active Jobs.
+%%                  } elsif ( $job.state == 'active' ) {
+                    <div class="card mb-4">
+                        <div class="card-header alert-warning">
+                            <div class="spinner-grow spinner-grow-sm" role="status">
+                                <span class="visually-hidden"Building...</span>
+                            </div>
+
+                            Building [% $build.id %].  (Queued: [% $build.date %])
+                        </div>
+                        <div id="job_window_[% $job.id %]" class="card-body [% $~build.is_first ?  '' : 'collapse' %]">
+
+%%                          include '_status/_status_milestone.tx' { milestone => { is_complete => $job.notes.is_deploy_complete, text => 'Deploy to Webserver' } }
+
+%%                          include '_status/_status_milestone.tx' { milestone => { is_complete => $job.notes.is_build_complete,  text => 'Build Website' } }
+
+%%                          include '_status/_status_milestone.tx' { milestone => { is_complete => $job.notes.is_clone_complete,  text => 'Clone Repo & Check Settings' } }
+                        </div>
+                    </div>
+
+
+%% # Unknown Jobs. - Ignore.
+%%                  } else {
+%%                  }
+%%          }
+%% # End Job Listings.
+                    <!-- Panel Block End-->
+                    <div style="height: 4em"></div>
+                </div> 
+                <!-- Side widgets-->
+                <div class="col-lg-4">
+                    <div class="card mb-4">
+                        <div class="card-header">Information</div>
+                        <div class="card-body">
+                            <p>Domain: <a target="_blank" href="http://[% $site.domain %]/">[% $site.domain %]</a></p>
+                            <p>Repo: [% $site.repo %]</p>
+                            <hr />
+                            <form method="post" action="[% $c.url_for( 'do_import' ) %]">
+                                <div class="input-group">
+                                    <input type="hidden" name="repo" value="[% $site.repo %]">
+                                    <button class="btn btn-primary" id="button-add" type="submit">Rebuild</button>
+                                </div>
+                            </form>
+                            <hr />
+                            <p><strong>Command Line Rebuild</strong></p>
+                            <p style="font-family: monospace">curl -XPOST -d'repo=[% $site.repo %]' https://markdownsite.com/import</p>
+
+                        </div>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="card-header">Limits</div>
+                        <div class="card-body">
+%%                          my $sba = $site.get_build_allowance
+            
+%%                          include '_status/_status_limit.tx' { message => 'Building allowed', is_over_limit => ! $sba.can_build }
+                            <hr />
+%%                          include '_status/_status_limit.tx' { message => 'Minutes Between Builds', is_over_limit => ! $sba.wait_minutes.can_build }
+%%                          include '_status/_status_limit.tx' { message => 'Builds Per Hour',        is_over_limit => ! $sba.builds_over_hour.can_build }
+%%                          include '_status/_status_limit.tx' { message => 'Builds Per Day',         is_over_limit => ! $sba.builds_over_day.can_build }
+
+                        </div>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <div class="float-end">
+                                <iframe src="https://github.com/sponsors/symkat/button" title="Sponsor symkat" height="35" width="116" style="border: 0;"></iframe>
+                            </div>
+                            <div class="small text-uppercase fw-bold">
+                                <i class="bi bi-star-fill text-warning"></i>
+                                GitHub Sponser
+                            </div>
+                            <div class="mb-3">
+                                <span class="text-muted">From</span>
+                                <span class="display-8 fw-bold">$6</span>
+                                <span class="text-muted">/ mo.</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-4">
+                                <li class="mb-2">
+                                    <i class="bi bi-check text-primary"></i>
+                                    <strong>Choose your subdomain.</strong>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check text-primary"></i>
+                                    High build priority
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check text-primary"></i>
+                                    Wait <strong>2 minutes</strong> between builds.
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check text-primary"></i>
+                                    12 builds per hour
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check text-primary"></i>
+                                    36 builds per day
+                                </li>
+                            </ul>
+                            <p>Add features to your MarkdownSite and support the development of open source software.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-%%      }
+    </section>
 
-%%      for $site.get_builds() -> $build {
-            [% # $c.minion.job($build.job_id).info | dump %]
-%%          my $job = $c.minion.job($build.job_id).info;
-%%          if ( $job.state == 'finished' ) {
-            <div class="card mb-4">
-                <div class="card-header alert-success">
-%%                  include '_svg/checkmark.tx'
-                    Build [% $build.id %] completed successfully.  (Queued: [% $build.date %])
-                    <button class="btn" data-bs-toggle="collapse" data-bs-target="#job_window_[% $job.id %]">
-%%                      include '_svg/chevron.tx'
-                    </button>
-                </div>
-                <div id="job_window_[% $job.id %]" class="card-body [% $~build.is_first ?  '' : 'collapse' %]">
+%%  include '_feature_bar.tx'
 
-%%                  include '_status/_status_milestone.tx' { milestone => { is_complete => $job.notes.is_deploy_complete, text => 'Deploy to Webserver' } }
+    <!-- Footer-->
+    <footer class="py-5 bg-dark">
+        <div class="container px-5"><p class="m-0 text-center text-white">Thanks for checking out MarkdownSite!</p></div>
+    </footer>
 
-%%                  include '_status/_status_milestone.tx' { milestone => { is_complete => $job.notes.is_build_complete,  text => 'Build Website' } }
+    <!-- Bootstrap core JS-->
+    <script src="/js/bootstrap.bundle.min.js"></script>
 
-%%                  include '_status/_status_milestone.tx' { milestone => { is_complete => $job.notes.is_clone_complete,  text => 'Clone Repo & Check Settings' } }
-
-                    <hr />
-
-                    <button class="btn" data-bs-toggle="collapse" data-bs-target="#job_log_window_[% $job.id %]">View Logs</button>
-
-                    <div id="job_log_window_[% $job.id %]" class="card-body collapse">
-                        <hr />
-                        <pre>
-%%                      for $job.result -> $line {
-%%                          $line ~ "\n"
-%%                      }
-                        </pre>
-                    </div>
-                </div>
-            </div>
-
-%%          } elsif ( $job.state == 'inactive' ) {
-            <div class="card mb-4 alert-warning">
-                <div class="card-header">
-                    <div class="spinner-grow spinner-grow-sm" role="status">
-                        <span class="visually-hidden">Waiting...</span>
-                    </div>
-                    Build [% $build.id %] pending build.  (Queued: [% $build.date %])
-                </div>
-            </div>
-%%          } elsif ( $job.state == 'failed' ) {
-            <div class="card mb-4 alert-danger">
-                <div class="card-header">
-%%                  include '_svg/failed.tx'
-                    Build Failed
-                </div>
-                <div class="card-body">
-
-%%                  include '_status/_status_milestone.tx' { milestone => { is_complete => $job.notes.is_deploy_complete, text => 'Deploy to Webserver' } }
-
-%%                  include '_status/_status_milestone.tx' { milestone => { is_complete => $job.notes.is_build_complete,  text => 'Build Website' } }
-
-%%                  include '_status/_status_milestone.tx' { milestone => { is_complete => $job.notes.is_clone_complete,  text => 'Clone Repo & Check Settings' } }
-                
-                    <div class="card-body">
-                        <hr />
-                        <p>Error Reported: <strong>[% $job.result.error %]</strong></p>
-                        <hr />
-
-                        <pre>
-%%                      for $job.result.logs -> $line {
-%%                          $line ~ "\n"
-%%                      }
-                        </pre>
-                    </div>
-                </div>
-            </div>
-
-%%          } elsif ( $job.state == 'active' ) {
-            <div class="card mb-4">
-                <div class="card-header alert-warning">
-                    <div class="spinner-grow spinner-grow-sm" role="status">
-                        <span class="visually-hidden"Building...</span>
-                    </div>
-
-                    Building [% $build.id %].  (Queued: [% $build.date %])
-                </div>
-                <div id="job_window_[% $job.id %]" class="card-body [% $~build.is_first ?  '' : 'collapse' %]">
-
-%%                  include '_status/_status_milestone.tx' { milestone => { is_complete => $job.notes.is_deploy_complete, text => 'Deploy to Webserver' } }
-
-%%                  include '_status/_status_milestone.tx' { milestone => { is_complete => $job.notes.is_build_complete,  text => 'Build Website' } }
-
-%%                  include '_status/_status_milestone.tx' { milestone => { is_complete => $job.notes.is_clone_complete,  text => 'Clone Repo & Check Settings' } }
-                
-                </div>
-            </div>
-
-%%          } else {
-            <div class="card mb-4 alert-warning">
-                <div class="card-header">Build [% $build.id %] in unexpected state: [% $job.state %]</div>
-            </div>
-
-%%          }
-%%      }
-%%  }
+    <!-- Core theme JS-->
+    <script src="/js/scripts.js"></script>
+    </body>
+</html>
