@@ -13,7 +13,7 @@
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="/css/styles.css" rel="stylesheet" />
     </head>
-    <body>
+    <body class="bg-dark">
 %%      include '_nav.tx' { nav_selected => 'contact' }
 
         <!-- Header-->
@@ -22,7 +22,7 @@
                 <div class="row gx-5 justify-content-center">
                     <div class="col-lg-6">
                         <div class="text-center my-5">
-                            <h1 class="display-5 fw-bolder text-white mb-2">MarkdownSite Docs</h1>
+                            <h1 class="display-5 fw-bolder text-white mb-2">Drop Me A Line</h1>
                         </div>
                     </div>
                 </div>
@@ -31,7 +31,6 @@
 
         <section class="py-5 bg-light">
             <div class="container px-5">
-                <h2>Get in touch</h2>
                 <p>hello@markdownsite.com</p>
             </div>
         </section>
