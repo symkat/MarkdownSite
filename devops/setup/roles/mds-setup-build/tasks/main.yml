@@ -112,6 +112,19 @@
     owner: 'root'
     group: 'root'
 
+- name: "Delete /etc/ansible/hosts."
+  file:
+    path: /etc/ansible/hosts
+    state: absent
+
+- name: "Create /etc/ansible/hosts."
+  copy:
+    dest: /etc/ansible/hosts
+    content: "[webservers]"
+    owner: root
+    group: root
+    mode: 0644
+
 - name: "Add hosts to /etc/ansible/hosts"
   lineinfile:
     path: /etc/ansible/hosts

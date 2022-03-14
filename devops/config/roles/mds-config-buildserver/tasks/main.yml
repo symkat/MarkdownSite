@@ -5,9 +5,9 @@
     state: absent
 
 - name: "Create /etc/ansible/hosts."
-  file:
-    path: /etc/ansible/hosts
-    state: touch
+  copy:
+    dest: /etc/ansible/hosts
+    content: "[webservers]"
     owner: root
     group: root
     mode: 0644

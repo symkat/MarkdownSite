@@ -90,79 +90,49 @@ As a first step, copy `config.yml.example` to `config.yml`.  Read this file care
 
 The setup script should fully configure a machine.  It takes the machine type, the IP or hostname that SSH can connect to the machine on, and the hostname that the machine should be set to.
 
-Consider the following network, called mysite.com where sites are hosted under subdomains on myhostingside.com.  Some machines in this network are on a private network, but the webserver and insight server are on the public internet.
+Consider this, the MarkdownSite network.  The network runs on markdownsite.com, and user websites are hosted on markdownsite.net.
 
-| Server Type | SSH Host           | Network Hostname        |
-| ----------- | ------------------ | ----------------------- |
-| Panel       | 192.168.150        | panel.mysite.com        |
-| Build       | 192.168.151        | build-01.mysite.com     |
-| Insight     | h12j3.somehost.com | insight.mysite.com      |
-| WebServer   | h12j4.somehost.com | webserver-01.mysite.com |
+| Server Type | Domain                   | IP Address     |
+| ----------- | ------------------------ | -------------- |
+| Panel       | panel.markdownsite.com   | 45.33.35.224   |
+| Insight     | insight.markdownsite.com | 45.33.47.240   |
+| Build       | bl01-ca.markdownsite.com | 45.79.99.161   |
+| Web Server  | ws01-ca.markdownsite.com | 192.155.87.155 |
+| Web Server  | ws01-nj.markdownsite.com | 97.107.132.241 |
 
 If one wanted to build this, after having written `config.yml`, the following commands would do so:
 
-```bash
-./setup mds-setup-insight h12j3.somehost.com insight.mysite.com
-
-./setup mds-setup-panel 192.168.150 panel.mysite.com
-
-./setup mds-setup-webserver h12j4.somehost.com webserver-01.mysite.com
-
-./setup mds-setup-build 192.168.151 build-01.mysite.com
-```
-
-One would add the following DNS records (using the IP for h12j3.somehost.com and h12j4.somehost.com):
-
-| Record                | Type | Value              |
-| --------------------- | ---- | ------------------ |
-| panel.mysite.com      | A    | 192.168.150        |
-| build-01.mysite.com   | A    | 192.168.151        |
-| insight.mysite.com    | A    | h12j3.somehost.com |
-| graphite.mysite.com   | A    | h12j3.somehost.com |
-| grafana.mysite.com    | A    | h12j3.somehost.com |
-| \*.myhostingside.com  | A    | h12j4.somehost.com |
-
-In this way, graphite and grafana are hosted on their own subdomains, and all subdomains for myhostingside.com resolve to the webserver-01 node.  Folks on the private network can access the panel node to add markdownsites, but it isn't on the public internet.  You could put them all on the Internet, or host them all on a private network, or whatever combination works for you.
-
-### Enable SSL
-
-The servers are setup, however there is no SSL yet.
-
-To configure SSL on the panel, login as root and run the following:
+The following commands would bring up the initial network state, after having written `config.yml`:
 
 ```bash
-certbot --nginx -d markdownsite.com -d www.markdownsite.com -n --agree-tos --email youATdomain.com
+#       Ansible Role        Host/IP To Connect       Hostname to set the machine to
+./setup mds-setup-panel     panel.markdownsite.com   panel.markdownsite.com
+./setup mds-setup-webserver 192.155.87.155.com       ws01-ca.markdownsite.com
+./setup mds-setup-webserver 192.155.87.155           ws01-nj.markdownsite.com
+./setup mds-setup-build     bl01-ca.markdownsite.com bl01-ca.markdownsite.com
+./setup mds-setup-insight   insight.markdownsite.com insight.markdownsite.com
 ```
 
-Replace `markdownsite.com` and `www.markdownsite.com` with the domain that you are using for the panel.
+One would then set the following DNS records.
 
-Then -- this assumes you use Linode DNS and have generated an API key for DNS changes -- on the webserver, create a credentials file:
+| Domain                    | IP Address       | Real Server              |
+| ------------------------- | ---------------- | ------------------------ |
+| markdownsite.com          | 45.33.35.224     | panel.markdownsite.com   |
+| www.markdownsite.com      | 45.33.35.224     | panel.markdownsite.com   |
+| panel.markdownsite.com    | 45.33.35.224     | panel.markdownsite.com   |
+| insight.markdownsite.com  | 45.33.47.240     | insight.markdownsite.com |
+| grafana.markdownsite.com  | 45.33.47.240     | insight.markdownsite.com |
+| graphite.markdownsite.com | 45.33.47.240     | insight.markdownsite.com |
+| bl01-ca.markdownsite.com  | 45.79.99.161     | bl01-ca.markdownsite.com |
+| ws01-ca.markdownsite.com  | 192.155.87.155   | ws01-ca.markdownsite.com |
+| ws01-nj.markdownsite.com  | 97.107.132.241   | ws01-nj.markdownsite.com |
+| markdownsite.net          | 192.155.87.155   | ws01-ca.markdownsite.com |
+| markdownsite.net          | 97.107.132.241   | ws01-nj.markdownsite.com |
+| \*.markdownsite.net       | markdownsite.net | CNAME Record             |
 
-`/etc/letsencrypt/.credentials`
-```ini
-dns_linode_key = ......................................................
-dns_linode_version = 4
-```
+This completes the initial setup of a MarkdownSite instance.
 
-Once you have done this, run the following:
-
-```bash
-certbot certonly -d 'markdownsite.net' -d '*.markdownsite.net' \
-    --agree-tos --dns-linode --non-interactive                 \
-    --register-unsafely-without-email                          \
-    --dns-linode-credentials /etc/letsencrypt/.credentials     \
-    --dns-linode-propagation-seconds 180
-```
-
-Replace `markdownsite.net` and `*.markdownsite.net` with the host you have choosen to use for hosting.
-
-Finally, the build server has the file `/etc/ansible/roles/deploy-website/templates/lighttpd-conf-domain.j2` and this should be updated with the correct path for the SSL certificate.  Alternatively, you can edit that file in the mds-setup=build role and reconfigure the server with ansible.
-
-### Enable Monitoring & Metrics
-
-Once the network is setup, collectd is left unconfigured.  This is because machines may be added or removed from the network, and the job of configuring collectd on an on-going basis is more for configuration management than for one-shot setups like this directory.
-
-See the directory ../config to continue with enabling monitoring and metrics.
+To configure SSL and collectd continue to the `config/` directory.
 
 ### Testing That It All Works
 

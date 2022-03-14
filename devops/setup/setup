@@ -31,8 +31,6 @@ system( 'ssh', '-l', 'root', '-oUserKnownHostsFile=/dev/null', '-oStrictHostKeyC
 print "[$role] Running: ansible-playbook -i '$host,' $filename\n";
 system( qw( ansible-playbook -i ), "$host,", $filename );
 
-
-
 # == Data Stuff == # 
 # Store file and usage in the __DATA__ section and load them
 # into a hash based on -!- NAME -!- preceeding the file.  If
@@ -68,7 +66,7 @@ sub find_roles {
 __DATA__
 -!- TEMPLATE -!-
 ---
-- name: Install MarkdownSite CGI Server
+- name: Setup a MarkdownSite server
   remote_user: root
   hosts: all
   vars:
