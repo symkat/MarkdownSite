@@ -20,6 +20,20 @@ You can use [MarkdownSite](https://markdownsite.com/) to host a website.
 
 You can build your own version of MarkdownSite to host as many websites as you want on your own infrastructure.  See the `devops/` directory for instructions on getting an instance running.
 
+## What are the directories here?
+
+**CGI** contains the Markdown::CGI program.  This renders markdown files to HTML, and is installed on the webservers.
+
+**Manager-DB** contains the markdownsite database schema, and the code for MarkdownSite::Manager::DB, a DBIx::Class interface to the database.
+
+**Manager** is MarkdownSite::Manager, a mojolicious-based webapp for submitting the repository and viewing build status.  This contains a Minion worker that handles building and deploying the websites.
+
+**devops/setup** contains an ansible code base to install servers by their server type, and documentation explaining it.
+
+**devops/config** contains an ansible code base that can be maintained and extended -- it is configuration management for an active MarkdownSite instance.
+
+**devops/** contains additional graphs and network diagrams,
+
 ## Visual View Of MarkdownSite
 
 This is a birds-eye view of a three-node setup, without insight server.
