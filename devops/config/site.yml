@@ -1,8 +1,16 @@
 ---
-- name: Config Management For MarkdownSite
+- name: Configure MarkdownSite Instance
   remote_user: root
   hosts: all
   vars:
     ansible_ssh_common_args: -oControlMaster=auto -oControlPersist=60s -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no
-  roles:
-    - mds-collectd
+    config: "{{ lookup('file', 'config.yml' ) | from_yaml }}"
+  tasks:
+    - name: Configure collectd
+      include_role:
+        name: mds-collectd
+      when: not inventory_hostname in groups['insights']
+
+    - name: Configure SSL
+      include_role:
+        name: mds-ssl
