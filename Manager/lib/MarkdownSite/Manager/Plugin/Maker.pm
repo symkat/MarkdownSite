@@ -12,14 +12,13 @@ sub register ( $self, $app, $config ) {
         $job->note( _mds_template => 'remove_markdownsite.tx' );
 
         my @logs;
-        foreach my $deploy_address ( @{$job->app->config->{deploy_addresses}} ) {
-            run3( ['ansible-playbook', '-i', $deploy_address, '--extra-vars', "domain=$domain", '/etc/ansible/purge-website.yml' ], \undef, \my $out, \my $err );
-            $job->note( removed_site => 1 );
-
-            push @logs, "Host: $deploy_address", " ";
-            push @logs, "---STDOUT---", " ", split( /\n/, $out );
-            push @logs, "---STDERR---", " ", split( /\n/, $err );
-        }
+        run3( ['ansible-playbook', '--extra-vars', "domain=$domain", '/etc/ansible/purge-website.yml' ], \undef, \my $out, \my $err );
+        $job->note( removed_site => 1 );
+        
+        push @logs, "--- Running: ansible-playbook --extra-vars domain=$domain /etc/ansible/purge-website.yml";
+        push @logs, "> STDOUT", " ", split( /\n/, $out );
+        push @logs, "> STDERR", " ", split( /\n/, $err );
+        push @logs, "--- Done Running: ansible-playbook --extra-vars domain=$domain /etc/ansible/purge-website.yml";
 
         $job->finish( \@logs );
     });
@@ -262,14 +261,11 @@ sub register ( $self, $app, $config ) {
 
         # Go to the build directory and make $build_dir/.
         $ENV{MARKDOWNSITE_CONFIG} = Mojo::File->new($build_dir->to_string)->child('build')->child('site.yml');
-
-        foreach my $deploy_address ( @{$job->app->config->{deploy_addresses}} ) {
-            run3( ['ansible-playbook', '-i', $deploy_address, '/etc/ansible/deploy-website.yml' ], \undef, \my $out, \my $err );
-            push @logs, "--- Running: ansible-playbook -i $deploy_address /etc/ansible/deploy-website.yml";
-            push @logs, "> STDOUT", " ", split( /\n/, $out );
-            push @logs, "> STDERR", " ", split( /\n/, $err );
-            push @logs, "--- Done Running: ansible-playbook -i $deploy_address /etc/ansible/deploy-website.yml";
-        }
+        run3( ['ansible-playbook', '/etc/ansible/deploy-website.yml' ], \undef, \my $out, \my $err );
+        push @logs, "--- Running: ansible-playbook /etc/ansible/deploy-website.yml";
+        push @logs, "> STDOUT", " ", split( /\n/, $out );
+        push @logs, "> STDERR", " ", split( /\n/, $err );
+        push @logs, "--- Done Running: ansible-playbook /etc/ansible/deploy-website.yml";
 
         $job->note( is_deploy_complete => 1 );
         $job->finish( \@logs );
