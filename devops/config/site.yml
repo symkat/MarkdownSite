@@ -14,3 +14,8 @@
     - name: Configure SSL
       include_role:
         name: mds-ssl
+
+    - name: Configure Build Servers
+      include_role:
+        name: mds-config-buildserver
+      when: inventory_hostname in groups['buildservers']

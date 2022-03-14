@@ -40,9 +40,6 @@
     ]
     state: present
 
-#- name: Install DBD::Pg with force
-#  shell: cpanm --force DBD::Pg
-
 - name: Install MarkdownSite::Manager::DB
   cpanm:
     name: "{{ config.markdownsite.mds_manager_db_module }}"
@@ -114,6 +111,15 @@
     directory_mode: '0755'
     owner: 'root'
     group: 'root'
+
+- name: "Add hosts to /etc/ansible/hosts"
+  lineinfile:
+    path: /etc/ansible/hosts
+    line: "{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  with_items: "{{ config.build.deploy_addresses }}"
 
 - name: Install markdownsite.worker.service file.
   copy:

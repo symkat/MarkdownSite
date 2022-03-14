@@ -134,3 +134,15 @@ ansible-playbook -i production.yml site.yml
 ansible-playbook -i production.yml  -l bl01-ca.markdownsite.com site.yml
 
 ```
+
+## Testing
+
+### Test HTTPS Per Host
+
+If you have multiple webserver nodes and want to check how a specific one is responding, use something like the following:
+
+```bash
+ curl -D - --connect-to os-example.markdownsite.net:443:ws01-ca.markdownsite.com:443   https://os-example.markdownsite.net
+ ```
+
+ This will check the site `os-example.markdownsite.net`, and it will direct the traffic to the webserver node `ws01-ca.markdownsite.com`.

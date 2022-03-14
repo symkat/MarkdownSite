@@ -18,7 +18,7 @@
 - name: "Unpack CollectD"
   shell: tar -C /usr/local/src -xf /usr/local/src/collectd-5.12.0.tar.bz2
   args:
-    creates: /usr/local/src/collectd-5.12.0.tar.bz2
+    creates: /usr/local/src/collectd-5.12.0
 
 - name: "Configure CollectD"
   shell: ./configure
