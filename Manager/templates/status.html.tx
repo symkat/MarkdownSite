@@ -15,6 +15,7 @@
 %%      if ( $c.minion.jobs({ states => [ 'inactive', 'active' ], notes => [ '_mds_sid_' ~ $site.id ] } ).total >= 1 ) { 
         <meta http-equiv="refresh" content="3;" />
 %%      }
+        <script defer data-api="/api/event" data-domain="markdownsite.com" src="/js/script.js"></script>
     </head>
     <body>
 %%      include '_nav.tx'

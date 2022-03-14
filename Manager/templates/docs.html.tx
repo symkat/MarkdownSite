@@ -16,6 +16,8 @@
             h2 { margin-top: 2em; }
             h3 { margin-top: 1.5em; }
         </style>
+        <script defer data-api="/api/event" data-domain="markdownsite.com" src="/js/script.js"></script>
+}
 
     </head>
     <body>
