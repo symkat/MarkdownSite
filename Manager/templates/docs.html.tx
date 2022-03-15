@@ -115,7 +115,7 @@ Markdown Content
 
                         <h2>MarkdownSite - Configuration</h2>
                         
-                        <p>MarkdownSite accepts a configuration file from your repository that can change its behavior.  See this following example.</p>
+                        <p>MarkdownSite accepts a <span style="font-family: monospace">.markdownsite.yml</span> configuration file from your repository that can change its behavior.  See this following example.</p>
 
 
                         <pre style="padding: 0.5em; border: 1px solid #ccc">
