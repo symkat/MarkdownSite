@@ -11,14 +11,11 @@ sub register ( $self, $app, $config ) {
     $app->minion->add_task( remove_markdownsite => sub ( $job, $domain ) {
         $job->note( _mds_template => 'remove_markdownsite.tx' );
 
-        my @logs;
-        run3( ['ansible-playbook', '--extra-vars', "domain=$domain", '/etc/ansible/purge-website.yml' ], \undef, \my $out, \my $err );
+        my @logs = $self->run_system_cmd(
+            'ansible-playbook', '--extra-vars', "domain=$domain", '/etc/ansible/purge-website.yml'
+        );
+
         $job->note( removed_site => 1 );
-        
-        push @logs, "--- Running: ansible-playbook --extra-vars domain=$domain /etc/ansible/purge-website.yml";
-        push @logs, "> STDOUT", " ", split( /\n/, $out );
-        push @logs, "> STDERR", " ", split( /\n/, $err );
-        push @logs, "--- Done Running: ansible-playbook --extra-vars domain=$domain /etc/ansible/purge-website.yml";
 
         $job->finish( \@logs );
     });
@@ -48,13 +45,9 @@ sub register ( $self, $app, $config ) {
         #==
         # Clone Repo
         #==
-        run3( ['git', 'clone', $site->repo, "$build_dir/src" ], \undef, \my $out, \my $err );
-        push @logs, "--- Running: git clone " . $site->repo . " $build_dir/src";
-        push @logs, "> STDOUT", " ", split( /\n/, $out );
-        push @logs, "> STDERR", " ", split( /\n/, $err );
-        push @logs, "--- Done Running: git clone " . $site->repo . " $build_dir/src";
+        push @logs, $self->run_system_cmd( 'git', 'clone', $site->repo, "$build_dir/src" );
 
-        foreach my $line ( split /\n/, $err ) {
+        foreach my $line ( @logs ) {
             if ( $line =~ /^fatal: repository \'[^']+\' does not exist$/ ) {
                 $job->fail( { error => "Does not seem to be a valid repository.", logs => \@logs });
                 return;
@@ -99,14 +92,11 @@ sub register ( $self, $app, $config ) {
 
         # If the branch the user's site is in is not master, switch branches.
         if ( $settings->{branch} ne 'master' ) {
-            run3( [ 'git', '-C', "$build_dir/src", 'checkout', $settings->{branch} ], \undef, \my $out, \my $err );
+            push @logs, $self->run_system_cmd(
+                'git', '-C', "$build_dir/src", 'checkout', $settings->{branch}
+            );
 
-            push @logs, "--- Running: git -C $build_dir/src checkout " . $settings->{branch};
-            push @logs, "> STDOUT---", " ", split( /\n/, $out );
-            push @logs, "> STDERR---", " ", split( /\n/, $err );
-            push @logs, "--- Done Running: git -C $build_dir/src checkout " . $settings->{branch};
-
-            foreach my $line ( split /\n/, $err ) {
+            foreach my $line ( @logs ) {
                 if ( $line =~ /^error: pathspec \'[^']+\' did not match any file\(s\) known to git$/ ) {
                     $job->fail( { error => "Failed to checkout branch " . $settings->{branch}, logs => \@logs });
                     return;
@@ -163,9 +153,16 @@ sub register ( $self, $app, $config ) {
 
         $job->note( is_clone_complete => 1 );
 
+        # Show the user the commit we're on.
+        push @logs, $self->run_system_cmd('git', '-C', "$build_dir/src", 'log', '-1' );
+
         #==
         # Build Static Files For Webroot
         #==
+        # If there is no webroot, let the user know that we're skipping this process.
+        push @logs, ">>>>> No webroot found in " . $settings->{webroot} . ", skipping MarkdownSite processing <<<<<"
+            unless -d $settings->{webroot};
+
         if ( -d $settings->{webroot} ) {
             push @logs, "--- Processing Static Files ---";
 
@@ -199,7 +196,8 @@ sub register ( $self, $app, $config ) {
                 # If the total file size exceeds the max_static_webroot_size, fail the job.
                 if ( $total_file_size >= ( $site->max_static_webroot_size * 1024 * 1024 ) ) {
                     $job->fail( {
-                        error => "This site may have up to 50 MiB in static files, however the webroot exceeds this limit.",
+                        error => "This site may have up to " . $site->max_static_webroot_size .
+                                 " MiB in static files, however the webroot exceeds this limit.",
                         logs => \@logs
                     });
                     return;
@@ -215,6 +213,8 @@ sub register ( $self, $app, $config ) {
         #==
         # Build Markdown Page Store
         #==
+        push @logs, ">>>>> No site found in " . $settings->{site} . ", skipping MarkdownSite processing <<<<<"
+            unless -d $settings->{site};
         if ( -d $settings->{site} ) {
             push @logs, "--- Processing MarkdownSite Files ---";
 
@@ -222,7 +222,8 @@ sub register ( $self, $app, $config ) {
 
             if ( $files->size > $site->max_markdown_file_count ) {
                 $job->fail( {
-                    error => "This site may have up to " . $site->max_markdown_file_count . " markdown files, however the site contains " . $files->size . " files.",
+                    error => "This site may have up to " . $site->max_markdown_file_count . " markdown files," .
+                             "however the site contains " . $files->size . " files.",
                     logs => \@logs
                 });
                 return;
@@ -261,15 +262,27 @@ sub register ( $self, $app, $config ) {
 
         # Go to the build directory and make $build_dir/.
         $ENV{MARKDOWNSITE_CONFIG} = Mojo::File->new($build_dir->to_string)->child('build')->child('site.yml');
-        run3( ['ansible-playbook', '/etc/ansible/deploy-website.yml' ], \undef, \my $out, \my $err );
-        push @logs, "--- Running: ansible-playbook /etc/ansible/deploy-website.yml";
-        push @logs, "> STDOUT", " ", split( /\n/, $out );
-        push @logs, "> STDERR", " ", split( /\n/, $err );
-        push @logs, "--- Done Running: ansible-playbook /etc/ansible/deploy-website.yml";
+        push @logs, $self->run_system_cmd( 'ansible-playbook', '/etc/ansible/deploy-website.yml' );
 
         $job->note( is_deploy_complete => 1 );
         $job->finish( \@logs );
     });
 };
+
+# Run a system command with IPC::Run3 and return a pretty-print of the logs.
+sub run_system_cmd {
+    my ( $self, @command ) = @_;
+
+    run3( [ @command ], \undef, \my $out, \my $err );
+
+    my @logs;
+
+    push @logs, "--- Running: " . join( " ", @command );
+    push @logs, "> STDOUT---", " ", split( /\n/, $out );
+    push @logs, "> STDERR---", " ", split( /\n/, $err );
+    push @logs, "--- Finished: " . join( " ", @command );
+
+    return @logs;
+}
 
 1;
