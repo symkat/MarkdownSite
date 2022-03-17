@@ -5,8 +5,4 @@ $HTTP["host"] =~ "^{{ site.domain }}$" {
     accesslog.filename   = "/var/log/lighttpd/{{ site.domain }}.access.log"
 
     magnet.attract-physical-path-to = ( "/etc/lighttpd/rewrite.lua" )
-
-    url.rewrite-if-not-file = (
-        "^(/.*)$" => "/cgi-bin/markdownsite.cgi$1"
-    )
 }

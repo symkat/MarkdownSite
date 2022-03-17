@@ -56,105 +56,50 @@ flowchart TB
 ```
 #### Requests
 
-When a request comes into lighttp, there are a handful of paths it could take.
+When a request comes into lighttpd, it can either be served from a static file, or it will be redirected to MarkdownSite::CGI.
 
-A webroot is used as `/var/www/domain/html/`.
+A webroot is used as `/var/www/domain/html/`, and the first file found is served.  If no file is found, then MarkdownSite::CGI is invoked.  There are five possible targets for a given request.
 
-If there is a static file that maps to the request, it is directly served.
+1. The file itself
+2. The file, appended with '.html'
+3. The file, appended with '.htm'
+4. The file, appended with '/index.html'
+5. The file, appended with '/index.htm'
 
-There are a few particulars about how file resolution currently happens.  Directories are not well-respected.  It is usual for `index.html` files, or `index.htm` files and so on to be sent when one requests a directory path.
+If none of these are true, the request is handed off to `markdownsite.cgi`.  These rules are all defined in `/etc/lighttpd/rewrite.lua`
+
+These tables give examples of requests and their static file mappings.
+
+| Path Requested | Files Checked                                                            |
+| -------------- | ------------------------------------------------------------------------ |
+| site.com       | /var/www/site.com/html checked (always fails, is a directory not a file) |
+| site.com       | /var/www/site.com/html.html checked                                      |
+| site.com       | /var/www/site.com/html.htm checked                                       |
+| site.com       | /var/www/site.com/html/index.html checked                                |
+| site.com       | /var/www/site.com/html/index.htm checked                                 |
+| site.com       | MarkdownSite::CGI accepts request                                        |
 
 
-```mermaid
-flowchart TB
-    a1["Domain matches something in /etc/lighttpd/conf.d/*?"]
-    -->
-    a2[mod_magnet - rewrite.lua triggered]
-    -->
-    a3[url.rewrite-if-not-file triggered]
-    -->
-    a5[MarkdownSite::CGI triggered]
-```
+| Path Requested | Files Checked                                    |
+| -------------- | ------------------------------------------------ |
+| site.com/about | /var/www/site.com/html/about checked             |
+| site.com/about | /var/www/site.com/html/about.html checked        |
+| site.com/about | /var/www/site.com/html/about.htm checked         |
+| site.com/about | /var/www/site.com/html/about/index.html checked  |
+| site.com/about | /var/www/site.com/html/about/index.htm checked   |
+| site.com       | MarkdownSite::CGI accepts request                |
 
-This is the path a request will take through lighttpd.  Each step could change the response.  If the domain doesn't exist as a configuration file, then the default lighttpd config will be used.  If mod\_magnet returns a file to send to the user, the remaining steps will not be taken.
 
-##### mod\_magnet handles it (/index.html on directories)
+| Path Requested      | Files Checked                                |
+| ------------------- | -------------------------------------------- |
+| site.com/about.html | /var/www/site.com/html/about.html            |
+| site.com/about.html | /var/www/site.com/html/about.html.html       |
+| site.com/about.html | /var/www/site.com/html/about.html.htm        |
+| site.com/about.html | /var/www/site.com/html/about.html/index.html |
+| site.com/about.html | /var/www/site.com/html/about.html/index.htm  |
+| site.com/about.html | /var/www/site.com/html/about.html            |
+| site.com/about.html | MarkdownSite::CGI accepts request            |
 
-```mermaid
-flowchart TB
-
-    subgraph one[User Request]
-        a1["somesite.markdownsite.net"]
-    end
-
-    subgraph two["Lighttpd"]
-        b1[rewrite.lua triggered by mod_magnet]
-        -- "rewrite.lua: does /var/www/somesite.markdownsite.net/html/index.html exist?" -->
-        b2{Yes}
-    end
-
-    three[User Gets Response]
-
-    one --> two
-    two -- lighttpd sends file with lua --> three
-```
-<br />
-
-##### url.rewrite-if-not-file handles it (static files only, no directory handling)
-
-```mermaid
-flowchart TB
-
-    subgraph one[User Request]
-        a1["somesite.markdownsite.net/style.css"]
-    end
-
-    subgraph two["Lighttpd"]
-        b1[rewrite.lua triggered by mod_magnet]
-        -- "rewrite.lua: does /var/www/somesite.markdownsite.net/html/style.css exist?" -->
-        b2{No}
-        b3[url.rewrite-if-not-file triggered]
-        -- "url.rewrite-if-not-file: does /var/www/somesite.markdownsite.net/style.css exist?" -->
-        b4{Yes}
-    end
-
-    three[User Gets Response]
-
-    one --> two
-    two -- lighttpd sends file because it exists --> three
-```
-
-<br />
-
-##### MarkdownSite::CGI handles it (no static file existed)
-
-```mermaid
-flowchart TB
-
-    subgraph one[User Request]
-        a1["somesite.markdownsite.net/style.css"]
-    end
-
-    subgraph two["Lighttpd"]
-        b1[rewrite.lua triggered by mod_magnet]
-        -- "rewrite.lua: does /var/www/somesite.markdownsite.net/html/style.css exist?" -->
-        b2{No}
-
-        b3[url.rewrite-if-not-file triggered]
-        -- "url.rewrite-if-not-file: does /var/www/somesite.markdownsite.net/style.css exist?" -->
-        b4{No}
-
-        b5[url.rewrite-if-not-file has no file]
-        -- "prepends /cgi-bin/markdownsite.cgi to URL so MarkdownSite::CGI handles it" -->
-        b6{MDS::CGI}
-
-    end
-
-    three[User Gets Response]
-
-    one --> two
-    two -- MarkdownSite::CGI responds through lighttpd --> three
-```
 
 <br />
 
@@ -172,10 +117,6 @@ $HTTP["host"] =~ "^hello.mds$" {
     accesslog.filename   = "/var/log/lighttpd/hello.mds.access.log"
 
     magnet.attract-physical-path-to = ( "/etc/lighttpd/rewrite.lua" )
-
-    url.rewrite-if-not-file = (
-        "^(/.*)$" => "/cgi-bin/markdownsite.cgi$1"
-    )
 }
 ```
 
@@ -223,5 +164,16 @@ The `mds.flush` route will purge this information from memcached so that the nex
 $ curl -XPOST -d '{}' --header "Host: hello.mds" http://your.ip.here/mds.flush
 {"status":1}
 ```
+
+#### Helpful Commands
+
+```bash
+# Get an strace on lighttpd
+strace -p $(ps aux | grep -v grep | grep "local/sbin/lighttpd"  | awk '{print $2}')
+```
+
+
+
+
 
 

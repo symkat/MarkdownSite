@@ -13,9 +13,6 @@ $HTTP["host"] =~ "^{{ site.domain }}$" {
 
         # Pass to Markdown::CGI if there is no static file to serve.
         magnet.attract-physical-path-to = ( "/etc/lighttpd/rewrite.lua" )
-        url.rewrite-if-not-file = (
-            "^(/.*)$" => "/cgi-bin/markdownsite.cgi$1"
-        )
     }
 
     # Redirect http -> https
