@@ -103,6 +103,16 @@ These tables give examples of requests and their static file mappings.
 
 <br />
 
+MarkdownSite::CGI reads files from `/var/www/site.com/pages/` and then the request path.
+
+If the request path is a directory, and index.md exists it will be returned (and then cached for the next request)
+
+If the request path, changing `.html` or `.htm` for `.md`, exists it will be returned (and then cached for the next request).
+
+If the request path does not map to a file, a 404 will be returned.
+
+Cached files are cleared when a site is rebuilt.
+
 ### Doing Development
 
 It is assumed at this point that a machine has been brought up using the `setup/` system, and that the developer has a root shell on it.
@@ -139,41 +149,11 @@ If everything has done well, the following should work:
 
 `curl --header "Host: hello.mds" http://ip.of.dev.box/markdown.html` -- Show a rendered page
 
-#### Secret Routes
-
-All MarkdownSite pages have two routes in them by default.  One is `mds.status` and it will show you information about a domain:
-
-```
-$ curl --header "Host: hello.mds" http://your.ip.here/mds.status 2>/dev/null| json_pp
-{
-   "domain" : "hello.mds",
-   "routes" : {
-      "/about.html" : "/var/www/hello.mds/pages/about.md",
-      "/markdown.html" : "/var/www/hello.mds/pages/markdown.md"
-   }
-}
-```
-
-Another is `mds.flush`.
-
-It is an expensive operation to figure out the routes for a website.  Each markdown page must be scanned initially, since the data in them can configure the route just as much -- and more so -- than the file name.  If it is the first time MarkdownSite::CGI is running for the site, it will complete this operation and store the routing information in memcached.  Subsequent requests will use this already-known information to route the request.
-
-The `mds.flush` route will purge this information from memcached so that the next run will regenerate it.
-
-```bash
-$ curl -XPOST -d '{}' --header "Host: hello.mds" http://your.ip.here/mds.flush
-{"status":1}
-```
-
 #### Helpful Commands
 
 ```bash
 # Get an strace on lighttpd
 strace -p $(ps aux | grep -v grep | grep "local/sbin/lighttpd"  | awk '{print $2}')
 ```
-
-
-
-
 
 
