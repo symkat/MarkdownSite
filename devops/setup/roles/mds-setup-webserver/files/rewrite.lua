@@ -38,13 +38,11 @@ if ( file and file.is_file ) then
   return file["http-response-send-file"]
 end
 
-
--- No static files found, let markdownsite.cgi handle this request.
-if ( string.sub(lighty.r.req_attr["request.uri"], 0, 9 )  ~= "/cgi-bin/" ) then
-  lighty.env["uri.path"]          = "/cgi-bin/markdownsite.cgi" .. lighty.env["uri.path"]
-  lighty.env["physical.rel-path"] = lighty.env["uri.path"]
-  lighty.env["request.orig-uri"]  = lighty.env["request.uri"]
-  lighty.env["physical.path"]     = "/var/lib/cgi-bin/" .. lighty.env["physical.rel-path"]
-end
-
+-- We didn't match any static files, so the request will be passed through
+-- to MarkdownSite::CGI.
+--
+-- If MarkdownSite::CGI finds an acceptable page, it will render and cache it
+-- otherwise it will return its own 404.
+lighty.env["request.path-info"] = lighty.env["uri.path"]
+lighty.env["physical.path"]     = "/usr/lib/cgi-bin/markdownsite.cgi"
 return 0
