@@ -7,7 +7,7 @@
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item"><a class="nav-link [% $nav_selected == 'home'    ? 'active' : '' %]" href="[% $c.url_for( 'show_homepage') %]">Home</a></li>
                         <li class="nav-item"><a class="nav-link [% $nav_selected == 'contact' ? 'active' : '' %]" href="[% $c.url_for( 'show_contact') %]">Contact</a></li>
-                        <li class="nav-item"><a class="nav-link [% $nav_selected == 'docs'    ? 'active' : '' %]" href="[% $c.url_for( 'show_docs') %]">Docs</a></li>
+                        <li class="nav-item"><a class="nav-link" href="https://docs.markdownsite.com/">Docs</a></li>
                     </ul>
                 </div>
             </div>
