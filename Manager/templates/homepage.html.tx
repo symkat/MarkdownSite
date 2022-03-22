@@ -21,134 +21,133 @@
         <header class="bg-dark py-5">
             <div class="container px-5">
                 <div class="row gx-5 justify-content-center">
-                    <div class="col-lg-6">
+                    <div class="col-lg-9">
                         <div class="text-center my-5">
-                            <h1 class="display-5 fw-bolder text-white mb-2">Create a website from a git repo in one click.</h1>
-                            <div class="card-body"> 
-                                <form method="post" action="[% $c.url_for( 'do_import' ) %]">
-                                    <div class="input-group">
-                                        <input class="form-control" name="repo" type="text" placeholder="Git Repo URL (git@... https://...)" aria-label="Enter git repo url" aria-describedby="button-add" />
-                                        <button class="btn btn-primary" id="button-add" type="submit">Build my site!</button>
-                                    </div>
-                                </form>
-                            </div>
+                            <h1 class="display-5 fw-bolder text-white mb-2">The Open Source Web Host</h1>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card-body"> 
+                            <form method="post" action="[% $c.url_for( 'do_import' ) %]">
+                                <div class="input-group">
+                                    <input class="form-control" name="repo" type="text" placeholder="Git Repo URL (git@... https://...)" aria-label="Enter git repo url" aria-describedby="button-add" />
+                                    <button class="btn btn-primary" id="button-add" type="submit">Build my site!</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </header>
+        
+        <!-- Section Seperator -->
+        <div class="py-4 border-bottom border-top bg-light"></div>
+        
+        <!-- Host Your Hugo Website -->
+        <section class="py-5 border-bottom border-top">
+            <div class="container px-5 my-5 px-5">
+                <div class="row gx-5 justify-content-center">
+                    <div class="col-lg-3 col-xl-4">
+                        <div class="mb-5">
+                            <img src="/img/logo-hugo.svg">
+                        </div>
+                    </div>
+                    <div class="col-lg-9 col-xl-8">
+                        <div class="mb-5">
+                            <h2 class="fw-bolder">Hosting for your Hugo site</h2>
+                            <p class="lead mb-0">Websites built with <a href="https://gohugo.io">Hugo</a> are supported.  Enter your git repo above, or <a target="_blank" href="https://docs.markdownsite.com/hugo">see the instructions for hosting Hugo on MarkdownSite.</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Section Seperator -->
+        <div class="py-4 border-bottom border-top bg-light"></div>
+        
+        <!-- Host Your Jekyll Website -->
+        <section class="py-5 border-bottom border-top">
+            <div class="container px-5 my-5 px-5">
+                <div class="row gx-5 justify-content-center">
+                    <div class="col-lg-9 col-xl-8">
+                        <div class="mb-5">
+                            <h2 class="fw-bolder">Your Jekyll blog, hosted on MarkdownSite</h2>
+                            <p class="lead mb-0">Jekyll blogs are supported.  Some steps are required, read <a href="https://docs.markdownsite.com/jekyll">about them here.</a></p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-xl-4">
+                        <div class="mb-5">
+                            <img src="/img/logo-jekyll.png" width="100%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-%%      include '_feature_bar.tx'
+        <!-- Section Seperator -->
+        <div class="py-4 border-bottom border-top bg-light"></div>
+        
+        <!-- Host Your Static Website -->
+        <section class="py-5 border-bottom border-top">
+            <div class="container px-5 my-5 px-5">
+                <div class="row gx-5 justify-content-center">
+                    <div class="col-lg-3 col-xl-4">
+                        <div style="height: 6em; width: 6em" class="feature bg-dark bg-gradient text-white rounded-3 mb-3">
+                            <i style="font-size: 4em" class="bi bi-collection"></i>
+                        </div>
+                    </div>
+                    <div class="col-lg-9 col-xl-8">
+                        <div class="mb-5">
+                            <h2 class="fw-bolder">Hand-Rolled &amp; Static Sites</h2>
+                            <p class="lead mb-0">Build your website in a directory named <strong>public/</strong> in the root of your git repository.  Enter your git repo above and click <em>Build My Site!</em></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        <!-- Examples Section-->
-        <section class="bg-light py-5 border-bottom">
+        <!-- Section Seperator -->
+        <div class="py-4 border-bottom border-top bg-light"></div>
+        
+        <!-- How it works -->
+        <section class="py-5 border-bottom border-top">
+            <div class="container px-5 my-5 px-5">
+                <div class="row gx-5 justify-content-center">
+                    <div class="col-lg-12">
+                        <div class="mb-5">
+                            <h2 class="fw-bolder mb-5">How it works</h2>
+                            <p class="lead mb-3">When you enter your repository above, it is checked out.  You might need <a target="_blank" href="/sshkey.txt">our ssh key</a></p>
+                            <p class="lead mb-3">You will be directed to a page to see the progress of the build and deployment process.</p>
+                            <p class="lead mb-3">If there is a <a href="https://docs.markdownsite.com/mds-config/">.markdownsite.yml</a> file it is read and may change how MarkdownSite works.</p>
+                            <p class="lead mb-3">If this is the first time your repo has been entered, a random sub-domain of markdownsite.net is assigned.</p>
+                            <p class="lead mb-3">Files in your git repo under the directory public/ are treated as a static website.</p>
+                            <p class="lead mb-3">Files in your git repo under the directory site/ that end in .md are treated as markdown files.</p>
+                            <p class="lead mb-3">Once these files are processed, they are sent to MarkdownSite servers and your website can receive traffic from the Internet.</p>
+                            <p class="lead mb-3">In the future, when you enter your repo, it will be rebuilt and served on the same domain.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Seperator -->
+        <div class="py-4 border-bottom border-top bg-light"></div>
+
+        <!-- Open Source Section-->
+        <section class="py-5 border-bottom">
             <div class="container px-5 my-5">
                 <div class="text-center mb-5">
-                    <h2 class="fw-bolder">Examples</h2>
-                    <p class="lead mb-0">See examples of markdownsites and their repositories.</p>
-                </div>
-                <div class="row gx-5 justify-content-center">
-                    <!-- Hugo-->
-                    <div class="col-lg-6 col-xl-4">
-                        <div class="card mb-5 mb-xl-0">
-                            <div class="card-body p-5">
-                                <div class="small text-uppercase fw-bold">Markdown</div>
-                                
-                                <div style="margin-top: 1em"></div>
-                                
-                                <a target="_blank" href="https://mds-example.markdownsite.net/" ><img class="img-fluid" src="/img/mds-markdownsite.jpg"></a>
-                                
-                                <div style="margin-top: 1em"></div>
-                                
-                                <div class="d-grid"><a class="btn btn-outline-primary" href="https://github.com/symkat/mds-example.markdownsite.net">See Repository</a></div>
-                                
-                                <div style="margin-top: 1em"></div>
-
-                                <p>This example uses collection of markdown files to create the website.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Hugo-->
-                    <div class="col-lg-6 col-xl-4">
-                        <div class="card mb-5 mb-xl-0">
-                            <div class="card-body p-5">
-                                <div class="small text-uppercase fw-bold">Hugo SSG Site</div>
-                                
-                                <div style="margin-top: 1em"></div>
-                                
-                                <a target="_blank" href="https://hugo-example.markdownsite.net/" ><img class="img-fluid" src="/img/hugo-markdownsite.jpg"></a>
-                                
-                                <div style="margin-top: 1em"></div>
-                                
-                                <div class="d-grid"><a class="btn btn-outline-primary" target="_blank" href="https://github.com/symkat/hugo-example.markdownsite.net">See Repository</a></div>
-
-                                <div style="margin-top: 1em"></div>
-
-                                <p>This example uses <a href="https://gohugo.io/">Hugo</a> to create the website.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Hugo-->
-                    <div class="col-lg-6 col-xl-4">
-                        <div class="card mb-5 mb-xl-0">
-                            <div class="card-body p-5">
-                                <div class="small text-uppercase fw-bold">Old School</div>
-                                
-                                <div style="margin-top: 1em"></div>
-                                
-                                <a target="_blank" href="https://os-example.markdownsite.net/" ><img class="img-fluid" src="/img/os-markdownsite.jpg"></a>
-                                
-                                <div style="margin-top: 1em"></div>
-                                
-                                <div class="d-grid"><a class="btn btn-outline-primary" target="_blank" href="https://github.com/symkat/os-example.markdownsite.net">See Repository</a></div>
-                                
-                                <div style="margin-top: 1em"></div>
-
-                                <p>This example uses raw html, css, and some static images to create a website.</p>
-                            </div>
-                        </div>
-                    </div>
+                    <h2 class="fw-bolder mb-3">Completely Open Source</h2>
+                    <p class="lead mb-0">
+                        MarkdownSite is completely open source.  Visit the <a target="_blank" href="https://markdownsite.com/symkat/MarkdownSite">GitHub Repo</a>
+                        for code, diagrams, explainations, a full devops systems for setup and configuration of MarkdownSite, as well as NOC setups for systems
+                        monitoring.  Use our hosting, or run your own network on your own hardware.
+                    </p>
                 </div>
             </div>
         </section>
 
-        <!-- Testimonials section-->
-        <section class="py-5 border-bottom">
-            <div class="container px-5 my-5 px-5">
-                <div class="text-center mb-5">
-                    <h2 class="fw-bolder">What people are saying</h2>
-                    <p class="lead mb-0">People say things.</p>
-                </div>
-                <div class="row gx-5 justify-content-center">
-                    <div class="col-lg-6">
-                        <!-- Testimonial 1-->
-                        <div class="card mb-4">
-                            <div class="card-body p-4">
-                                <div class="d-flex">
-                                    <div class="flex-shrink-0"><i class="bi bi-chat-right-quote-fill text-primary fs-1"></i></div>
-                                    <div class="ms-4">
-                                        <p class="mb-1">MarkdownSite is very neat.</p>
-                                        <div class="small text-muted">- Real Person, Probably.</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Testimonial 2-->
-                        <div class="card">
-                            <div class="card-body p-4">
-                                <div class="d-flex">
-                                    <div class="flex-shrink-0"><i class="bi bi-chat-right-quote-fill text-primary fs-1"></i></div>
-                                    <div class="ms-4">
-                                        <p class="mb-1">Maybe this will become a FAQ section....</p>
-                                        <div class="small text-muted">- Kate, not wanting to delete this block.</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <div class="py-4 border-bottom border-top bg-light"></div>
 
         <!-- Footer-->
         <footer class="py-5 bg-dark">
