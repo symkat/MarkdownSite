@@ -3,9 +3,9 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="Create a website from a git repo in one click." />
+        <meta name="description" content="MarkdownSite contact page.  Reach out to hello@markdownsite.com" />
         <meta name="author" content="MarkdownSite" />
-        <title>MarkdownSite</title>
+        <title>MarkdownSite - Contact</title>
         <!-- Favicon-->
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <!-- Bootstrap icons-->
@@ -14,27 +14,83 @@
         <link href="/css/styles.css" rel="stylesheet" />
         <script defer data-api="/api/event" data-domain="markdownsite.com" src="/js/script.js"></script>
     </head>
-    <body class="bg-dark">
+    <body>
 %%      include '_nav.tx' { nav_selected => 'contact' }
 
-        <!-- Header-->
-        <header class="bg-dark py-5">
-            <div class="container px-5">
+        <!-- Section Seperator -->
+        <div class="py-4 border-bottom border-top bg-light"></div>
+        
+        <!-- Hosted Website Contact -->
+        <section class="py-5 border-bottom border-top bg-white">
+            <div class="container px-5 my-5 px-5">
                 <div class="row gx-5 justify-content-center">
-                    <div class="col-lg-6">
-                        <div class="text-center my-5">
-                            <h1 class="display-5 fw-bolder text-white mb-2">Drop Me A Line</h1>
+                    <div class="col-lg-12 col-xl-12">
+                        <div class="mb-5">
+                            <h2 class="fw-bolder">Issues with your hosted site?</h2>
+                            <p class="lead mb-0">If you have already looked through <a href="https://docs.markdownsite.com">the documentation</a> and you are still having problems with your website, feel free to email hello@markdownsite.com.  Please include the repository you are trying to build in the email and what problem you are running into.</p>
                         </div>
                     </div>
                 </div>
             </div>
-        </header>
-
-        <section class="py-5 bg-light">
-            <div class="container px-5">
-                <p>hello@markdownsite.com</p>
+        </section>
+        
+        <!-- Section Seperator -->
+        <div class="py-4 border-bottom border-top bg-light"></div>
+        
+        <!-- Platform Problems Contact -->
+        <section class="py-5 border-bottom border-top bg-white">
+            <div class="container px-5 my-5 px-5">
+                <div class="row gx-5 justify-content-center">
+                    <!-- Spacer-->
+                    <div class="col-lg-3 col-xl-4"><div class="mb-5"></div></div>
+                    <div class="col-lg-9 col-xl-8">
+                        <div class="mb-5">
+                            <h2 class="fw-bolder">Issues with MarkdownSite or the platform?</h2>
+                            <p class="lead mb-0">Please feel free to open pull requests or issues on the <a href="https://github.com/symkat/MarkdownSite">MarkdownSite Git Repo</a>.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
+        
+        <!-- Section Seperator -->
+        <div class="py-4 border-bottom border-top bg-light"></div>
+        
+        <!-- Documentation Contact -->
+        <section class="py-5 border-bottom border-top bg-white">
+            <div class="container px-5 my-5 px-5">
+                <div class="row gx-5 justify-content-center">
+                    <div class="col-lg-12 col-xl-12">
+                        <div class="mb-5">
+                            <h2 class="fw-bolder">Issues with the documentation?</h2>
+                            <p class="lead mb-0">The documentation aims to be as up to date as possible, and to address using MarkdownSite.  It is maintained as a hugo website by the community, please feel free to open pull requests against the  <a href="https://github.com/symkat/docs.markdownsite.com">docs.markdownsite.com Git Repo</a>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Section Seperator -->
+        <div class="py-4 border-bottom border-top bg-light"></div>
+        
+        <!-- Email for everything else  -->
+        <section class="py-5 border-bottom border-top bg-white">
+            <div class="container px-5 my-5 px-5">
+                <div class="row gx-5 justify-content-center">
+                    <!-- Spacer-->
+                    <div class="col-lg-3 col-xl-4"><div class="mb-5"></div></div>
+                    <div class="col-lg-9 col-xl-8">
+                        <div class="mb-5">
+                            <h2 class="fw-bolder">Something else?</h2>
+                            <p class="lead mb-0">Feel free to email me if there is something else you think I can help with: hello@markdownsite.com.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Section Seperator -->
+        <div class="py-4 border-bottom border-top bg-light"></div>
 
         <!-- Footer-->
         <footer class="py-5 bg-dark">
