@@ -1,7 +1,7 @@
 ---
 - name: "Install /tmp/grafana_8.4.3_amd64.deb"
   get_url:
-    url: https://pkgs.frameworkhosting.com/grafana_8.4.3_amd64.deb
+    url: https://pkgs.markdownsite.com/grafana_8.4.3_amd64.deb
     dest: "/tmp/grafana_8.4.3_amd64.deb"
     checksum: sha256:a370f4b1075da644fd9be7d5a683ca070a1442b0a502e36c6ec7d8fff60061c2
 

@@ -1,13 +1,13 @@
 ---
 - name: "Install /tmp/carbon-1.1.8.tar.gz"
   get_url:
-    url: https://pkgs.frameworkhosting.com/carbon-1.1.8.tar.gz
+    url: https://pkgs.markdownsite.com/carbon-1.1.8.tar.gz
     dest: "/tmp/carbon-1.1.8.tar.gz"
     checksum: sha256:88040b06ff50d111c7b237b4fedbc90173c51c3be7b66dda5a2369165c11df47
 
 - name: "Install /tmp/whisper-1.1.8.tar.gz"
   get_url:
-    url: https://pkgs.frameworkhosting.com/whisper-1.1.8.tar.gz
+    url: https://pkgs.markdownsite.com/whisper-1.1.8.tar.gz
     dest: "/tmp/whisper-1.1.8.tar.gz"
     checksum: sha256:55ee34e28fc49706f2874ecff19ad22b83b57421f0fa4b05b80c6d739232900b
 

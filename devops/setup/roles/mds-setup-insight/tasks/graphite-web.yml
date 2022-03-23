@@ -1,7 +1,7 @@
 ---
 - name: "Install /tmp/graphite-web-1.1.8.tar.gz"
   get_url:
-    url: https://pkgs.frameworkhosting.com/graphite-web-1.1.8.tar.gz
+    url: https://pkgs.markdownsite.com/graphite-web-1.1.8.tar.gz
     dest: "/tmp/graphite-web-1.1.8.tar.gz"
     checksum: sha256:6e35629493b9be77fa9902471053f6789e300c06fe74a0215253d986fc0b866c
 

@@ -16,7 +16,6 @@
       'libssl-dev',
       'libexpat1-dev',
       'libz-dev',
-      'memcached',
       'vim',
       'libpq-dev',
       'libpcre2-dev',
@@ -31,7 +30,7 @@
 
 - name: Download lighttpd
   get_url:
-    url: https://pkgs.frameworkhosting.com/lighttpd-1.4.64.tar.gz
+    url: https://pkgs.markdownsite.com/lighttpd-1.4.64.tar.gz
     dest: "/tmp/lighttpd-1.4.64.tar.gz"
     checksum: sha256:71e46403fb28371a06b23ef1cceffd75285140c6f62a879c777ee5af0d248801
 
