@@ -3,19 +3,32 @@ use warnings;
 use strict;
 use File::Temp qw( tempfile ); # corelist - 5.6.1
 use File::Find;                # corelist - 5 
+use Getopt::Long;              # corelist - 5
 
-# If the user gives no command, asks for help, or invokes this command incorrectly, 
-# show usage and exit.
-if ( ( not @ARGV ) or ( grep { /^(?:--)?help$/i } @ARGV ) or ( not scalar @ARGV == 3 ) ) {
+my $opts = { 
+    help   => 0, 
+    config => 'config.yml' 
+};
+
+GetOptions($opts, qw(
+    config=s
+    help!
+));
+
+my $data = get_data();
+
+# If the user asks for help, or doesn't invoke correctly, provide usage.
+if ( ( $opts->{help} ) or ( not @ARGV ) or ( scalar @ARGV != 3 ) ) {
     my $roles = join( "", map { "\t$_\n" } find_roles() );
-    (my $usage = {get_data()}->{USAGE} ) =~ s|\[\% ROLES \%\]|$roles|g;
+    (my $usage = $data->{USAGE} ) =~ s|\[\% ROLES \%\]|$roles|g;
     print STDERR $usage;
     exit;
 }
 
 # Gather role, host and then create a playbook.
 my ( $role, $host, $hostname ) = @ARGV;
-(my $playbook = {get_data()}->{TEMPLATE} ) =~ s|\[\% ROLE \%\]|$role|g;
+(my $playbook = $data->{TEMPLATE} ) =~ s|\[\% ROLE \%\]|$role|g;
+$playbook =~ s|\[\% CONFIG_FILE \%\]|$opts->{config}|g;
 
 # Write the playbook to a temp file that will be deleted once this script is finished.
 my ( $fh, $filename ) = tempfile( DIR => '.', SUFFIX => '.yml', UNLINK => 1 );
@@ -46,7 +59,7 @@ sub get_data {
         }
         $data{$section} .= $line;
     }
-    return %data;
+    return \%data;
 };
 
 # Return a list of the rules we know about.
@@ -71,7 +84,7 @@ __DATA__
   hosts: all
   vars:
     ansible_ssh_common_args: -oControlMaster=auto -oControlPersist=60s -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no
-    config: "{{ lookup('file', 'config.yml' ) | from_yaml }}"
+    config: "{{ lookup('file', '[% CONFIG_FILE %]' ) | from_yaml }}"
 
   roles:
     - [% ROLE %]
@@ -80,7 +93,7 @@ __DATA__
 
 This program does the initial setup of a given server as a server type.
 
-Usage: ./setup <mds-setup-...> <host or ip for ssh connection> <hostname to set machine to>
+Usage: ./setup [--config your-config.yml] <mds-setup-...> <host or ip for ssh connection> <hostname to set machine to>
 
 Examples: 
 
@@ -90,8 +103,9 @@ Examples:
     Setup the host insight.markdownsite.com as an insight node
     $ ./setup mds-setup-insight insight.markdownsite.com insight.markdownsite.com
 
-    Setup the host myserver.hostingprovider.com as a build node named build-01.mydomain.com
-    $ ./setup mds-setup-build myserver.hostingprovider.com build-01.mydomain.com
+    Setup the host myserver.hostingprovider.com as a build node named build-01.mydomain.com, and
+    use the config file prod.yml
+    $ ./setup --config prod.yml mds-setup-build myserver.hostingprovider.com build-01.mydomain.com
 
 Server Types:
 
