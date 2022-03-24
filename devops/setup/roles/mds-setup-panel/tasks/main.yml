@@ -29,11 +29,11 @@
 
 - name: Install MarkdownSite::Manager::DB
   cpanm:
-    name: "{{ config.markdownsite.mds_manager_db_module }}"
+    name: "{{ config.pkg.manager_db }}"
 
 - name: Install MarkdownSite::Manager
   cpanm:
-    name: "{{ config.markdownsite.mds_manager_module }}"
+    name: "{{ config.pkg.manager }}"
 
 - name: Install /etc/markdownsite.yml
   template:
@@ -154,7 +154,7 @@
     name: nginx
     state: restarted
 
-- name: "Git clone from {{ config.markdownsite_repo }}"
+- name: "Git clone from {{ config.panel.markdownsite_repo }}"
   git:
     repo: "{{ config.panel.markdownsite_repo }}"
     dest: /home/manager/markdownsite
