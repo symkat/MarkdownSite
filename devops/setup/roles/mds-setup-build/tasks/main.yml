@@ -22,10 +22,17 @@
     group: root
     mode: 0755
 
+- name: Reload apt with new source
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+
 - name: Install packages
   apt:
     name: [
       'ansible',
+      'ansible-core',
       'git',
       'build-essential',
       'cpanminus',
@@ -41,11 +48,11 @@
 
 - name: Install MarkdownSite::Manager::DB
   cpanm:
-    name: "{{ config.markdownsite.mds_manager_db_module }}"
+    name: "{{ config.pkg.manager_db }}"
 
 - name: Install MarkdownSite::Manager
   cpanm:
-    name: "{{ config.markdownsite.mds_manager_module }}"
+    name: "{{ config.pkg.manager }}"
 
 - name: Install /etc/markdownsite.yml
   template:
