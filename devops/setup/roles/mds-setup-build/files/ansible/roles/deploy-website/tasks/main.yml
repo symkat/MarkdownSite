@@ -6,6 +6,7 @@
     owner: root
     group: root
     mode: '0644'
+  ignore_errors: yes # Custom config with chattr +i, don't fail on error.
 
 - name: Remove any prexisting /var/www/{{ site.domain }}.
   file:
