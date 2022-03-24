@@ -17,8 +17,9 @@ GetOptions($opts, qw(
 
 my $data = get_data();
 
+
 # If the user asks for help, or doesn't invoke correctly, provide usage.
-if ( ( $opts->{help} ) or ( not @ARGV ) or ( scalar @ARGV != 3 ) ) {
+if ( ( $opts->{help} ) or ( not @ARGV ) or ( @ARGV < 2 )) {
     my $roles = join( "", map { "\t$_\n" } find_roles() );
     (my $usage = $data->{USAGE} ) =~ s|\[\% ROLES \%\]|$roles|g;
     print STDERR $usage;
@@ -27,6 +28,8 @@ if ( ( $opts->{help} ) or ( not @ARGV ) or ( scalar @ARGV != 3 ) ) {
 
 # Gather role, host and then create a playbook.
 my ( $role, $host, $hostname ) = @ARGV;
+$hostname = $host unless $hostname;
+
 (my $playbook = $data->{TEMPLATE} ) =~ s|\[\% ROLE \%\]|$role|g;
 $playbook =~ s|\[\% CONFIG_FILE \%\]|$opts->{config}|g;
 
@@ -93,7 +96,7 @@ __DATA__
 
 This program does the initial setup of a given server as a server type.
 
-Usage: ./setup [--config your-config.yml] <mds-setup-...> <host or ip for ssh connection> <hostname to set machine to>
+Usage: ./setup [--config your-config.yml] <mds-setup-...> <host or ip for ssh connection> [hostname to set machine to]
 
 Examples: 
 
