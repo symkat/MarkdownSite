@@ -45,11 +45,11 @@ sub post_import ( $c ) {
 
     # Create the DB record for the website.
     $c->db->storage->schema->txn_do( sub {
-        my $domain = random_domain('markdownsite.net');
+        my $domain = random_domain($c->config->{hosted_domain});
 
         # If this domain exists, try to make it again.
         while ( $c->db->site( { domain => $domain  } ) ) {
-            $domain = random_domain('markdownsite.net');
+            $domain = random_domain($c->config->{hosted_domain});
         }
 
         $site = $c->db->sites->create({
