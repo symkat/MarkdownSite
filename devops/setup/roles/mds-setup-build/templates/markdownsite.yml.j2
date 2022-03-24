@@ -2,5 +2,3 @@
 database:
   markdownsite: postgresql://{{ config.database.markdownsite.user }}:{{ config.database.markdownsite.pass }}@{{ config.database.markdownsite.host }}/markdownsite
   minion: postgresql://{{ config.database.minion.user }}:{{ config.database.minion.pass }}@{{ config.database.minion.host }}/minion
-deploy_addresses:
-  - {{ config.deploy_address }},
