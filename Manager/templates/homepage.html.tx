@@ -139,7 +139,7 @@
                 <div class="text-center mb-5">
                     <h2 class="fw-bolder mb-3">Completely Open Source</h2>
                     <p class="lead mb-0">
-                        MarkdownSite is completely open source.  Visit the <a target="_blank" href="https://markdownsite.com/symkat/MarkdownSite">GitHub Repo</a>
+                        MarkdownSite is completely open source.  Visit the <a target="_blank" href="https://github.com/symkat/MarkdownSite">GitHub Repo</a>
                         for code, diagrams, explainations, a full devops systems for setup and configuration of MarkdownSite, as well as NOC setups for systems
                         monitoring.  Use our hosting, or run your own network on your own hardware.
                     </p>
