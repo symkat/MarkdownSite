@@ -106,13 +106,7 @@ sub register ( $self, $app, $config ) {
 
         # The domain name in the user's repo is different than the site's configuration,
         # check if the user is a sponser and if so, remap their domain.
-        if ( exists $settings->{old_domain} ) {
-            # check that the site is allowed to customize its domain name.
-            if ( ! $site->can_change_domain ) {
-                $job->fail( { error => "Domain setting found, however this site may not change domain names.", logs => \@logs });
-                return;
-            }
-
+        if ( exists $settings->{old_domain} and $site->can_change_domain  ) {
             # check that domain is a valid domain -> return if false
             if ( $settings->{domain} !~ /^((?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+[A-Za-z]{2,6}$/ ) {
                 $job->fail( { error => "Invalid domain name " . $settings->{domain}, logs => \@logs });
@@ -138,7 +132,7 @@ sub register ( $self, $app, $config ) {
             $site->create_related( 'builds', { job_id => $remove_mds_id } );
 
             # Queue a job to build this site after the first has been removed. Then exit this job - we're done.
-            my $build_mds_id = $job->app->minion->enqueue( build_markdownsite => [ $site->id ] => { 
+            my $build_mds_id = $job->app->minion->enqueue( build_markdownsite => [ $site->id ] => {
                 notes    => { '_mds_sid_' . $site->id => 1 },
                 priority => $site->build_priority,
                 parents  => [ $remove_mds_id ],
@@ -149,7 +143,9 @@ sub register ( $self, $app, $config ) {
 
             $job->finish( \@logs );
             return;
-        }
+        } else {
+	    push @logs, "!!!\n!!! domain key found, however this site is not allowed to change domain names.\n!!!";
+	}
 
         $job->note( is_clone_complete => 1 );
 
