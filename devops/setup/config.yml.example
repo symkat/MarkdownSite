@@ -2,7 +2,7 @@
 #
 # MarkdownSite modules will be installed from these URLs.
 pkg:
-  cgi:        https://pkgs.markdownsite.com/MarkdownSite-CGI-0.003.tar.gz
+  cgi:        https://pkgs.markdownsite.com/MarkdownSite-CGI-0.004.tar.gz
   manager:    https://pkgs.markdownsite.com/MarkdownSite-Manager-0.001.tar.gz
   manager_db: https://pkgs.markdownsite.com/MarkdownSite-Manager-DB-1.tar.gz
 
