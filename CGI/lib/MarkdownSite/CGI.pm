@@ -17,15 +17,21 @@ sub startup ($self) {
 }
 
 sub handle_request ( $self, $c ) {
+    my $domain = $ENV{HTTP_HOST};
 
     my $files = $self->resolve_filepaths_from_env;
     my $markdown_file = $files->{source};
 
+    # Serve 404 error if we do not have a markdown file.
+    #
+    # Serve /var/www/$domain/html/404.html as content if it exists,
+    # otherwise display 'File Not Found'.
     if ( ! $markdown_file ) {
-        $c->res->body( "MarkdownSite::CGI: File Not Found\n" );
         $c->res->code( 404 );
+        $c->res->body( "File Not Found\n" );
+        $c->res->headers->header('x-sendfile' => "/var/www/$domain/html/404.html" )
+            if -e "/var/www/$domain/html/404.html";
         return;
-        # Serve 404 error.
     }
 
     my $content = Mojo::File->new( $markdown_file )->slurp;
