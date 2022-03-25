@@ -6,10 +6,11 @@
     ansible_ssh_common_args: -oControlMaster=auto -oControlPersist=60s -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no
     config: "{{ lookup('file', 'config.yml' ) | from_yaml }}"
   tasks:
-    - name: Configure collectd
-      include_role:
-        name: mds-collectd
-      when: not inventory_hostname in groups['insights']
+#    - name: Configure collectd
+#      include_role:
+#        name: mds-collectd
+#      when: 
+#        - not inventory_hostname in groups['insights']
 
     - name: Configure SSL
       include_role:

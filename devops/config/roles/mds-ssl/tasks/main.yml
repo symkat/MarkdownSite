@@ -23,21 +23,21 @@
         inventory_hostname in groups['panels']
 
 - name: Add SSL-Aware lighty template
-  copy:
+  template:
     dest: "/etc/ansible/roles/deploy-website/templates/lighttpd-conf-domain.j2"
-    src: "{{ role_path }}/files/lighttpd-conf-domain.j2"
-    mode: 0644
+    src: "{{ role_path }}/templates/lighttpd-conf-domain.j2.j2"
     owner: root
     group: root
+    mode: 0644
   when: inventory_hostname in groups['buildservers']
 
-- name: SSL-Aware nginx config for markdownsite.com
-  copy:
-    dest: "/etc/nginx/sites-enabled/markdownsite.com.conf"
-    src: "{{ role_path }}/files/panel.markdownsite.com.conf"
-    mode: 0644
+- name: "SSL-Aware nginx config for {{ config.panel.domain }}"
+  template:
+    src: "{{ role_path }}/templates/panel-nginx-domain.conf"
+    dest: "/etc/nginx/sites-enabled/{{ config.panel.domain }}"
     owner: root
     group: root
+    mode: 0644
   when: inventory_hostname in groups['panels']
 
 - name: SSL-Aware nginx config for grafana.markdownsite.com
