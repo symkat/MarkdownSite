@@ -78,7 +78,6 @@ sub resolve_filepaths_from_env ( $self ) {
     my $domain = $ENV{HTTP_HOST};
     my $r_path = $ENV{PATH_INFO};
 
-    print STDERR  "Checking /var/www/$domain/pages/" . $r_path . "/index.md\n";
     # Case of / /about mapping to /index.md /about/index.md
     if (  -e "/var/www/$domain/pages/" . $r_path . "/index.md" ) {
         return {
