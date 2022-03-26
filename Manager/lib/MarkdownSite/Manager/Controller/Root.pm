@@ -23,8 +23,6 @@ sub post_import ( $c ) {
     my $site = $c->db->site( { repo => $repo } );
 
     if ( $site ) {
-        $c->log->info( "This repo already exists -- reloading markdownsite." );
-
         if ( ! $site->get_build_allowance->{can_build} ) {
             $c->log->info( "This repo has exceeded the build allowance -- rejecting job." );
             $c->redirect_to( $c->url_for( 'show_status', { id => $site->id  } )->query( reject_job => 1 ) );
@@ -39,8 +37,6 @@ sub post_import ( $c ) {
         $c->redirect_to( $c->url_for( 'show_status', { id => $site->id  } ) );
         return;
     }
-
-    $c->log->info( "This is a new repo -- setting up." );
 
     # Create the DB record for the website.
     $c->db->storage->schema->txn_do( sub {
@@ -82,8 +78,8 @@ sub get_status ( $c ) {
     my $site = $c->stash->{site} = $c->db->site( $site_id );
     
     # If we do not have a record of this website, throw an error and return.
+    # TODO
     if ( ! $site ) {
-        $c->log->info( "No markdownsite found." );
         return;
     }
 
