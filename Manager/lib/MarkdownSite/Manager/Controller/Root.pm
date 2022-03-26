@@ -2,7 +2,6 @@ package MarkdownSite::Manager::Controller::Root;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 sub get_homepage ( $c ) { $c->stash->{template} = 'homepage'; }
-sub get_docs     ( $c ) { $c->stash->{template} = 'docs';     }
 sub get_contact  ( $c ) { $c->stash->{template} = 'contact';  }
 
 sub random_domain {

@@ -28,7 +28,6 @@ sub startup ($self) {
     my $router = $self->routes;
 
     $router->get ( '/'            )->to( 'Root#get_homepage')->name('show_homepage');
-    $router->get ( '/docs'        )->to( 'Root#get_docs'    )->name('show_docs'    );
     $router->get ( '/contact'     )->to( 'Root#get_contact' )->name('show_contact' );
     $router->post( '/import'      )->to( 'Root#post_import' )->name('do_import'    );
     $router->get ( '/status/:id'  )->to( 'Root#get_status'  )->name('show_status'  );
