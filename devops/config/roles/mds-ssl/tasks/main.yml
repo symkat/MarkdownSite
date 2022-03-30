@@ -41,21 +41,21 @@
   when: inventory_hostname in groups['panels']
 
 - name: SSL-Aware nginx config for grafana.markdownsite.com
-  copy:
-    dest: "/etc/nginx/sites-enabled/grafana.markdownsite.com.conf"
-    src: "{{ role_path }}/files/grafana.markdownsite.com.conf"
-    mode: 0644
+  template:
+    src: "{{ role_path }}/templates/nginx-grafana.conf.j2"
+    dest: "/etc/nginx/sites-enabled/{{ config.insight.grafana.domain }}.conf"
     owner: root
     group: root
+    mode: 0644
   when: inventory_hostname in groups['insights']
 
 - name: SSL-Aware nginx config for graphite.markdownsite.com
-  copy:
-    dest: "/etc/nginx/sites-enabled/graphite.markdownsite.com.conf"
-    src: "{{ role_path }}/files/graphite.markdownsite.com.conf"
-    mode: 0644
+  template:
+    src: "{{ role_path }}/templates/nginx-graphite.conf.j2"
+    dest: "/etc/nginx/sites-enabled/{{ config.insight.graphite.domain }}.conf"
     owner: root
     group: root
+    mode: 0644
   when: inventory_hostname in groups['insights']
         
 - name: Generate /etc/nginx/ssl-dhparams.pem

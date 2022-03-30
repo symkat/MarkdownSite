@@ -10,10 +10,10 @@
     deb: '/tmp/grafana_8.4.3_amd64.deb'
     state: present
 
-- name: "Install /etc/nginx/sites-available/{{ config.grafana.domain }}.conf"
-  copy:
-    dest: "/etc/nginx/sites-available/{{ config.grafana.domain }}.conf"
-    src: "{{ role_path }}/files/nginx/grafana.conf"
+- name: "Install /etc/nginx/sites-available/{{ config.insight.grafana.domain }}.conf"
+  template:
+    src: "{{ role_path }}/templates/nginx-grafana.conf.j2"
+    dest: "/etc/nginx/sites-available/{{ config.insight.grafana.domain }}.conf"
     owner: root
     group: root
     mode: 0644
@@ -26,11 +26,11 @@
     group: root
     mode: 0644
 
-- name: "Create symlink for nginx domain: {{ config.grafana.domain }}"
+- name: "Create symlink for nginx domain: {{ config.insight.grafana.domain }}"
   file:
     state: link
-    path: "/etc/nginx/sites-enabled/{{ config.grafana.domain }}.conf"
-    src: "/etc/nginx/sites-available/{{ config.grafana.domain }}.conf"
+    path: "/etc/nginx/sites-enabled/{{ config.insight.grafana.domain }}.conf"
+    src: "/etc/nginx/sites-available/{{ config.insight.grafana.domain }}.conf"
 
 - name: Start & Enable grafana
   service:

@@ -42,6 +42,12 @@
 
 - include_tasks: collectd.yml
 
+- name: Restart uwsgi (graphite-web)
+  service:
+    name: uwsgi
+    enabled: true
+    state: restarted
+
 # To create a user for onself, use the following command:
 #
 # PYTHONPATH=/opt/graphite/webapp django-admin createsuperuser --settings=graphite.settings

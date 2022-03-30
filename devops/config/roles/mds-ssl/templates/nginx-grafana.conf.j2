@@ -1,10 +1,10 @@
 server {
     listen 443 ssl;
-    server_name grafana.markdownsite.com;
+    server_name {{ config.insight.grafana.domain }};
 
     # SSL Options
-    ssl_certificate /etc/letsencrypt/live/markdownsite.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/markdownsite.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/{{ config.panel.domain }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ config.panel.domain }}/privkey.pem;
 
     ssl_session_cache shared:le_nginx_SSL:10m;
     ssl_session_timeout 1440m;
@@ -30,6 +30,6 @@ server {
 
 server {
     listen 80;
-    server_name grafana.markdownsite.com;
+    server_name {{ config.insight.grafana.domain }};
     return 301 https://$host$request_uri;
 }
