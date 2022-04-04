@@ -44,15 +44,17 @@ __PACKAGE__->table("site");
   is_nullable: 0
   sequence: 'site_id_seq'
 
-=head2 repo
+=head2 person_id
 
-  data_type: 'citext'
+  data_type: 'integer'
+  is_foreign_key: 1
   is_nullable: 0
 
-=head2 domain
+=head2 domain_id
 
-  data_type: 'citext'
-  is_nullable: 0
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 1
 
 =head2 max_static_file_count
 
@@ -130,10 +132,10 @@ __PACKAGE__->add_columns(
     is_nullable       => 0,
     sequence          => "site_id_seq",
   },
-  "repo",
-  { data_type => "citext", is_nullable => 0 },
-  "domain",
-  { data_type => "citext", is_nullable => 0 },
+  "person_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  "domain_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "max_static_file_count",
   { data_type => "integer", default_value => 100, is_nullable => 0 },
   "max_static_file_size",
@@ -174,32 +176,6 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
-=head1 UNIQUE CONSTRAINTS
-
-=head2 C<site_domain_key>
-
-=over 4
-
-=item * L</domain>
-
-=back
-
-=cut
-
-__PACKAGE__->add_unique_constraint("site_domain_key", ["domain"]);
-
-=head2 C<site_repo_key>
-
-=over 4
-
-=item * L</repo>
-
-=back
-
-=cut
-
-__PACKAGE__->add_unique_constraint("site_repo_key", ["repo"]);
-
 =head1 RELATIONS
 
 =head2 builds
@@ -213,6 +189,56 @@ Related object: L<MarkdownSite::Panel::DB::Result::Build>
 __PACKAGE__->has_many(
   "builds",
   "MarkdownSite::Panel::DB::Result::Build",
+  { "foreign.site_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 domain
+
+Type: belongs_to
+
+Related object: L<MarkdownSite::Panel::DB::Result::Domain>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "domain",
+  "MarkdownSite::Panel::DB::Result::Domain",
+  { id => "domain_id" },
+  {
+    is_deferrable => 0,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
+);
+
+=head2 person
+
+Type: belongs_to
+
+Related object: L<MarkdownSite::Panel::DB::Result::Person>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "person",
+  "MarkdownSite::Panel::DB::Result::Person",
+  { id => "person_id" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
+=head2 repoes
+
+Type: has_many
+
+Related object: L<MarkdownSite::Panel::DB::Result::Repo>
+
+=cut
+
+__PACKAGE__->has_many(
+  "repoes",
+  "MarkdownSite::Panel::DB::Result::Repo",
   { "foreign.site_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
@@ -233,8 +259,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-04-01 23:10:49
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:awkBj3yyEcUA8jR3MLWfBw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-04-04 14:48:58
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:X2lGsCjvYxuVacOwaoVjlw
 
 sub attr {
     my ( $self, $attr, $value ) = @_;

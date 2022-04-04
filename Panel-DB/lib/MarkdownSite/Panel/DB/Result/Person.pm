@@ -148,6 +148,36 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 domain_redirects
+
+Type: has_many
+
+Related object: L<MarkdownSite::Panel::DB::Result::DomainRedirect>
+
+=cut
+
+__PACKAGE__->has_many(
+  "domain_redirects",
+  "MarkdownSite::Panel::DB::Result::DomainRedirect",
+  { "foreign.person_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 domains
+
+Type: has_many
+
+Related object: L<MarkdownSite::Panel::DB::Result::Domain>
+
+=cut
+
+__PACKAGE__->has_many(
+  "domains",
+  "MarkdownSite::Panel::DB::Result::Domain",
+  { "foreign.person_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 person_settings
 
 Type: has_many
@@ -163,9 +193,24 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 sites
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-04-01 23:10:49
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6KdNcY2uIE1oHU3gcaL9uw
+Type: has_many
+
+Related object: L<MarkdownSite::Panel::DB::Result::Site>
+
+=cut
+
+__PACKAGE__->has_many(
+  "sites",
+  "MarkdownSite::Panel::DB::Result::Site",
+  { "foreign.person_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-04-04 14:48:58
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Hi1V/nk0SbOImAfEsZei7w
 
 use Data::GUID;
 
