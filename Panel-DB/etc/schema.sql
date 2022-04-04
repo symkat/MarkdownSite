@@ -35,10 +35,25 @@ CREATE TABLE auth_token (
     created_at                  timestamptz     not null default current_timestamp
 );
 
+CREATE TABLE domain (
+    id                          serial          PRIMARY KEY,
+    person_id                   int             not null references person(id),
+    domain                      citext          not null unique,
+    created_at                  timestamptz     not null default current_timestamp
+);
+
+CREATE TABLE domain_redirect (
+    id                          serial          PRIMARY KEY,
+    person_id                   int             not null references person(id),
+    domain_id                   int             references domain(id),
+    redirect_to                 text            not null,
+    created_at                  timestamptz     not null default current_timestamp
+);
+
 CREATE TABLE site (
     id                          serial          PRIMARY KEY,
-    repo                        citext          not null unique,
-    domain                      citext          not null unique,
+    person_id                   int             not null references person(id),
+    domain_id                   int             references domain(id),
 
     -- Settings: File Allowances
     max_static_file_count       int             not null default 100,
@@ -56,6 +71,23 @@ CREATE TABLE site (
     can_change_domain           boolean         not null default false,
 
     is_enabled                  boolean         not null default true,
+    created_at                  timestamptz     not null default current_timestamp
+);
+
+CREATE TABLE repo (
+    id                          serial          PRIMARY KEY,
+    site_id                     int             not null references site(id),
+    url                         text            not null,
+
+    auth                        text            not null, -- 'none', 'sshkey', 'basic_auth'
+
+    -- HTTPS with basic auth
+    username                    text            ,
+    password                    text            ,
+
+    -- SSH with pub/priv keys.
+    private_key                 text            ,
+    public_key                  text            ,
     created_at                  timestamptz     not null default current_timestamp
 );
 
