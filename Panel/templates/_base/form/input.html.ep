@@ -1,0 +1,7 @@
+<!-- RUN _forms/input -->
+<div class="mb-3">
+    <label for="form_<%= $name %>" class="form-label"><%= $title %></label>
+    <input type="<%= $type %>" class="form-control" id="form_<%= $name %>" name="<%= $name %>" value="<%= $value %>" aria-describedby="form_<%= $name %>_help">
+    <div id="form_<%= $name %>_help" class="form-text"><%= $help %></div>
+</div>
+<!-- END _forms/input.tx -->

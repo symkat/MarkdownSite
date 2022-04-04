@@ -1,0 +1,38 @@
+% layout 'nologin', title => 'Reset Password', sb_active => 'forgot';
+
+<h2 style="margin-top: 1.5em" class="h2">Reset Password</h2>
+
+% if ( $c->stash->{success} ) {
+    <div style="margin-top: 2em" class="alert alert-success" role="alert">
+    <%= $c->stash->{success_message} %>
+    </div>
+%  }
+
+% if ( $c->stash->{errors} ) {
+    <div style="margin-top: 2em" class="alert alert-danger" role="alert">
+        There were errors with your request that could not be resolved:
+        <ul>
+%      for my $error ( @{$c->stash->{errors}} ) {
+            <li><%= $error %></li>
+%  } 
+        </ul>
+    </div>
+%  }
+
+    <form style="margin-top: 1.5em" method="POST" action="<%= $c->url_for() %>">
+        
+        <%= include '_base/form/input', type => 'password', name => 'password', 
+            title => 'Enter your new password', 
+            help  => '',
+            value => $c->stash->{form_password}
+        %>
+        
+        <%= include '_base/form/input', type => 'password', name => 'password_confirm', 
+            title => 'Confirm your new password', 
+            help  => '',
+            value => $c->stash->{form_password_confirm}
+        %>
+        
+
+        <button type="submit" class="btn btn-primary float-end">Reset Password</button>
+    </form>

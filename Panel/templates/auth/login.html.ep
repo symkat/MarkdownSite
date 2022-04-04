@@ -1,0 +1,38 @@
+% layout 'nologin', title => 'Register', sb_active => 'login';
+
+
+%  if ( $c->stash->{person} ) {
+%=   $c->stash->{person}->id
+%  }
+
+
+<h2 style="margin-top: 1.5em" class="h2">Login</h2>
+
+% if ( $c->stash->{errors} ) {
+    <div style="margin-top: 2em" class="alert alert-danger" role="alert">
+        There were errors with your request that could not be resolved:
+        <ul>
+%      for my $error ( @{$c->stash->{errors}} ) {
+            <li><%= $error %></li>
+%  } 
+        </ul>
+    </div>
+%  }
+
+    <form style="margin-top: 1.5em" method="POST" action="<%= $c->url_for( 'do_login' ) %>">
+
+        <%= include '_base/form/input', type => 'email', name => 'email', 
+            title => 'Email Address', 
+            help  => '',
+            value => $c->stash->{form_email}
+        %>
+        
+        <%= include '_base/form/input', type => 'password', name => 'password', 
+            title => 'Password', 
+            help  => '',
+            value => $c->stash->{form_password}
+        %>
+        
+        <button type="submit" class="btn btn-primary float-end">Login</button>
+    </form>
+

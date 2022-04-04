@@ -1,0 +1,32 @@
+<!-- BEGIN _base/sidebar.html.ep -->
+<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+    <div class="position-sticky pt-3">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link <%= $sb_active eq "dashboard" ? "active" : "" %>"  aria-current="page" href="<%= $c->url_for( 'show_dashboard' ) %>">
+                    <span data-feather="home"></span>
+                    Dashboard
+                </a>
+            </li>
+        </ul>
+
+        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+            <span>My Info</span>
+        </h6>
+        <ul class="nav flex-column mb-2">
+            <li class="nav-item">
+                <a class="nav-link <%= $sb_active eq "profile" ? "active" : "" %>" href="<%= $c->url_for( 'show_profile' ) %>">
+                    <span data-feather="lock"></span>
+                    Profile
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= $sb_active eq "password" ? "active" : "" %>" href="<%= $c->url_for( 'show_change_password' ) %>">
+                    <span data-feather="lock"></span>
+                    Change Password
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<!-- END _base/sidebar.html.ep -->
