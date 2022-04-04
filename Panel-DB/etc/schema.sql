@@ -35,6 +35,22 @@ CREATE TABLE auth_token (
     created_at                  timestamptz     not null default current_timestamp
 );
 
+CREATE TABLE ssh_key (
+    id                          serial          PRIMARY KEY,
+    person_id                   int             not null references person(id),
+    public_key                  text            not null,
+    private_key                 text            not null,
+    created_at                  timestamptz     not null default current_timestamp
+);
+
+CREATE TABLE basic_auth (
+    id                          serial          PRIMARY KEY,
+    person_id                   int             not null references person(id),
+    username                    text            not null,
+    password                    text            not null,
+    created_at                  timestamptz     not null default current_timestamp
+);
+
 CREATE TABLE domain (
     id                          serial          PRIMARY KEY,
     person_id                   int             not null references person(id),
@@ -79,15 +95,10 @@ CREATE TABLE repo (
     site_id                     int             not null references site(id),
     url                         text            not null,
 
-    auth                        text            not null, -- 'none', 'sshkey', 'basic_auth'
+    -- Auth methods for the url.
+    basic_auth_id               int             references basic_auth(id),
+    ssh_key_id                  int             references ssh_key(id),
 
-    -- HTTPS with basic auth
-    username                    text            ,
-    password                    text            ,
-
-    -- SSH with pub/priv keys.
-    private_key                 text            ,
-    public_key                  text            ,
     created_at                  timestamptz     not null default current_timestamp
 );
 
