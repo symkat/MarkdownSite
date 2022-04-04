@@ -148,6 +148,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 basic_auths
+
+Type: has_many
+
+Related object: L<MarkdownSite::Panel::DB::Result::BasicAuth>
+
+=cut
+
+__PACKAGE__->has_many(
+  "basic_auths",
+  "MarkdownSite::Panel::DB::Result::BasicAuth",
+  { "foreign.person_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 domain_redirects
 
 Type: has_many
@@ -208,9 +223,24 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 ssh_keys
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-04-04 14:48:58
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Hi1V/nk0SbOImAfEsZei7w
+Type: has_many
+
+Related object: L<MarkdownSite::Panel::DB::Result::SshKey>
+
+=cut
+
+__PACKAGE__->has_many(
+  "ssh_keys",
+  "MarkdownSite::Panel::DB::Result::SshKey",
+  { "foreign.person_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-04-04 15:07:18
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:V1AIz+Z/GIaDlWMk+sltKA
 
 use Data::GUID;
 

@@ -1,12 +1,12 @@
 use utf8;
-package MarkdownSite::Panel::DB::Result::Repo;
+package MarkdownSite::Panel::DB::Result::SshKey;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-MarkdownSite::Panel::DB::Result::Repo
+MarkdownSite::Panel::DB::Result::SshKey
 
 =cut
 
@@ -29,11 +29,11 @@ use base 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("InflateColumn::DateTime", "InflateColumn::Serializer");
 
-=head1 TABLE: C<repo>
+=head1 TABLE: C<ssh_key>
 
 =cut
 
-__PACKAGE__->table("repo");
+__PACKAGE__->table("ssh_key");
 
 =head1 ACCESSORS
 
@@ -42,30 +42,23 @@ __PACKAGE__->table("repo");
   data_type: 'integer'
   is_auto_increment: 1
   is_nullable: 0
-  sequence: 'repo_id_seq'
+  sequence: 'ssh_key_id_seq'
 
-=head2 site_id
+=head2 person_id
 
   data_type: 'integer'
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 url
+=head2 public_key
 
   data_type: 'text'
   is_nullable: 0
 
-=head2 basic_auth_id
+=head2 private_key
 
-  data_type: 'integer'
-  is_foreign_key: 1
-  is_nullable: 1
-
-=head2 ssh_key_id
-
-  data_type: 'integer'
-  is_foreign_key: 1
-  is_nullable: 1
+  data_type: 'text'
+  is_nullable: 0
 
 =head2 created_at
 
@@ -81,16 +74,14 @@ __PACKAGE__->add_columns(
     data_type         => "integer",
     is_auto_increment => 1,
     is_nullable       => 0,
-    sequence          => "repo_id_seq",
+    sequence          => "ssh_key_id_seq",
   },
-  "site_id",
+  "person_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
-  "url",
+  "public_key",
   { data_type => "text", is_nullable => 0 },
-  "basic_auth_id",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
-  "ssh_key_id",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
+  "private_key",
+  { data_type => "text", is_nullable => 0 },
   "created_at",
   {
     data_type     => "timestamp with time zone",
@@ -113,64 +104,39 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 basic_auth
+=head2 person
 
 Type: belongs_to
 
-Related object: L<MarkdownSite::Panel::DB::Result::BasicAuth>
+Related object: L<MarkdownSite::Panel::DB::Result::Person>
 
 =cut
 
 __PACKAGE__->belongs_to(
-  "basic_auth",
-  "MarkdownSite::Panel::DB::Result::BasicAuth",
-  { id => "basic_auth_id" },
-  {
-    is_deferrable => 0,
-    join_type     => "LEFT",
-    on_delete     => "NO ACTION",
-    on_update     => "NO ACTION",
-  },
-);
-
-=head2 site
-
-Type: belongs_to
-
-Related object: L<MarkdownSite::Panel::DB::Result::Site>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "site",
-  "MarkdownSite::Panel::DB::Result::Site",
-  { id => "site_id" },
+  "person",
+  "MarkdownSite::Panel::DB::Result::Person",
+  { id => "person_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 ssh_key
+=head2 repoes
 
-Type: belongs_to
+Type: has_many
 
-Related object: L<MarkdownSite::Panel::DB::Result::SshKey>
+Related object: L<MarkdownSite::Panel::DB::Result::Repo>
 
 =cut
 
-__PACKAGE__->belongs_to(
-  "ssh_key",
-  "MarkdownSite::Panel::DB::Result::SshKey",
-  { id => "ssh_key_id" },
-  {
-    is_deferrable => 0,
-    join_type     => "LEFT",
-    on_delete     => "NO ACTION",
-    on_update     => "NO ACTION",
-  },
+__PACKAGE__->has_many(
+  "repoes",
+  "MarkdownSite::Panel::DB::Result::Repo",
+  { "foreign.ssh_key_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-04-04 15:07:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:n6yNhNIiJdXlOgl3uT4VaA
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:s6ngWUryMUVFPTs13PRP6w
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
