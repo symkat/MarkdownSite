@@ -1,0 +1,18 @@
+{
+    "renderer": "TT",
+    "header": [
+        { "To"      : "[% send_to %]" },
+        { "From"    : "MarkdownSite <mailbot@markdownsite.com>" },
+        { "Subject" : "Password reset link for your MarkdownSite account" }
+    ],
+    "alternatives": [
+        {
+            "type": "text/plain",
+            "path": "body.txt"
+        },
+        {
+            "type": "text/html",
+            "path": "body.html"
+        }
+    ]
+}

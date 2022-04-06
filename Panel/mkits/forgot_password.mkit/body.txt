@@ -1,0 +1,9 @@
+Hello!
+
+You requested a password reset link.
+
+Here it is: [% link %]
+
+Thank you!
+
+- The MarkdownSite Email Bot
