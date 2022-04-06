@@ -22,7 +22,8 @@ sub startup ($self ) {
 
     $self->plugin( Minion => { Pg => $self->config->{database}->{minion} } );
     $self->plugin( 'Minion::Admin' );
-    $self->minion->add_task( send_email => 'MarkdownSite::Panel::Task::SendEmail' );
+    $self->minion->add_task( send_email    => 'MarkdownSite::Panel::Task::SendEmail' );
+    $self->minion->add_task( create_sshkey => 'MarkdownSite::Panel::Task::Create::SSHKey' );
 
 
     # Standard router.
@@ -76,54 +77,19 @@ sub startup ($self ) {
     $auth->get ('/password'  )->to('UserSettings#change_password'    )->name('show_change_password' );
     $auth->post('/password'  )->to('UserSettings#do_change_password' )->name('do_change_password'    );
 
-
-
+    # User dashboard
     $auth->get('/dashboard'                    )->to('Dashboard#index'        )->name('show_dashboard'    );
 
+    # User create new website
+    $auth->get  ('/create/website' )->to('Create::Website#start'   )->name('show_create_website' );
+    $auth->post ('/create/website' )->to('Create::Website#do_start')->name('do_create_website'   );
 
-
-
-
-
-
-
-
-
-    #    # Controllers to handle initial user creation, login and logout.
-    #    $r->get ('/auth/init'  )->to('Auth#init'        )->name('auth_init'        );
-    #    $r->post('/auth/init'  )->to('Auth#create_init' )->name('create_auth_init' );
-    #    $r->get ('/auth/login' )->to('Auth#login'       )->name('auth_login'       );
-    #    $r->post('/auth/login' )->to('Auth#create_login')->name('create_auth_login');
-    #    $r->get ('/auth/logout')->to('Auth#logout'      )->name('logout'       );
-    #
-    #
-    #    # Controllers to create new things.
-    #    $auth->get ('/create/network' )->to('Create#network'        )->name('new_network'    );
-    #    $auth->post('/create/network' )->to('Create#create_network' )->name('create_network' );
-    #    $auth->get ('/create/node'    )->to('Create#node'           )->name('new_node'       );
-    #    $auth->post('/create/node'    )->to('Create#create_node'    )->name('create_node'    );
-    #    $auth->get ('/create/sshkey'  )->to('Create#sshkey'         )->name('new_sshkey'     );
-    #    $auth->post('/create/sshkey'  )->to('Create#create_sshkey'  )->name('create_sshkey'  );
-    #    $auth->get ('/create/user'    )->to('Create#user'           )->name('new_user'       );
-    #    $auth->post('/create/user'    )->to('Create#create_user'    )->name('create_user'    );
-    #    $auth->get ('/create/password')->to('Create#password'       )->name('new_password'   );
-    #    $auth->post('/create/password')->to('Create#create_password')->name('create_password');
-    #
-    #    # Controllers to handle deploying/adopting nodes.
-    #    $auth->get ('/deploy/manual/:node_id'   )->to('Deploy#manual'          )->name('deploy_manual'   );
-    #    $auth->post('/deploy/macos'             )->to('Deploy#create_macos'    )->name('create_macos'    );
-    #    $auth->get ('/deploy/automatic/:node_id')->to('Deploy#automatic'       )->name('deploy_automatic');
-    #    $auth->post('/deploy/automatic'         )->to('Deploy#create_automatic')->name('create_automatic');
-    #
-    #    # Controllers for the dashboard to view the networks.
-    #    $auth->get('/dashboard'                    )->to('Dashboard#index'        )->name('dashboard'    );
-    #    $auth->get('/dashboard/users'              )->to('Dashboard#users'        )->name('list_users'   );
-    #    $auth->get('/dashboard/nodes'              )->to('Dashboard::Node#list'   )->name('list_nodes'   );
-    #    $auth->get('/dashboard/node/:node_id'      )->to('Dashboard::Node#view'   )->name('view_node'    );
-    #    $auth->get('/dashboard/networks'           )->to('Dashboard::Network#list')->name('list_networks');
-    #    $auth->get('/dashboard/network/:network_id')->to('Dashboard::Network#view')->name('view_network' );
-    #    $auth->get('/dashboard/sshkeys'            )->to('Dashboard::Sshkeys#list')->name('list_sshkeys' );
-    #    $auth->get('/dashboard/sshkeys/:sshkey_id' )->to('Dashboard::Sshkeys#view')->name('view_sshkey'  );
+    # Manage SSH Keys
+    $auth->get  ('/sshkey'        )->to('Sshkey#create'   )->name('show_create_sshkey' );
+    $auth->get  ('/sshkey/import' )->to('Sshkey#import'   )->name('show_import_sshkey' );
+    $auth->post ('/sshkey/create' )->to('Sshkey#do_create')->name('do_create_sshkey'   );
+    $auth->post ('/sshkey/import' )->to('Sshkey#do_import')->name('do_import_sshkey'   );
+    $auth->post ('/sshkey/remove' )->to('Sshkey#do_remove')->name('do_remove_sshkey'   );
 
 }
 

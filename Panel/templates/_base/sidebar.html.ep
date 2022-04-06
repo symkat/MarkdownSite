@@ -11,12 +11,30 @@
         </ul>
 
         <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+            <span>Create New</span>
+        </h6>
+        <ul class="nav flex-column mb-2">
+            <li class="nav-item">
+                <a class="nav-link <%= $sb_active eq "website" ? "active" : "" %>" href="<%= $c->url_for( 'show_create_website' ) %>">
+                    <span data-feather="layout"></span>
+                    Website
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= $sb_active eq "sshkey" ? "active" : "" %>" href="<%= $c->url_for( 'show_create_sshkey' ) %>">
+                    <span data-feather="link"></span>
+                    SSH Keypair
+                </a>
+            </li>
+        </ul>
+
+        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
             <span>My Info</span>
         </h6>
         <ul class="nav flex-column mb-2">
             <li class="nav-item">
                 <a class="nav-link <%= $sb_active eq "profile" ? "active" : "" %>" href="<%= $c->url_for( 'show_profile' ) %>">
-                    <span data-feather="lock"></span>
+                    <span data-feather="user"></span>
                     Profile
                 </a>
             </li>

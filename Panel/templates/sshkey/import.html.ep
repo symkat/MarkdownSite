@@ -1,0 +1,45 @@
+% layout 'layout', title => 'Import SSH Key', sb_active => 'sshkey';
+
+<h2 style="margin-top: 1.5em" class="h2">Import SSH Key</h2>
+
+<p>Use your own SSH key.  The private key will be used by MarkdownSite when it clones your repo.  The public key will be displayed in your list of keys.</p>
+
+
+% if ( $c->stash->{success} ) {
+    <div style="margin-top: 2em" class="alert alert-success" role="alert">
+    <%= $c->stash->{success_message} %>
+    </div>
+%  }
+
+% if ( $c->stash->{errors} ) {
+    <div style="margin-top: 2em" class="alert alert-danger" role="alert">
+        There were errors with your request that could not be resolved:
+        <ul>
+%      for my $error ( @{$c->stash->{errors}} ) {
+            <li><%= $error %></li>
+%  } 
+        </ul>
+    </div>
+%  }
+
+    <form style="margin-top: 1.5em" method="POST" action="<%= $c->url_for( 'do_import_sshkey' ) %>">
+
+        <%= include '_base/form/input', type => 'text', name => 'name', 
+            title       => 'Deploy key name or title', 
+            help        => 'This will be used as a comment for the keypair.',
+            value       => $c->stash->{form_name},
+        %>
+
+        <div class="mb-3">
+            <label for="public_key" class="form-label">SSH Public Key</label>
+            <textarea name="public_key" class="form-control" id="public_key" rows="3"><%= $c->stash->{form_public_key} %></textarea>
+        </div>
+        
+        <div class="mb-3">
+            <label for="private_key" class="form-label">SSH Private Key</label>
+            <textarea name="private_key" class="form-control" id="private_key" rows="15"><%= $c->stash->{form_private_key} %></textarea>
+        </div>
+
+
+        <button type="submit" class="btn btn-primary float-end">Import SSH Key</button>
+    </form>
