@@ -50,6 +50,11 @@ __PACKAGE__->table("ssh_key");
   is_foreign_key: 1
   is_nullable: 0
 
+=head2 title
+
+  data_type: 'text'
+  is_nullable: 1
+
 =head2 public_key
 
   data_type: 'text'
@@ -78,6 +83,8 @@ __PACKAGE__->add_columns(
   },
   "person_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  "title",
+  { data_type => "text", is_nullable => 1 },
   "public_key",
   { data_type => "text", is_nullable => 0 },
   "private_key",
@@ -135,8 +142,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-04-04 15:07:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:s6ngWUryMUVFPTs13PRP6w
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-04-04 17:17:19
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:hAuz5Hl74GIjb6mEtdJGrw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

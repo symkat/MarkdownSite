@@ -38,6 +38,7 @@ CREATE TABLE auth_token (
 CREATE TABLE ssh_key (
     id                          serial          PRIMARY KEY,
     person_id                   int             not null references person(id),
+    title                       text            ,
     public_key                  text            not null,
     private_key                 text            not null,
     created_at                  timestamptz     not null default current_timestamp
