@@ -1,0 +1,28 @@
+% layout 'layout', title => 'Dashboard', sb_active => 'dashboard';
+
+
+
+% if ( $person->ssh_keys ) {
+    <h3 class="h3 mt-5 mb-3">My SSH Keys</h3>
+    % for my $key ( $person->ssh_keys ) {
+        <table style="border: 1px solid #ccc" class="table mb-5">
+            <tbody>
+                <tr>
+                    <th class="text-nowrap">Title</th>
+                    <td><%= $key->title %></td>
+                    <td>
+                        <form method="post" action="<%= $c->url_for( 'do_remove_sshkey' ) %>">
+                            <input type="hidden" name="sshkey_id" value="<%= $key->id %>" />
+                            <button class="btn btn-danger btn-sm" type="submit">Delete</submit>
+                        </form>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-nowrap">Public Key</th>
+                    <td cols=2 class="text-break"><%= $key->public_key %></td>
+                </tr>
+            </tbody>
+        </table>
+    % }
+% }
+

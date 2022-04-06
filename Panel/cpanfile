@@ -1,0 +1,6 @@
+requires 'Minion';
+requires 'Mojo::Pg';
+requires 'DateTime::Format::Pg';
+
+test_requires "Test::More";
+test_requires "Test::Deep";
