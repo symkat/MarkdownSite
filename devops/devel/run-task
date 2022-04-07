@@ -1,0 +1,106 @@
+#!/usr/bin/env perl
+use warnings;
+use strict;
+use File::Temp qw( tempfile ); # corelist - 5.6.1
+use File::Find;                # corelist - 5 
+use Getopt::Long;              # corelist - 5
+
+my $opts = { 
+    help   => 0, 
+    config => 'config.yml' 
+};
+
+GetOptions($opts, qw(
+    config=s
+    help!
+));
+
+my $data = get_data();
+
+# If the user asks for help, or doesn't invoke correctly, provide usage.
+if ( ( $opts->{help} ) or ( not @ARGV ) or ( @ARGV < 2 )) {
+    my $roles = join( "", map { "\t$_\n" } find_roles() );
+    (my $usage = $data->{USAGE} ) =~ s|\[\% ROLES \%\]|$roles|g;
+    print STDERR $usage;
+    exit;
+}
+
+# Gather role, host and then create a playbook.
+my ( $role, $host ) = @ARGV;
+
+die "Error: devel tasks may not be run on any markdownsite.com servers.\n"
+    if $host =~ /markdownsite\.com$/;
+
+(my $playbook = $data->{TEMPLATE} ) =~ s|\[\% ROLE \%\]|$role|g;
+$playbook =~ s|\[\% CONFIG_FILE \%\]|$opts->{config}|g;
+
+# Write the playbook to a temp file that will be deleted once this script is finished.
+my ( $fh, $filename ) = tempfile( DIR => '.', SUFFIX => '.yml', UNLINK => 1 );
+print $fh $playbook;
+close $fh;
+
+# Tell the user what we're running, and then run it.
+print "[$role] Running: ansible-playbook -i '$host,' $filename\n";
+system( qw( ansible-playbook -i ), "$host,", $filename );
+
+# == Data Stuff == # 
+# Store file and usage in the __DATA__ section and load them
+# into a hash based on -!- NAME -!- preceeding the file.  If
+# there is content before an initial -!- NAME -!- the name will
+# be DEFAULT.
+sub get_data {
+    my %data;
+    my $section = 'DEFAULT';
+    foreach my $line ( <DATA> ) {
+        if ( $line =~ /^-!- ([A-Z]+) -!-$/ ) {
+            $section = $1;
+            next;
+        }
+        $data{$section} .= $line;
+    }
+    return \%data;
+};
+
+# Return a list of the rules we know about.
+sub find_roles {
+    my @roles;
+
+    find( sub { 
+        return unless $File::Find::dir =~ tr[/][] == 0; # roles/* only
+        return unless $_ ne '.';                        # No .
+        push @roles, $_;
+    }, 'roles' );
+
+    return @roles;
+}
+
+
+__DATA__
+-!- TEMPLATE -!-
+---
+- name: Run development task
+  remote_user: root
+  hosts: all
+  vars:
+    ansible_ssh_common_args: -oControlMaster=auto -oControlPersist=60s -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no
+    config: "{{ lookup('file', '[% CONFIG_FILE %]' ) | from_yaml }}"
+
+  roles:
+    - [% ROLE %]
+
+-!- USAGE -!-
+
+This program runs task that make development easier, and should be run on development servers.
+
+Usage: ./run-task [--config your-config.yml] <mds-setup-...> <host or ip for ssh connection>
+
+Examples: 
+
+    Reset the DB on panel.mds-dev.com
+    $ ./run-task  mds-reset-db panel.mds-dev.com
+
+
+Server Types:
+
+    [% ROLES %]
+
