@@ -6,7 +6,7 @@ After=postgresql.target
 User=minion
 Group=minion
 
-ExecStart=mds-manager minion worker
+ExecStart=mds-panel minion worker
 WorkingDirectory=/home/minion
 
 Restart=on-failure

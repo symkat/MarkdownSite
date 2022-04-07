@@ -6,9 +6,9 @@ After=postgresql.target
 User=manager
 Group=manager
 
-ExecStart=hypnotoad script/mds-manager
-ExecReload=hypnotoad script/mds-manager
-WorkingDirectory=/home/manager/markdownsite/Manager
+ExecStart=hypnotoad script/mds-panel
+ExecReload=hypnotoad script/mds-panel
+WorkingDirectory=/home/manager/markdownsite/Panel
 
 Restart=on-failure
 Type=forking

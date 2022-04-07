@@ -31,9 +31,17 @@
   cpanm:
     name: "{{ config.pkg.manager_db }}"
 
+- name: Install MarkdownSite::Panelr::DB
+  cpanm:
+    name: "{{ config.pkg.panel_db }}"
+
 - name: Install MarkdownSite::Manager
   cpanm:
     name: "{{ config.pkg.manager }}"
+
+- name: Install MarkdownSite::Panel
+  cpanm:
+    name: "{{ config.pkg.panel }}"
 
 - name: Install /etc/markdownsite.yml
   template:
@@ -162,10 +170,11 @@
   become: true
   become_user: manager
 
+## TODO ensure mds-panel gets dbc, and then replace this command.
 - name: Import the database
-  shell: mds-manager dbc < /home/manager/markdownsite/Manager-DB/etc/schema.sql > /home/manager/markdownsite/Manager-DB/etc/schema.log
+  shell: mds-manager dbc < /home/manager/markdownsite/Panel-DB/etc/schema.sql > /home/manager/markdownsite/Panel-DB/etc/schema.log
   args:
-    creates: /home/manager/markdownsite/Manager-DB/etc/schema.log
+    creates: /home/manager/markdownsite/Panel-DB/etc/schema.log
   become: true
   become_user: manager
 

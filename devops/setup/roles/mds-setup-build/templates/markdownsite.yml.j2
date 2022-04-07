@@ -2,3 +2,17 @@
 database:
   markdownsite: postgresql://{{ config.database.markdownsite.user }}:{{ config.database.markdownsite.pass }}@{{ config.database.markdownsite.host }}/markdownsite
   minion: postgresql://{{ config.database.minion.user }}:{{ config.database.minion.pass }}@{{ config.database.minion.host }}/minion
+domain: {{ config.panel.domain }}
+hosted_domain: {{ config.panel.domain_for_users }}
+
+secrets:
+{% for secret in config.panel.secrets %}
+  - {{ secret }}
+{% endfor %}
+
+smtp:
+  host: {{ config.smtp.host }} 
+  port: {{ config.smtp.port }}
+  sasl_username: {{ config.smtp.sasl_username }}
+  sasl_password: {{ config.smtp.sasl_password }}
+mkit_path: {{ config.panel.mkit_path }}
