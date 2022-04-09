@@ -22,9 +22,10 @@ sub startup ($self ) {
 
     $self->plugin( Minion => { Pg => $self->config->{database}->{minion} } );
     $self->plugin( 'Minion::Admin' );
-    $self->minion->add_task( send_email    => 'MarkdownSite::Panel::Task::SendEmail' );
-    $self->minion->add_task( create_sshkey => 'MarkdownSite::Panel::Task::Create::SSHKey' );
-
+    $self->minion->add_task( send_email     => 'MarkdownSite::Panel::Task::SendEmail'      );
+    $self->minion->add_task( create_sshkey  => 'MarkdownSite::Panel::Task::Create::SSHKey' );
+    $self->minion->add_task( deploy_website => 'MarkdownSite::Panel::Task::DeployWebsite'  );
+    $self->minion->add_task( purge_website  => 'MarkdownSite::Panel::Task::PurgeWebsite'   );
 
     # Standard router.
     my $r = $self->routes->under( '/' => sub ($c)  {

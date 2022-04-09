@@ -2,6 +2,15 @@
 
 <h2 style="margin-top: 1.5em" class="h2">Create New Website</h2>
 
+<p>Welcome to MarkdownSite Website Creator!</p>
+
+
+<p>We need to connect to your repository.  This will be where the files for your website are</p>
+
+<p>A domain name will also be required.  If you don't have your own domain, we can set you up on a subdomain of <%= $c->config->{hosted_domain} %>, so you could have https://yoursite.<%= $c->config->{hosted_domain} %> be your website.  If you have your own domain, we can use that but you'll need to setup some DNS records.</p>
+
+
+
 % if ( $c->stash->{success} ) {
     <div style="margin-top: 2em" class="alert alert-success" role="alert">
     <%= $c->stash->{success_message} %>
@@ -21,6 +30,8 @@
 
 <form style="margin-top: 1.5em" method="POST" action="<%= $c->url_for( 'do_create_website' ) %>">
 
+    <h3 class="h3">Configure Repository</h3>
+
     <%= include '_base/form/input', type => 'text', name => 'repo_url', 
         title => 'Your Git Repository', 
         help  => 'This probably starts with https:// or git@...',
@@ -33,6 +44,32 @@
             % for my $key ( $person->ssh_keys ) {
             <option <%= $c->stash->{form_sshkey_id} == $key->id ? "selected" : "" %> value="<%= $key->id %>"><%= $key->title %></option>
             %}
+        </select>
+    </div>
+
+    <hr />
+
+    <h3 class="h3">Configure Domain</h3>
+
+    <div class="input-group mb-3">
+        <input name="subdomain" type="text" class="form-control" placeholder="your-subdomain" aria-label="subdomain" aria-describedby="hosted-domain-addon">
+        <span class="input-group-text" id="hosted-domain-addon">.<%= $c->config->{hosted_domain} %></span>
+    </div>
+
+    <hr />
+
+    <h3 class="h3">Website Configuration</h3>
+
+    <div class="mb-3">
+        <select name="sshkey_id" class="form-select" aria-label="Select SSH Key">
+            <option name="sshkey_id"  value="">Select Builder</option>
+            <option name="sshkey_id" value="">Hugo Website</option>
+            <option name="sshkey_id" value="">Jekyll Blog</option>
+            <option name="sshkey_id" value="">Website Builder</option>
+
+            % for my $key ( $person->ssh_keys ) {
+            <option <%= $c->stash->{form_sshkey_id} == $key->id ? "selected" : "" %> value="<%= $key->id %>"><%= $key->title %></option>
+            % }
         </select>
     </div>
 
