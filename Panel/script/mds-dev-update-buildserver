@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# This script is for use from a development panel server.
+# 
+# The script will build a .tar.gz Perl module with dzil, and then
+# upload it to the server you specify (set SERVER= for long-running
+# environments).
+#
+# After the module is uploaded, it will be installed and the 
+# markdownsite.worker service will be restarted.
+
+SERVER=$1;
+
+if [ -z $SERVER ]; then
+    echo "Usage: $0 <build_server>"
+    echo "Build MarkdownSite::Panel, ship to <build_server>, and restart markdownsite.worker";
+    exit -1;
+fi;
+
+if [[ $SERVER =~ \.markdownsite\.com$ || $SERVER =~ ^markdownsite\.com$ ]]; then
+    echo "This script may not be run against markdownsite.com servers.";
+    exit -1;
+fi;
+
+dzil clean;
+dzil build;
+
+scp MarkdownSite-Panel-*.tar.gz root@$SERVER: # our-side * expansion
+scp root@$SERVER cpanm MarkdownSite-Panel-*.tar.gz 
+
+echo "Restarting MDS.worker"
+ssh root@$SERVER systemctl restart markdownsite.worker
+
+echo "Removing asset from remote server"
+ssh root@$SERVER rm MarkdownSite-Panel-*.tar.gz # our-side * expansion
+
+echo "Removing local build files."
+dzil clean
+
+echo ""
+echo "The minion worker should be using the latest code now!"
