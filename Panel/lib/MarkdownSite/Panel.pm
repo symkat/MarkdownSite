@@ -79,7 +79,8 @@ sub startup ($self ) {
     $auth->post('/password'  )->to('UserSettings#do_change_password' )->name('do_change_password'    );
 
     # User dashboard
-    $auth->get('/dashboard'                    )->to('Dashboard#index'        )->name('show_dashboard'    );
+    $auth->get('/dashboard'                    )->to('Dashboard#index'   )->name('show_dashboard'    );
+    $auth->get('/dashboard/website/:site_id'   )->to('Dashboard#website' )->name('show_dashboard_website'    );
 
     # User create new website
     $auth->get  ('/create/website' )->to('Create::Website#start'   )->name('show_create_website' );

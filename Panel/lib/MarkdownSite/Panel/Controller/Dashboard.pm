@@ -26,4 +26,13 @@ sub users ($c) {
     );
 }
 
+sub website ( $c ){
+    my $site_id = $c->stash->{site_id} = $c->param('site_id');
+
+    my $site = $c->db->site( $site_id );
+
+
+    $c->stash->{site} = $site;
+}
+
 1;

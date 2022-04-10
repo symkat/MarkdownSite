@@ -42,7 +42,7 @@
         <select name="sshkey_id" class="form-select" aria-label="Select SSH Key">
             <option name="sshkey_id"  value="">Select SSH Key</option>
             % for my $key ( $person->ssh_keys ) {
-            <option <%= $c->stash->{form_sshkey_id} == $key->id ? "selected" : "" %> value="<%= $key->id %>"><%= $key->title %></option>
+            <option name="sshkey_id" <%= $c->stash->{form_sshkey_id} == $key->id ? "selected" : "" %> value="<%= $key->id %>"><%= $key->title %></option>
             %}
         </select>
     </div>
@@ -61,15 +61,12 @@
     <h3 class="h3">Website Configuration</h3>
 
     <div class="mb-3">
-        <select name="sshkey_id" class="form-select" aria-label="Select SSH Key">
-            <option name="sshkey_id"  value="">Select Builder</option>
-            <option name="sshkey_id" value="">Hugo Website</option>
-            <option name="sshkey_id" value="">Jekyll Blog</option>
-            <option name="sshkey_id" value="">Website Builder</option>
+        <select name="builder" class="form-select" aria-label="Select SSH Key">
+            <option  value="">Select Builder</option>
+            <option  value="">Hugo Website</option>
+            <option  value="">Jekyll Blog</option>
+            <option  value="">Website Builder</option>
 
-            % for my $key ( $person->ssh_keys ) {
-            <option <%= $c->stash->{form_sshkey_id} == $key->id ? "selected" : "" %> value="<%= $key->id %>"><%= $key->title %></option>
-            % }
         </select>
     </div>
 

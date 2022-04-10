@@ -5,7 +5,7 @@ use IPC::Run3;
 sub run ( $job, $domain ) {
     $job->note( _mds_template => 'remove_markdownsite.tx' );
 
-    my @logs = $self->run_system_cmd(
+    my @logs = $job->run_system_cmd(
         'ansible-playbook', '--extra-vars', "domain=$domain", '/etc/ansible/purge-website.yml'
     );
 

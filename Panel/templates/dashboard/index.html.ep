@@ -1,6 +1,27 @@
 % layout 'layout', title => 'Dashboard', sb_active => 'dashboard';
 
 
+% if ( $person->sites ) {
+    <h3 class="h3 mt-5 mb-3">My Websites</h3>
+    <table style="border: 1px solid #ccc" class="table mb-5">
+        <tbody>
+            <tr>
+                <th class="text-nowrap">Domain</th>
+                <th class="text-nowrap">Repository</th>
+                <th class="text-nowrap">Status Link</th>
+            </tr>
+        </thead>
+        <tbody>
+            % for my $site ( $person->sites ) {
+            <tr>
+                <td><a href="https://<%= $site->domain->domain %>"><%= $site->domain->domain %></a></td>
+                <td><%= $site->repo->url %></td>
+                <td><a href="<%= $c->url_for( 'show_dashboard_website', { site_id => $site->id } ) %>">Manage Site</a></td>
+            </tr>
+            % }
+        </tbody>
+    </table>
+% }
 
 % if ( $person->ssh_keys ) {
     <h3 class="h3 mt-5 mb-3">My SSH Keys</h3>
