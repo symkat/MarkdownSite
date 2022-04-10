@@ -302,5 +302,12 @@ sub get_attrs {
     return $return;
 }
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
+sub repo {
+    my ( $self ) = @_;
+
+    return $self->search_related( 'repoes' )->first;
+
+}
+
+
 1;
