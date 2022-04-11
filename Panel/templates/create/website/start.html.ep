@@ -47,28 +47,5 @@
         </select>
     </div>
 
-    <hr />
-
-    <h3 class="h3">Configure Domain</h3>
-
-    <div class="input-group mb-3">
-        <input name="subdomain" type="text" class="form-control" placeholder="your-subdomain" aria-label="subdomain" aria-describedby="hosted-domain-addon">
-        <span class="input-group-text" id="hosted-domain-addon">.<%= $c->config->{hosted_domain} %></span>
-    </div>
-
-    <hr />
-
-    <h3 class="h3">Website Configuration</h3>
-
-    <div class="mb-3">
-        <select name="builder" class="form-select" aria-label="Select SSH Key">
-            <option  value="">Select Builder</option>
-            <option  value="">Hugo Website</option>
-            <option  value="">Jekyll Blog</option>
-            <option  value="">Website Builder</option>
-
-        </select>
-    </div>
-
     <button type="submit" class="btn btn-primary float-end">Connect &amp; Continue &rarr;</button>
 </form>
