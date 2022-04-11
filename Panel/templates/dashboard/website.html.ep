@@ -36,4 +36,121 @@
 </form>
 
 <%# Job Panel %>
+% my $index = 0;
+% foreach my $build ( @{$site->get_builds} ) { 
+    % $index++;
+    % if ( my $build_job = $c->minion->job( $build->{job_id} ) ) {
+        % my $job = $build_job->info;
 
+        % if ( $job->{state} eq 'finished' ) {
+            <div class="card mt-4">
+                <div class="card-header alert-success">
+                    %= include '_svg/checkmark'
+                    Build <%= $build->{id} %> completed successfully.  (Queued: <%= $build->{date} %>)
+                    <button class="btn" data-bs-toggle="collapse" data-bs-target="#job_window_<%= $job->{id} %>">
+                        %= include '_svg/chevron'
+                    </button>
+                </div>
+                <div id="job_window_<%= $job->{id} %>" class="card-body <%= $index == 1 ?  '' : 'collapse' %>">
+
+                    %= include 'dashboard/_website/milestone', milestone => { is_complete => $job->{notes}->{is_deploy_complete}, text => 'Deploy to Webserver' };
+                    
+                    %= include 'dashboard/_website/milestone', milestone => { is_complete => $job->{notes}->{is_build_complete}, text => 'Build Website' };
+                    
+                    %= include 'dashboard/_website/milestone', milestone => { is_complete => $job->{notes}->{is_clone_complete}, text => 'Clone Repo &  Check Settings' };
+
+                    <hr />
+
+                    <button class="btn" data-bs-toggle="collapse" data-bs-target="#job_log_window_<%= $job->{id} %>">View Logs</button>
+
+                    <div id="job_log_window_<%= $job->{id} %>" class="card-body collapse">
+                        <hr />
+                        <pre>
+                            % for my $line ( @{$job->{result}} ) { 
+                                <%= "$line\n" =%>
+                            % }
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        % } elsif ( $job->{state} eq 'inactive' ) {
+            <div class="card mb-4 alert-warning">
+                <div class="card-header">
+                    <div class="spinner-grow spinner-grow-sm" role="status">
+                        <span class="visually-hidden">Waiting...</span>
+                    </div>
+                    Build <%= $build->{id} %> pending build.  (Queued: <%= $build->{date} %>)
+                </div>
+            </div>
+
+        % } elsif ( $job->{state} eq 'failed' ) {
+            <div class="card mt-4">
+                <div class="card-header alert-warning">
+                    %= include '_svg/failed'
+                    Build <%= $build->{id} %> failed.  (Queued: <%= $build->{date} %>)
+                    <button class="btn" data-bs-toggle="collapse" data-bs-target="#job_window_<%= $job->{id} %>">
+                        %= include '_svg/chevron'
+                    </button>
+                </div>
+                <div id="job_window_<%= $job->{id} %>" class="card-body <%= $index == 1 ?  '' : 'collapse' %>">
+
+                    %= include 'dashboard/_website/milestone', milestone => { is_complete => $job->{notes}->{is_deploy_complete}, text => 'Deploy to Webserver' };
+                    
+                    %= include 'dashboard/_website/milestone', milestone => { is_complete => $job->{notes}->{is_build_complete}, text => 'Build Website' };
+                    
+                    %= include 'dashboard/_website/milestone', milestone => { is_complete => $job->{notes}->{is_clone_complete}, text => 'Clone Repo &  Check Settings' };
+
+                    <hr />
+
+                    <button class="btn" data-bs-toggle="collapse" data-bs-target="#job_log_window_<%= $job->{id} %>">View Logs</button>
+
+                    <div id="job_log_window_<%= $job->{id} %>" class="card-body collapse">
+                        <hr />
+                        <pre>
+                            % for my $line ( @{$job->{result}} ) { 
+                                <%= "$line\n" =%>
+                            % }
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        
+        % } elsif ( $job->{state} eq 'active' ) {
+            <div class="card mt-4">
+                <div class="card-header alert-warning">
+                    <div class="spinner-grow spinner-grow-sm" role="status">
+                        <span class="visually-hidden">Building...</span>
+                    </div>
+
+                    Building <%= $build->{id} %>...  (Queued: <%= $build->{date} %>)
+
+                </div>
+                <div id="job_window_<%= $job->{id} %>" class="card-body">
+
+                    %= include 'dashboard/_website/milestone', milestone => { is_complete => $job->{notes}->{is_deploy_complete}, text => 'Deploy to Webserver' };
+                    
+                    %= include 'dashboard/_website/milestone', milestone => { is_complete => $job->{notes}->{is_build_complete}, text => 'Build Website' };
+                    
+                    %= include 'dashboard/_website/milestone', milestone => { is_complete => $job->{notes}->{is_clone_complete}, text => 'Clone Repo &  Check Settings' };
+
+                    <hr />
+
+                    <div id="job_log_window_<%= $job->{id} %>" class="card-body">
+                        <hr />
+                        <pre>
+                            % for my $line ( @{$job->{result}} ) { 
+                                <%= "$line\n" =%>
+                            % }
+                        </pre>
+                    </div>
+                </div>
+            </div>
+
+        % } else {
+            Job in unknown state: <%= $build->{job_id} %>
+            %= $job->{state}
+        % }
+    % } else {
+        Job not found: <%= $build->{job_id} %>
+    % }
+% }

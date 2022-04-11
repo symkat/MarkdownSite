@@ -31,6 +31,7 @@ sub website ( $c ){
 
     my $site = $c->db->site( $site_id );
 
+    $c->stash->{refresh_for_minion} = 1;
 
     $c->stash->{site} = $site;
 }
@@ -59,7 +60,16 @@ sub do_rebuild ( $c ) {
         return;
     }
 
-    $c->minion->enqueue( 'deploy_website', [ $site->id ] );
+    # TODO: Check build allowence
+
+    # Queue the job to deploy the website.
+    my $id = $c->minion->enqueue( 'deploy_website', [ $site->id ] => {
+        notes    => { '_mds_sid_' . $site->id => 1 },
+        priority => $site->build_priority,
+    });
+    
+    # Create a build record in the database for the site.
+    $site->create_related( 'builds', { job_id => $id } );
 
     $c->redirect_to( $c->url_for( 'show_dashboard_website', { site_id => $site->id } ) );
 }

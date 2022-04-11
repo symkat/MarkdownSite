@@ -262,6 +262,8 @@ __PACKAGE__->has_many(
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-04-04 14:48:58
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:X2lGsCjvYxuVacOwaoVjlw
 
+use DateTime;
+
 sub attr {
     my ( $self, $attr, $value ) = @_;
 
@@ -309,5 +311,95 @@ sub repo {
 
 }
 
+sub get_builds {
+    my ( $self ) = @_;
+
+    return [ map { +{
+        id                 => $_->id,
+        job_id             => $_->job_id,
+        date               => $_->created_at->strftime( "%F %T %Z" ),
+    } } $self->search_related( 'builds', { }, { order_by => { -DESC => 'created_at' } } ) ];
+}
+
+sub build_count {
+    my ( $self, @time ) = @_;
+    
+    if ( ! @time ) {
+        return $self->search_related( 'builds', { }, { } )->count;
+    }
+
+    return $self->search_related( 'builds',
+        { 
+            created_at => { 
+                '>=', 
+                $self->result_source->schema->storage->datetime_parser->format_datetime(
+                    DateTime->now->subtract( @time )
+                )
+            }  
+        }, 
+        { 
+        },
+    )->count;
+}
+
+sub minutes_since_last_build {
+    my ( $self ) = @_;
+
+    my ( $build ) = $self->search_related( 'builds', { }, { order_by => { -DESC => 'created_at' }, limit => 1 } )->all;
+
+    return DateTime->now->subtract_datetime( $build->created_at )->in_units( 'minutes' );
+
+}
+
+sub get_build_allowance {
+    my ( $self ) = @_;
+
+    # minutes_wait_after_build
+    # builds_per_hour
+    # builds_per_day
+
+    # Last build -- How many minutes ago?
+
+    # Count last hour
+    
+    # Count last day
+
+
+    my $data = {
+        can_build => undef,
+        total_builds => $self->build_count,
+
+        wait_minutes => {
+            required  => $self->minutes_wait_after_build,
+            current   => $self->minutes_since_last_build,
+            can_build => undef,
+        },
+
+        builds_over_hour => {
+            allowed   => $self->builds_per_hour,
+            used      => $self->build_count( hours => 1 ),
+            can_build => undef,
+        },
+
+        builds_over_day => {
+            allowed   => $self->builds_per_day,
+            used      => $self->build_count( hours => 24 ),
+            can_build => undef,
+        },
+    };
+
+    $data->{wait_minutes}{can_build}     = $data->{wait_minutes}{required}   <=  $data->{wait_minutes}{current}  ? 1 : 0;
+    $data->{builds_over_hour}{can_build} = $data->{builds_over_hour}{allowed} >  $data->{builds_over_hour}{used} ? 1 : 0;
+    $data->{builds_over_day}{can_build}  = $data->{builds_over_day}{allowed}  >  $data->{builds_over_day}{used}  ? 1 : 0;
+ 
+    # If all limits can build, we're good.
+    $data->{can_build} = ( 
+        $data->{wait_minutes}{can_build} && $data->{builds_over_hour}{can_build} && $data->{builds_over_day}{can_build}
+            ? 1
+            : 0
+    );
+
+    return $data;
+}
 
 1;
