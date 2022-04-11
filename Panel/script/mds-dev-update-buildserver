@@ -22,20 +22,39 @@ if [[ $SERVER =~ \.markdownsite\.com$ || $SERVER =~ ^markdownsite\.com$ ]]; then
     exit -1;
 fi;
 
+echo "--- Installing MarkdownSite::Panel::DB ---"
+
 dzil clean;
 dzil build;
 
 scp MarkdownSite-Panel-*.tar.gz root@$SERVER: # our-side * expansion
-scp root@$SERVER cpanm MarkdownSite-Panel-*.tar.gz 
-
-echo "Restarting MDS.worker"
-ssh root@$SERVER systemctl restart markdownsite.worker
+ssh root@$SERVER cpanm MarkdownSite-Panel-*.tar.gz
 
 echo "Removing asset from remote server"
 ssh root@$SERVER rm MarkdownSite-Panel-*.tar.gz # our-side * expansion
 
 echo "Removing local build files."
 dzil clean
+
+
+echo "--- Installing MarkdownSite::Panel::DB ---"
+
+cd ../Panel-DB
+
+dzil clean;
+dzil build;
+
+scp MarkdownSite-Panel-DB-*.tar.gz root@$SERVER: # our-side * expansion
+ssh root@$SERVER cpanm MarkdownSite-Panel-DB-*.tar.gz
+
+echo "Removing asset from remote server"
+ssh root@$SERVER rm MarkdownSite-Panel-DB-*.tar.gz # our-side * expansion
+
+echo "Removing local build files."
+dzil clean
+
+echo "Restarting MDS.worker"
+ssh root@$SERVER systemctl restart markdownsite.worker
 
 echo ""
 echo "The minion worker should be using the latest code now!"
