@@ -30,7 +30,7 @@ sub run ( $job, $site_id ) {
     #==
     # Clone Repo
     #==
-    push @logs, $job->run_system_cmd( 'git', 'clone', $site->repo, "$build_dir/src" );
+    push @logs, $job->run_system_cmd( 'git', 'clone', $site->repo->url, "$build_dir/src" );
 
     foreach my $line ( @logs ) {
         if ( $line =~ /^fatal: repository \'[^']+\' does not exist$/ ) {
@@ -234,7 +234,7 @@ sub run ( $job, $site_id ) {
     #         probably this one.
     Mojo::File->new($build_dir)->child('build')->child('site.yml')->spurt(
         YAML::Dump({
-            domain  => $site->domain,
+            domain  => $site->domain->domain,
             www_dir => "$build_dir/build/",
         })
     );
