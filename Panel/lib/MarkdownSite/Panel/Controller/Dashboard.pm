@@ -60,7 +60,11 @@ sub do_rebuild ( $c ) {
         return;
     }
 
-    # TODO: Check build allowence
+    # Confirm the site has not exceeded the build allowance
+    if ( ! $site->get_build_allowance->{can_build} ) {
+        $c->redirect_to( $c->url_for( 'show_dashboard_website', { site_id => $site->id  } )->query( reject_job => 1 ) );
+        return;
+    }
 
     # Queue the job to deploy the website.
     my $id = $c->minion->enqueue( 'deploy_website', [ $site->id ] => {

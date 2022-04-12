@@ -8,6 +8,27 @@
   </ol>
 </nav>
 
+
+%# Job Rejection Panel
+% if ( $c->param('reject_job') == 1 ) {
+    <div class="card mb-4 alert alert-danger">
+        <div class="card-header">
+            %= include '_svg/failed'
+            Build Rejected
+        </div>
+        <div class="card-body">
+            % my $sba = $site->get_build_allowance;
+            <p>Rules</p>
+            <ul>
+                <li>Must wait <%= $sba->{wait_minutes}{required} %> between builds.  You have waited <%= $sba->{wait_minutes}{current} %> minutes.</li>
+                <li>In one hour, <%= $sba->{builds_over_hour}{allowed} %> builds are allowed.  You have built <%= $sba->{builds_over_hour}{used} %> times in that time.</li>
+                <li>In one day, <%= $sba->{builds_over_day}{allowed} %> builds are allowed.  You have built <%= $sba->{builds_over_day}{used} %> times in that time.</li>
+            </ul>
+        </div>
+    </div>
+% }
+
+
 %# Website Information Block 
 <h3 class="mt-5 mb-3 h3">Information</h3>
 <table style="border: 1px solid #ccc" class="table table-striped mb-5 mt-3">
@@ -122,7 +143,8 @@
     </table>
 </div>
 
-<%# Job Panel %>
+
+%# Job Panel %
 % my $index = 0;
 % foreach my $build ( @{$site->get_builds} ) { 
     % $index++;
