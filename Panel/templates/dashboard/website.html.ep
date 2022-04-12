@@ -189,12 +189,14 @@
 
                     <hr />
 
+                    <p class="text-danger"><strong>Error: <%= $job->{result}{error} %></strong></p>
+
                     <button class="btn" data-bs-toggle="collapse" data-bs-target="#job_log_window_<%= $job->{id} %>">View Logs</button>
 
                     <div id="job_log_window_<%= $job->{id} %>" class="card-body collapse">
                         <hr />
                         <pre>
-                            % for my $line ( @{$job->{result}} ) { 
+                            % for my $line ( @{$job->{result}{logs}} ) { 
                                 <%= "$line\n" =%>
                             % }
                         </pre>
