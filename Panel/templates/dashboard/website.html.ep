@@ -1,6 +1,5 @@
 % layout 'layout', title => 'Dashboard', sb_active => 'dashboard';
 
-<%# Navigation Block %>
 <nav aria-label="breadcrumb" class="mt-3 mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="<%= $c->url_for( 'show_dashboard' ) %>">Dashboard</a></li>
@@ -9,31 +8,119 @@
   </ol>
 </nav>
 
-<%# Website Information Block %>
+%# Website Information Block 
 <h3 class="mt-5 mb-3 h3">Information</h3>
-<table style="border: 1px solid #ccc" class="table mb-5 mt-3">
-    <tbody>
+<table style="border: 1px solid #ccc" class="table table-striped mb-5 mt-3">
+    <thead>
         <tr>
-            <th class="text-nowrap">Domain</th>
-            <th class="text-nowrap">Repository</th>
-            <th class="text-nowrap">Status Link</th>
+            <th class="text-nowrap">Setting</th>
+            <th class="text-nowrap">Value</th>
+            <th class="text-nowrap">Meaning</th>
         </tr>
     </thead>
     <tbody>
         <tr>
+            <th>Domain</th>
             <td><a href="https://<%= $site->domain->domain %>"><%= $site->domain->domain %></a></td>
+            <td>This is the domain name for your website.  Users from the Internet can visit this domain to see your website.</td>
+        </tr>
+        <tr>
+            <th>Repository</th>
             <td><%= $site->repo->url %></td>
-            <td><a href="<%= $c->url_for( 'show_dashboard_website', { site_id => $site->id } ) %>">Manage Site</a></td>
+            <td>This is the URL we use to fetch your git repository when the website is built.</td>
+        </tr>
+        <tr>
+            <th>Last Build</th>
+            <td><%= $site->minutes_since_last_build %> minutes ago</td>
+            <td>How long ago the last build was.</td>
+        </tr>
+        %# Build & Site Restrictions %>
+        <tr>
+            <th>Actions</th>
+            <td colspan=2>
+                <div class="btn-group">
+                    <form  method="post" action="<%= $c->url_for( 'do_dashboard_website_rebuild', { site_id => $site->id } ) %>">
+                        <div class="input-group">
+                            <button class="btn btn-sm btn-primary" type="submit">Rebuild &amp; Deploy</button>
+                        </div>
+                    </form>
+
+                    <button class="mx-4 btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#extra_settings">
+                        %= include '_svg/chevron'
+                        See more settings
+                    </button>
+                </div>
+
+            </td>
         </tr>
     </tbody>
 </table>
 
-<%# Rebuild Button %>
-<form method="post" action="<%= $c->url_for( 'do_dashboard_website_rebuild', { site_id => $site->id } ) %>">
-    <div class="input-group">
-        <button class="btn btn-primary" type="submit">Rebuild &amp; Deploy</button>
-    </div>
-</form>
+<div id="extra_settings" class="card-body collapse">
+    <table style="border: 1px solid #ccc" class="table table-striped mb-5 mt-3">
+        <thead>
+            <tr>
+                <th class="text-nowrap">Setting</th>
+                <th class="text-nowrap">Value</th>
+                <th class="text-nowrap">Meaning</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>max_static_file_count</th>
+                <td><%= $site->max_static_file_count %> files</td>
+                <td>The total count of static files your website may have.</td>
+            </tr>
+            <tr>
+                <th>max_static_file_size</th>
+                <td><%= $site->max_static_file_size %> MiB</td>
+                <td>The largest size any one file in your website may be.</td>
+            </tr>
+            <tr>
+                <th>max_static_webroot_size</th>
+                <td><%= $site->max_static_webroot_size %> MiB</td>
+                <td>The largest size allowed for the combined size of all of the files on your website.</td>
+            </tr>
+            <tr>
+                <th>max_markdown_file_count</th>
+                <td><%= $site->max_markdown_file_count %> files</td>
+                <td>The total count of .md files that your website may have.</td>
+            </tr>
+            <tr>
+                <th>minutes_wait_after_build</th>
+                <td><%= $site->minutes_wait_after_build %> minutes</td>
+                <td>The amount of time you must wait between rebuilding this website.</td>
+            </tr>
+            <tr>
+                <th>builds_per_hour</th>
+                <td><%= $site->builds_per_hour %> builds</td>
+                <td>The total amount of builds allowed for this site per hour.</td>
+            </tr>
+            <tr>
+                <th>builds_per_day</th>
+                <td><%= $site->builds_per_day %> builds</td>
+                <td>The total amount of builds allowed for this site per day.</td>
+            </tr>
+            <tr>
+                <th>build_priority</th>
+                <td><%= $site->build_priority %></td>
+                <td>The priority of your builds.</td>
+            </tr>
+            <tr>
+                <th>can_change_domain</th>
+                <td><%= $site->can_change_domain %></td>
+                <td></td>
+            </tr>
+            <tr>
+                <th>is_enabled</th>
+                <td><%= $site->is_enabled %></td>
+                <td></td>
+            </tr>
+            </div>
+
+        </tbody>
+    </table>
+</div>
 
 <%# Job Panel %>
 % my $index = 0;
