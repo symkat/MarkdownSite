@@ -38,7 +38,7 @@ sub do_start ( $c ) {
     
 
     # Send off the job to import the markdownsite.
-    my $id = $c->minion->enqueue( build_markdownsite => [ $site->id ] => { 
+    my $id = $c->minion->enqueue( deploy_website => [ $site->id ] => { 
         notes    => { '_mds_sid_' . $site->id => 1 },
         priority => $site->build_priority,
     });
@@ -46,7 +46,7 @@ sub do_start ( $c ) {
     # Create a build record in the database for the site.
     $site->create_related( 'builds', { job_id => $id } );
 
-    $c->redirect_to( $c->url_for( 'show_status', { id => $site->id  } ) );
+    $c->redirect_to( $c->url_for( 'show_dashboard_website', { site_id => $site->id  } ) );
 
 }
 
