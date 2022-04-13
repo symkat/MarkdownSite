@@ -84,8 +84,16 @@ sub startup ($self ) {
     $auth->post('/dashboard/website/:site_id/rebuild'   )->to('Dashboard#do_rebuild' )->name('do_dashboard_website_rebuild' );
 
     # User create new website
-    $auth->get  ('/create/website' )->to('Create::Website#start'   )->name('show_create_website' );
-    $auth->post ('/create/website' )->to('Create::Website#do_start')->name('do_create_website'   );
+    #$auth->get  ('/create/website' )->to('Create::Website#start'   )->name('show_create_website' );
+    #$auth->post ('/create/website' )->to('Create::Website#do_start')->name('do_create_website'   );
+
+    # Manage Websites
+    $auth->get  ('/website'         )->to('Website#create'      )->name('show_create_website'      );
+    $auth->post ('/website'         )->to('Website#do_create'   )->name('do_create_website'        );
+    $auth->get  ('/website/:job_id' )->to('Website#repo_status' )->name('show_website_repo_status' );
+
+
+
 
     # Manage SSH Keys
     $auth->get  ('/sshkey'        )->to('Sshkey#create'   )->name('show_create_sshkey' );
