@@ -93,7 +93,7 @@ CREATE TABLE site (
 
 CREATE TABLE repo (
     id                          serial          PRIMARY KEY,
-    site_id                     int             not null references site(id),
+    site_id                     int             references site(id),
     url                         text            not null,
 
     -- Auth methods for the url.

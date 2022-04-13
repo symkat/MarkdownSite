@@ -48,7 +48,7 @@ __PACKAGE__->table("repo");
 
   data_type: 'integer'
   is_foreign_key: 1
-  is_nullable: 0
+  is_nullable: 1
 
 =head2 url
 
@@ -84,7 +84,7 @@ __PACKAGE__->add_columns(
     sequence          => "repo_id_seq",
   },
   "site_id",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "url",
   { data_type => "text", is_nullable => 0 },
   "basic_auth_id",
@@ -145,7 +145,12 @@ __PACKAGE__->belongs_to(
   "site",
   "MarkdownSite::Panel::DB::Result::Site",
   { id => "site_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+  {
+    is_deferrable => 0,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
 );
 
 =head2 ssh_key
@@ -169,8 +174,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-04-04 15:07:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:n6yNhNIiJdXlOgl3uT4VaA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-04-13 23:25:05
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:oei0IKFcV9nDWnf8hKqY8Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
