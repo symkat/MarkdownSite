@@ -22,6 +22,8 @@ You can build your own version of MarkdownSite to host as many websites as you w
 
 ## What are the directories here?
 
+(**NOTE**: MarkdownSite is getting a panel with user accounts! It's being developed right now, so if you want to install MarkdownSite you should use commit e927f46a7d2949c87d2da3182c722486cfe3c4fb, or wait until the the panel development is complete)
+
 **CGI** contains the Markdown::CGI program.  This renders markdown files to HTML, and is installed on the webservers.
 
 **Manager-DB** contains the markdownsite database schema, and the code for MarkdownSite::Manager::DB, a DBIx::Class interface to the database.
