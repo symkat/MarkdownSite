@@ -4,6 +4,8 @@
 
 <p>We should be checking for that job status and throwing an error or sending the user to set the domain name....</p>
 
+<%= $c->stash->{repo}->url %>
+
 
 
 % if ( $c->stash->{success} ) {
