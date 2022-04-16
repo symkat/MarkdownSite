@@ -90,12 +90,13 @@ sub startup ($self ) {
     #$auth->post ('/create/website' )->to('Create::Website#do_start')->name('do_create_website'   );
 
     # Manage Websites
-    $auth->get  ('/website'         )->to('Website#create'      )->name('show_create_website'      );
-    $auth->post ('/website'         )->to('Website#do_create'   )->name('do_create_website'        );
-    $auth->get  ('/website/:job_id' )->to('Website#repo_status' )->name('show_website_repo_status' );
-
-
-
+    $auth->get  ('/website'                  )->to('Website#create'      )->name('show_create_website'      );
+    $auth->post ('/website'                  )->to('Website#do_create'   )->name('do_create_website'        );
+    $auth->get  ('/website/:job_id'          )->to('Website#repo_status' )->name('show_website_repo_status' );
+    $auth->get  ('/website/domain/:repo_id'  )->to('Website#domain'      )->name('show_website_domain'      );
+    $auth->post ('/website/domain/:repo_id'  )->to('Website#do_domain'   )->name('do_website_domain'        );
+    $auth->get  ('/website/builder/:site_id' )->to('Website#builder'     )->name('show_website_builder'     );
+    $auth->post ('/website/builder/:site_id' )->to('Website#do_builder'  )->name('do_website_builder'       );
 
     # Manage SSH Keys
     $auth->get  ('/sshkey'        )->to('Sshkey#create'   )->name('show_create_sshkey' );

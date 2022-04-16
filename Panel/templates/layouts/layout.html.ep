@@ -7,6 +7,9 @@
         <meta http-equiv="refresh" content="5;" />
     % }
 % }
+% if ( my $seconds = stash 'refresh_page' ) {
+    <meta http-equiv="refresh" content="<%= $seconds %>;" />
+% }
 </head>
 <body>
     %=  include '_base/topbar'

@@ -1,0 +1,67 @@
+% layout 'layout', title => 'Choose Domain', sb_active => 'website';
+
+
+<div class="mt-5">
+    <div class="progress" style="height: 1px;">
+        <div class="progress-bar bg-light" role="progressbar" style="width: 33%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+        <div class="progress-bar" role="progressbar" style="width: 34%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+        <div class="progress-bar bg-light" role="progressbar" style="width: 33%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+    <div class="progress mt-1" style="height: 20px;">
+        <div class="progress-bar bg-success" role="progressbar" style="width: 33%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">Connect Repo</div>
+        <div class="progress-bar" role="progressbar" style="width: 34%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">Choose Domain</div>
+        <div class="text-center progress-bar-striped" style="width: 33%">Select Builder</div>
+    </div>
+</div>
+
+<h2 style="margin-top: 1.5em; margin-bottom: 1em" class="h2">Choose a domain</h2>
+
+<p>Next you can choose a domain name for your website.  You can host your website on a subdomain of <%= $c->config->{hosted_domain} %> without any further configuration on your part, just enter YourSiteName below.</p>
+
+<p>If you have your own domain, you can also use that.  Be sure to set your DNS records to match *.<%= $c->config->{hosted_domain} %>.<p>
+
+
+
+% if ( $c->stash->{success} ) {
+    <div style="margin-top: 2em" class="alert alert-success" role="alert">
+    <%= $c->stash->{success_message} %>
+    </div>
+%  }
+
+% if ( $c->stash->{errors} ) {
+    <div style="margin-top: 2em" class="alert alert-danger" role="alert">
+        There were errors with your request that could not be resolved:
+        <ul>
+%      for my $error ( @{$c->stash->{errors}} ) {
+            <li><%= $error %></li>
+%  } 
+        </ul>
+    </div>
+%  }
+
+<form style="margin-top: 1.5em" method="POST" action="<%= $c->url_for( 'do_website_domain' ) %>">
+    <div class="row">
+        <input type="hidden" name="repo_id" value="<%= stash 'form_repo_id' %>">
+        <div class="col">
+            <div class="mb-4 form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="domain_type" id="inlineRadio1" value="hosted" checked>
+                <label class="form-check-label" for="inlineRadio1">Use our domain</label>
+            </div>
+            <div class="input-group mb-3">
+                <input type="text" name="hosted_subdomain" class="form-control" placeholder="YourSiteName" aria-label="domain name" aria-describedby="domain-addon">
+                <span class="input-group-text" id="domain-addon">.<%= $c->config->{hosted_domain} %></span>
+            </div>
+        </div>
+        <div class="col" style="border-left: 1px solid #ccc">
+            <div class="mb-4 form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="domain_type" id="inlineRadio2" value="owned">
+                <label class="form-check-label" for="inlineRadio2">Use a domain you own</label>
+            </div>
+
+            <div class="input-group mb-3">
+                <input type="text" name ="owned_domain" class="form-control" placeholder="your.domain.com" aria-label="domain name">
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary float-end mt-3">Continue &rarr;</button>
+</form>
