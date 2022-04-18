@@ -8,9 +8,8 @@
   </ol>
 </nav>
 
-
 %# Job Rejection Panel
-% if ( $c->param('reject_job') == 1 ) {
+% if ( $c->param('reject_job') ) {
     <div class="card mb-4 alert alert-danger">
         <div class="card-header">
             %= include '_svg/failed'
@@ -215,15 +214,21 @@
 
                     <hr />
 
-                    <p class="text-danger"><strong>Error: <%= $job->{result}{error} %></strong></p>
+                    % if ( ! ref $job->{result} ) {
+                        <p class="text-danger"><strong>System Error: <%= $job->{result} %></strong></p>
+                    % } else {
+                        <p class="text-danger"><strong>Error: <%= $job->{result}{error} %></strong></p>
+                    % }
 
                     <button class="btn" data-bs-toggle="collapse" data-bs-target="#job_log_window_<%= $job->{id} %>">View Logs</button>
 
                     <div id="job_log_window_<%= $job->{id} %>" class="card-body collapse">
                         <hr />
                         <pre>
-                            % for my $line ( @{$job->{result}{logs}} ) { 
-                                <%= "$line\n" =%>
+                            % if ( ref $job->{result} eq 'HASH' ) {
+                                % for my $line ( @{$job->{result}{logs}} ) { 
+                                    <%= "$line\n" =%>
+                                % }
                             % }
                         </pre>
                     </div>
