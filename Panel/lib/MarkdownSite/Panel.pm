@@ -16,6 +16,9 @@ sub startup ($self ) {
     # Set the cookie expires to 30 days.
     $self->sessions->default_expiration(2592000);
 
+    # Load our custom commands.
+    push @{$self->commands->namespaces}, 'MarkdownSite::Panel::Command';
+
     $self->helper( db => sub {
         return state $db = MarkdownSite::Panel::DB->connect($config->{database}->{markdownsite});
     });
@@ -27,6 +30,9 @@ sub startup ($self ) {
     $self->minion->add_task( deploy_website => 'MarkdownSite::Panel::Task::DeployWebsite'      );
     $self->minion->add_task( purge_website  => 'MarkdownSite::Panel::Task::PurgeWebsite'       );
     $self->minion->add_task( checkout_repo  => 'MarkdownSite::Panel::Task::CheckGitConnection' );
+    
+    # Builders
+    $self->minion->add_task( build_jekyll  => 'MarkdownSite::Panel::Task::Build::Jekyll' );
 
 
     # Standard router.
