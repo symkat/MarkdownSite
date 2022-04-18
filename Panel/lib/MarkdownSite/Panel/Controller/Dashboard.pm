@@ -36,6 +36,8 @@ sub website ( $c ){
     $c->stash->{site} = $site;
 }
 
+sub rebuild ( $c ) { }
+
 sub do_rebuild ( $c ) {
     my $site_id = $c->param('site_id');
     my $site    = $c->db->site( $site_id );
@@ -60,17 +62,24 @@ sub do_rebuild ( $c ) {
         return;
     }
 
-    # Confirm the site has not exceeded the build allowance
     if ( ! $site->get_build_allowance->{can_build} ) {
         $c->redirect_to( $c->url_for( 'show_dashboard_website', { site_id => $site->id  } )->query( reject_job => 1 ) );
         return;
     }
+    
+    my $builder = $site->attr( 'builder' );
 
     # Queue the job to deploy the website.
-    my $id = $c->minion->enqueue( 'deploy_website', [ $site->id ] => {
+    my $id = $c->minion->enqueue( 'build_' . $builder, [ $site->id ] => {
         notes    => { '_mds_sid_' . $site->id => 1 },
         priority => $site->build_priority,
     });
+
+    # Queue the job to deploy the website.
+    #my $id = $c->minion->enqueue( 'deploy_website', [ $site->id ] => {
+    #    notes    => { '_mds_sid_' . $site->id => 1 },
+    #    priority => $site->build_priority,
+    #});
     
     # Create a build record in the database for the site.
     $site->create_related( 'builds', { job_id => $id } );

@@ -178,7 +178,7 @@
                     <div id="job_log_window_<%= $job->{id} %>" class="card-body collapse">
                         <hr />
                         <pre>
-                            % for my $line ( @{$job->{result}} ) { 
+                            % for my $line ( @{$job->{notes}{logs}} ) { 
                                 <%= "$line\n" =%>
                             % }
                         </pre>
@@ -225,10 +225,8 @@
                     <div id="job_log_window_<%= $job->{id} %>" class="card-body collapse">
                         <hr />
                         <pre>
-                            % if ( ref $job->{result} eq 'HASH' ) {
-                                % for my $line ( @{$job->{result}{logs}} ) { 
-                                    <%= "$line\n" =%>
-                                % }
+                            % for my $line ( @{$job->{notes}{logs}} ) { 
+                                <%= "$line\n" =%>
                             % }
                         </pre>
                     </div>
@@ -258,7 +256,7 @@
                     <div id="job_log_window_<%= $job->{id} %>" class="card-body">
                         <hr />
                         <pre>
-                            % for my $line ( @{$job->{result}} ) { 
+                            % for my $line ( @{$job->{notes}{logs}} ) { 
                                 <%= "$line\n" =%>
                             % }
                         </pre>
