@@ -347,6 +347,8 @@ sub minutes_since_last_build {
 
     my ( $build ) = $self->search_related( 'builds', { }, { order_by => { -DESC => 'created_at' }, limit => 1 } )->all;
 
+    return undef unless $build;
+
     return DateTime->now->subtract_datetime( $build->created_at )->in_units( 'minutes' );
 
 }

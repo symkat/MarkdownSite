@@ -52,7 +52,11 @@
         </tr>
         <tr>
             <th>Last Build</th>
-            <td><%= $site->minutes_since_last_build %> minutes ago</td>
+            % if ( $site->minutes_since_last_build ) {
+                <td><%= $site->minutes_since_last_build %> minutes ago</td>
+            % } else {
+                <td>Never Built</td>
+            % }
             <td>How long ago the last build was.</td>
         </tr>
         %# Build & Site Restrictions %>
