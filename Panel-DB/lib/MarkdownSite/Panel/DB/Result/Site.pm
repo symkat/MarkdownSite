@@ -356,24 +356,17 @@ sub minutes_since_last_build {
 sub get_build_allowance {
     my ( $self ) = @_;
 
-    # minutes_wait_after_build
-    # builds_per_hour
-    # builds_per_day
-
-    # Last build -- How many minutes ago?
-
-    # Count last hour
-    
-    # Count last day
-
-
+    # Create a data structure with the build restrictions.
+    #
+    # If there is no build yet, set minutes_since_last_build to one more than
+    # minutes_wait_after_build so this test passes to make the first build.
     my $data = {
         can_build => undef,
         total_builds => $self->build_count,
 
         wait_minutes => {
             required  => $self->minutes_wait_after_build,
-            current   => $self->minutes_since_last_build,
+            current   => $self->minutes_since_last_build || ( $self->minutes_wait_after_build + 1 ),
             can_build => undef,
         },
 
@@ -390,6 +383,7 @@ sub get_build_allowance {
         },
     };
 
+    # Calculcate the results of the rules.
     $data->{wait_minutes}{can_build}     = $data->{wait_minutes}{required}   <=  $data->{wait_minutes}{current}  ? 1 : 0;
     $data->{builds_over_hour}{can_build} = $data->{builds_over_hour}{allowed} >  $data->{builds_over_hour}{used} ? 1 : 0;
     $data->{builds_over_day}{can_build}  = $data->{builds_over_day}{allowed}  >  $data->{builds_over_day}{used}  ? 1 : 0;
