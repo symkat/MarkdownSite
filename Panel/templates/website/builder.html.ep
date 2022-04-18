@@ -1,10 +1,19 @@
 % layout 'layout', title => 'Check Repo', sb_active => 'website';
 
-<h2 style="margin-top: 1.5em" class="h2">Checking the status...</h2>
+<div class="mt-5">
+    <div class="progress" style="height: 1px;">
+        <div class="progress-bar bg-light" role="progressbar" style="width: 33%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+        <div class="progress-bar bg-light" role="progressbar" style="width: 34%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+        <div class="progress-bar" role="progressbar" style="width: 33%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+    <div class="progress mt-1" style="height: 20px;">
+        <div class="progress-bar bg-success" role="progressbar" style="width: 33%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">Connect Repo</div>
+        <div class="progress-bar bg-success" role="progressbar" style="width: 34%;border-left: 1px solid #999;border-right: 1px solid #999" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">Choose Domain</div>
+        <div class="progress-bar" role="progressbar" style="width: 33%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">Select Builder</div>
+    </div>
+</div>
 
-<p>We should let the user select a builder....</p>
-
-
+<h2 style="margin-top: 1.5em" class="h2">Select a builder</h2>
 
 % if ( $c->stash->{success} ) {
     <div style="margin-top: 2em" class="alert alert-success" role="alert">
@@ -22,3 +31,59 @@
         </ul>
     </div>
 %  }
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="col">
+        <div class="card h-100">
+            <div class="text-center">
+                <img src="/assets/img/logo-jekyll.png" style="width: 80%" class="card-img-top" alt="...">
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Jekyll Blog</h5>
+                <p class="card-text">This builder uses the Jekyll/Jekyll container to build your website from a Jekyll repository.</p>
+                <form method="post" action="<%= $c->url_for( 'do_website_builder' ) %>">
+                    <input type="hidden" name="builder" value="jekyll">
+                    <input type="submit" class="btn btn-primary btn-sm" width="100%" value="Use This Builder">
+                </form>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted"><a href="#">Read about this builder.</a></small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col">
+        <div class="card h-100">
+            <div class="text-center">
+                <img src="/assets/img/logo-hugo.svg" style="width: 80%; margin-top: 1.5em" class="card-img-top" alt="...">
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Hugo Website</h5>
+                <p class="card-text">This builder uses the Hugo container to build your website from a hugo repository.</p>
+                <form method="post" action="<%= $c->url_for( 'do_website_builder' ) %>">
+                    <input type="hidden" name="builder" value="hugo">
+                    <input type="submit" class="btn btn-primary btn-sm" width="100%" value="Use This Builder">
+                </form>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted"><a href="#">Read about this builder.</a></small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Hand-Rolled HTML/CSS/JS</h5>
+                <p class="card-text">This builder assumes the entire website is in the public/ directory of your repo.</p>
+                <form method="post" action="<%= $c->url_for( 'do_website_builder' ) %>">
+                    <input type="hidden" name="builder" value="static">
+                    <input type="submit" class="btn btn-primary btn-sm" width="100%" value="Use This Builder">
+                </form>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted"><a href="#">Read about this builder.</a></small>
+            </div>
+        </div>
+    </div>
+</div>

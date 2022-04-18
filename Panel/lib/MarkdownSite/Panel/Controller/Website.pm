@@ -13,6 +13,11 @@ sub builder ( $c ) {
 
 sub do_builder ( $c ) {
     $c->stash( template => 'website/builder' );
+    my $site_id = $c->stash->{site_id} = $c->param('site_id');
+    my $builder = $c->stash->{builder} = $c->param('builder');
+
+    $c->log->info( "SiteID: " . $c->param('site_id') );
+    $c->log->info( "Builder: $builder" );
 
 }
 
