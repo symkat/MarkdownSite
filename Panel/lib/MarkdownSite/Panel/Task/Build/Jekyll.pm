@@ -1,5 +1,4 @@
 package MarkdownSite::Panel::Task::Build::Jekyll;
-#use Mojo::Base 'Minion::Job', -signatures;
 use Mojo::Base 'MarkdownSite::Panel::Task', -signatures;
 use Mojo::File qw( curfile );
 use File::Copy::Recursive qw( dircopy );
@@ -8,10 +7,6 @@ use YAML;
 
 sub run ( $job, $site_id ) {
     $job->note( _mds_template => 'build_jekyll' );
-    
-    my @logs;
-
-    push @logs, $job->run_system_cmd( 'ls', '/tmp' );
 
     my $repo_path = $job->checkout_repo( $site_id );
     
