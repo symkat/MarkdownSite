@@ -33,6 +33,7 @@ sub startup ($self ) {
     
     # Builders
     $self->minion->add_task( build_jekyll  => 'MarkdownSite::Panel::Task::Build::Jekyll' );
+    $self->minion->add_task( build_static  => 'MarkdownSite::Panel::Task::Build::Static' );
 
 
     # Standard router.

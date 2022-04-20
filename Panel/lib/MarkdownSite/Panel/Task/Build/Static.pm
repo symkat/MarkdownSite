@@ -1,4 +1,4 @@
-package MarkdownSite::Panel::Task::Build::Jekyll;
+package MarkdownSite::Panel::Task::Build::Static;
 use Mojo::Base 'MarkdownSite::Panel::Task', -signatures;
 use Mojo::File qw( curfile );
 use File::Copy::Recursive qw( dircopy );
@@ -18,14 +18,9 @@ sub run ( $job, $site_id ) {
 
     $build_dir->child('build')->make_path;
 
-
-    $job->system_command( [qw( podman run -ti --rm -v .:/srv/jekyll -e JEKYLL_ROOTLESS=1 docker.io/jekyll/jekyll jekyll build ) ], {
-        chdir => $build_dir->child('src')->to_string,
-    });
-
     $job->process_webroot(
         $site,
-        $build_dir->child('src')->child('_site')->to_string,
+        $build_dir->child('src')->child('public')->to_string,
         $build_dir->child('build')->to_string
     );
 

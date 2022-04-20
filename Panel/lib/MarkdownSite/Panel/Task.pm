@@ -4,6 +4,7 @@ use Mojo::File qw( curfile );
 use YAML;
 use IPC::Run3;
 use URI;
+use Storable qw( dclone );
 
 # Run a system command with IPC::Run3 and return a pretty-print of the logs.
 sub run_system_cmd ( $self, @command ) {
@@ -20,7 +21,7 @@ sub run_system_cmd ( $self, @command ) {
     return @logs;
 }
 
-sub system_command ( $self, $cmd, $settings ){
+sub system_command ( $self, $cmd, $settings = {} ){
     
     # Change the directory, if requested.
     if ( $settings->{chdir} ) {
@@ -36,23 +37,42 @@ sub system_command ( $self, $cmd, $settings ){
     }
 
     # Run the command, capture the return code, stdout, and stderr.
-    my $ret = run3( $cmd, \undef, \my $out, \my $err );
-
+    #my $ret = run3( $cmd, \undef, \my $out, \my $err );
     # Mask values we don't want exposed in the logs.
+    my $masked_cmd = dclone($cmd);
     if ( ref $settings->{mask} eq 'HASH' ) {
         foreach my $key ( keys %{$settings->{mask}} ) {
             my $value = $settings->{mask}{$key};
-            $cmd = [ map { s/\Q$key\E/$value/g; $_ } @{$cmd} ];
-            $out =~ s/\Q$key\E/$value/g;
-            $err =~ s/\Q$key\E/$value/g;
+            $masked_cmd = [ map { s/\Q$key\E/$value/g; $_ } @{$masked_cmd} ];
         }
     }
 
     # Log the lines
-    $self->append_log( "\n\nshell> " . join( " ", @{$cmd} ) );
-    $self->append_log( map { "< stdout: $_"  } ( split( "\n", $out ) ) );
-    $self->append_log( map { "<<stderr: $_"  } ( split( "\n", $err ) ) );
-
+    $self->append_log( "\n\nshell> " . join( " ", @{$masked_cmd || $cmd} ) );
+    my ( $out, $err );
+    my $ret = run3( $cmd, \undef, sub {
+        chomp $_;
+        # Mask values we don't want exposed in the logs.
+        if ( ref $settings->{mask} eq 'HASH' ) {
+            foreach my $key ( keys %{$settings->{mask}} ) {
+                my $value = $settings->{mask}{$key};
+                s/\Q$key\E/$value/g;
+            }
+        }
+        $out .= "$_\n";
+        $self->append_log( "< stdout: $_" );
+    }, sub {
+        chomp $_;
+        # Mask values we don't want exposed in the logs.
+        if ( ref $settings->{mask} eq 'HASH' ) {
+            foreach my $key ( keys %{$settings->{mask}} ) {
+                my $value = $settings->{mask}{$key};
+                s/\Q$key\E/$value/g;
+            }
+        }
+        $err .= "$_\n";
+        $self->append_log( "<<stderr: $_" );
+    });
 
     # Check stderr for errors to fail on.
     if ( $settings->{fail_on_stderr} ) {
@@ -79,6 +99,52 @@ sub system_command ( $self, $cmd, $settings ){
         stderr => $err,
         exitno => $ret,
     };
+}
+
+sub process_webroot ( $job, $site, $source, $dest ) {
+
+    if ( -d $source ) {
+
+        chdir $source
+            or die "Failed to chdir to $source: $!";
+
+        $job->append_log( "\n\n--- Processing Static Files ---" );
+
+        my $files = Mojo::File->new( $source )->list_tree;
+
+        if ( $files->size > $site->max_static_file_count ) {
+            $job->fail( "This site may have up to " . $site->max_static_file_count . " static files, however the webroot contains " . $files->size . " files.");
+            $job->stop;
+        }
+
+        my $total_file_size = 0;
+
+        foreach my $file ( $files->each ) {
+            # Does file exceed size allowed?
+            if ( $file->stat->size >= ( $site->max_static_file_size * 1024 * 1024 ) ) {
+                $job->fail( sprintf("This site may have static files up to %d MiB, however %s exceeds this limit.",
+                    $site->max_static_file_size,
+                    $file->to_string
+                ));
+                $job->stop;
+            }
+
+            $total_file_size += $file->stat->size;
+
+            # If the total file size exceeds the max_static_webroot_size, fail the job.
+            if ( $total_file_size >= ( $site->max_static_webroot_size * 1024 * 1024 ) ) {
+                $job->fail( "This site may have up to " . $site->max_static_webroot_size .
+                    " MiB in static files, however the webroot exceeds this limit."
+                );
+                $job->stop;
+            }
+
+            Mojo::File->new( "$dest/html/" . $file->to_rel( $source )->dirname )->make_path;
+            $file->move_to( "$dest/html/" . $file->to_rel( $source ) );
+            $job->append_log("File Processed: " . $file->to_rel( $source ));
+        }
+        $job->append_log( "--- Done Processing Static Files ---" );
+    }
 }
 
 sub append_log ( $self, @lines ){
