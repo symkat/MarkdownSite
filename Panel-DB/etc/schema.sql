@@ -5,6 +5,7 @@ CREATE TABLE person (
     name                        text            not null,
     email                       citext          not null unique,
     is_enabled                  boolean         not null default true,
+    is_admin                    boolean         not null default false,
     created_at                  timestamptz     not null default current_timestamp
 );
 
@@ -31,6 +32,7 @@ CREATE TABLE auth_password (
 CREATE TABLE auth_token (
     id                          serial          PRIMARY KEY,
     person_id                   int             not null references person(id),
+    scope                       text            not null,
     token                       text            not null,
     created_at                  timestamptz     not null default current_timestamp
 );
@@ -67,16 +69,45 @@ CREATE TABLE domain_redirect (
     created_at                  timestamptz     not null default current_timestamp
 );
 
+CREATE TABLE builder (
+    id                          serial          PRIMARY KEY,
+    name                        text            not null,
+    title                       text            ,
+    description                 text            ,
+    doc_url                     text            ,
+    img_url                     text            ,
+    job_name                    text            not null,
+    created_at                  timestamptz     not null default current_timestamp
+);
+
+INSERT INTO builder ( name, title, description, doc_url, img_url, job_name ) VALUES (
+    'jekyll',
+    'Jekyll Blog',
+    'This builder will process your repository with the jekyll/jekyll docker image to build your website.',
+    'https://docs.markdownsite.com/builder/jekyll',
+    '/assets/img/logo-jekyll.png',
+    'build_jekyll'
+);
+
+INSERT INTO builder ( name, title, description, doc_url, img_url, job_name ) VALUES (
+    'static',
+    'Hand-Rolled HTML/CSS/JS',
+    'This builder assumes the entire website is in the public/ directory of your repo.',
+    'https://docs.markdownsite.com/builder/static',
+    '',
+    'build_static'
+);
+
 CREATE TABLE site (
     id                          serial          PRIMARY KEY,
     person_id                   int             not null references person(id),
     domain_id                   int             references domain(id),
+    builder_id                  int             references builder(id),
 
     -- Settings: File Allowances
     max_static_file_count       int             not null default 100,
     max_static_file_size        int             not null default   2, -- MiB
     max_static_webroot_size     int             not null default  50, -- MiB
-    max_markdown_file_count     int             not null default  20,
 
     -- Settings: Build Timers
     minutes_wait_after_build    int             not null default 10,
@@ -85,7 +116,6 @@ CREATE TABLE site (
 
     -- Settings: Features
     build_priority              int             not null default 1,
-    can_change_domain           boolean         not null default false,
 
     is_enabled                  boolean         not null default true,
     created_at                  timestamptz     not null default current_timestamp
