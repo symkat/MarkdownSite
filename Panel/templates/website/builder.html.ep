@@ -51,25 +51,6 @@
             </div>
         </div>
     </div>
-    
-    <div class="col">
-        <div class="card h-100">
-            <div class="text-center">
-                <img src="/assets/img/logo-hugo.svg" style="width: 80%; margin-top: 1.5em" class="card-img-top" alt="...">
-            </div>
-            <div class="card-body">
-                <h5 class="card-title">Hugo Website</h5>
-                <p class="card-text">This builder uses the Hugo container to build your website from a hugo repository.</p>
-                <form method="post" action="<%= $c->url_for( 'do_website_builder' ) %>">
-                    <input type="hidden" name="builder" value="hugo">
-                    <input type="submit" class="btn btn-primary btn-sm" width="100%" value="Use This Builder">
-                </form>
-            </div>
-            <div class="card-footer">
-                <small class="text-muted"><a href="#">Read about this builder.</a></small>
-            </div>
-        </div>
-    </div>
 
     <div class="col">
         <div class="card h-100">
