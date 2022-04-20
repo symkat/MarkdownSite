@@ -342,6 +342,12 @@ sub build_count {
     )->count;
 }
 
+sub builder_name {
+    my ( $self ) = @_;
+
+    return $self->attr('builder') || 'static';
+}
+
 sub minutes_since_last_build {
     my ( $self ) = @_;
 
