@@ -264,6 +264,13 @@ __PACKAGE__->has_many(
 
 use DateTime;
 
+
+# Get or set an attribute for a website.
+# 
+# $site->attr( 'key', $value ) # $value is serialized as JSON, nested structures
+#                              # are fine, objects and such maybe less so.
+#
+# $site->attr( 'key' ) # Get the value for the key, undef if it isn't set.
 sub attr {
     my ( $self, $attr, $value ) = @_;
 
@@ -292,6 +299,20 @@ sub _get_attr_value {
     return $attr->value;
 }
 
+# Get a hashref containing all of the site attributes.
+# 
+# $site->attr( 'foo', 'bar' );
+# $site->attr( 'blah', { 'hehe' => 'haha' } );
+#
+# my $attrs = $site->get_attrs
+#
+# $attrs is: {
+#  foo => 'bar',
+#  blah => {
+#    hehe => 'haha'
+#  }
+# }
+#
 sub get_attrs {
     my ( $self ) = @_;
 
@@ -304,6 +325,7 @@ sub get_attrs {
     return $return;
 }
 
+# Find the repo associated with this site.
 sub repo {
     my ( $self ) = @_;
 
