@@ -114,7 +114,13 @@ sub repo_status ( $c ) {
 
     # The job finished and we cannot connect to the repo.  Tell the user about it.
     if ( $job->info->{state} eq 'failed' ) {
-        push @{$c->stash->{errors}}, @{$job->info->{result}{logs}};
+        if ( ref $job->info->{result} eq 'HASH' ) {
+            push @{$c->stash->{errors}}, @{$job->info->{result}{logs}};
+        } elsif ( ! ref $job->info->{result} ) {
+            push @{$c->stash->{errors}}, $job->info->{result};
+        } else {
+            push @{$c->stash->{errors}}, 'Job failed.  Please contact your system administrator.';
+        }
         return;
     }
 
