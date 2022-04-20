@@ -1,5 +1,6 @@
 package MarkdownSite::Panel::Task::CheckGitConnection;
 use Mojo::Base 'Minion::Job', -signatures;
+use Mojo::File qw( tempfile );
 use IPC::Run3;
 use URI;
 
@@ -15,9 +16,9 @@ sub run ( $job, $repo_id ) {
     my @logs;
 
     if ( $repo->ssh_key_id ) {
-        my $sshkey_file = Mojo::File->tempfile;
-        $sshkey_file->spurt( $repo->ssh_key->private_key )->mode( 0600 );
-        $ENV{GIT_SSH_COMMAND} = 'ssh -i ' . $sshkey_file->to_strong;
+        my $sshkey_file = tempfile;
+        $sshkey_file->spurt( $repo->ssh_key->private_key )->chmod( 0600 );
+        $ENV{GIT_SSH_COMMAND} = 'ssh -i ' . $sshkey_file->to_string;
         push @logs, $job->run_system_cmd( 'git', 'clone', $repo->url, "$build_dir/src" );
     } elsif ( $repo->basic_auth_id ) {
         my $checkout_url = URI->new( $repo->url );
