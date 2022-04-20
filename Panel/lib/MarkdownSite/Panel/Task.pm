@@ -1,6 +1,6 @@
 package MarkdownSite::Panel::Task;
 use Mojo::Base 'Minion::Job', -signatures;
-use Mojo::File qw( curfile );
+use Mojo::File qw( curfile tempfile );
 use YAML;
 use IPC::Run3;
 use URI;
@@ -170,9 +170,9 @@ sub checkout_repo ( $job, $site_id ) {
     ];
     
     if ( $repo->ssh_key_id ) {
-        my $sshkey_file = Mojo::File->tempfile;
-        $sshkey_file->spurt( $repo->ssh_key->private_key )->mode( 0600 );
-        $ENV{GIT_SSH_COMMAND} = 'ssh -i ' . $sshkey_file->to_strong;
+        my $sshkey_file = tempfile;
+        $sshkey_file->spurt( $repo->ssh_key->private_key )->chmod( 0600 );
+        $ENV{GIT_SSH_COMMAND} = 'ssh -i ' . $sshkey_file->to_string;
         $job->system_command( [ 'git', 'clone', $repo->url, "$build_dir/src" ], {
             fail_on_stderr => $git_errors,
         });
