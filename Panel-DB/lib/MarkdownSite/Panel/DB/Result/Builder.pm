@@ -1,12 +1,12 @@
 use utf8;
-package MarkdownSite::Panel::DB::Result::AuthToken;
+package MarkdownSite::Panel::DB::Result::Builder;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-MarkdownSite::Panel::DB::Result::AuthToken
+MarkdownSite::Panel::DB::Result::Builder
 
 =cut
 
@@ -29,11 +29,11 @@ use base 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("InflateColumn::DateTime", "InflateColumn::Serializer");
 
-=head1 TABLE: C<auth_token>
+=head1 TABLE: C<builder>
 
 =cut
 
-__PACKAGE__->table("auth_token");
+__PACKAGE__->table("builder");
 
 =head1 ACCESSORS
 
@@ -42,20 +42,34 @@ __PACKAGE__->table("auth_token");
   data_type: 'integer'
   is_auto_increment: 1
   is_nullable: 0
-  sequence: 'auth_token_id_seq'
+  sequence: 'builder_id_seq'
 
-=head2 person_id
-
-  data_type: 'integer'
-  is_foreign_key: 1
-  is_nullable: 0
-
-=head2 scope
+=head2 name
 
   data_type: 'text'
   is_nullable: 0
 
-=head2 token
+=head2 title
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 description
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 doc_url
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 img_url
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 job_name
 
   data_type: 'text'
   is_nullable: 0
@@ -74,13 +88,19 @@ __PACKAGE__->add_columns(
     data_type         => "integer",
     is_auto_increment => 1,
     is_nullable       => 0,
-    sequence          => "auth_token_id_seq",
+    sequence          => "builder_id_seq",
   },
-  "person_id",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
-  "scope",
+  "name",
   { data_type => "text", is_nullable => 0 },
-  "token",
+  "title",
+  { data_type => "text", is_nullable => 1 },
+  "description",
+  { data_type => "text", is_nullable => 1 },
+  "doc_url",
+  { data_type => "text", is_nullable => 1 },
+  "img_url",
+  { data_type => "text", is_nullable => 1 },
+  "job_name",
   { data_type => "text", is_nullable => 0 },
   "created_at",
   {
@@ -104,24 +124,24 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 person
+=head2 sites
 
-Type: belongs_to
+Type: has_many
 
-Related object: L<MarkdownSite::Panel::DB::Result::Person>
+Related object: L<MarkdownSite::Panel::DB::Result::Site>
 
 =cut
 
-__PACKAGE__->belongs_to(
-  "person",
-  "MarkdownSite::Panel::DB::Result::Person",
-  { id => "person_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+__PACKAGE__->has_many(
+  "sites",
+  "MarkdownSite::Panel::DB::Result::Site",
+  { "foreign.builder_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-04-20 15:44:06
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HOX4aiCo+dkwyVWK1htHzg
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:lbWnE445FCmDsxTNcCde+Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

@@ -60,6 +60,12 @@ __PACKAGE__->table("person");
   default_value: true
   is_nullable: 0
 
+=head2 is_admin
+
+  data_type: 'boolean'
+  default_value: false
+  is_nullable: 0
+
 =head2 created_at
 
   data_type: 'timestamp with time zone'
@@ -82,6 +88,8 @@ __PACKAGE__->add_columns(
   { data_type => "citext", is_nullable => 0 },
   "is_enabled",
   { data_type => "boolean", default_value => \"true", is_nullable => 0 },
+  "is_admin",
+  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
   "created_at",
   {
     data_type     => "timestamp with time zone",
@@ -239,8 +247,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-04-04 15:07:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:V1AIz+Z/GIaDlWMk+sltKA
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-04-20 15:44:06
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:hx6r+xFRggHJhm+aX0e/WA
 
 use Data::GUID;
 

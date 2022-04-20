@@ -56,6 +56,12 @@ __PACKAGE__->table("site");
   is_foreign_key: 1
   is_nullable: 1
 
+=head2 builder_id
+
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 1
+
 =head2 max_static_file_count
 
   data_type: 'integer'
@@ -72,12 +78,6 @@ __PACKAGE__->table("site");
 
   data_type: 'integer'
   default_value: 50
-  is_nullable: 0
-
-=head2 max_markdown_file_count
-
-  data_type: 'integer'
-  default_value: 20
   is_nullable: 0
 
 =head2 minutes_wait_after_build
@@ -102,12 +102,6 @@ __PACKAGE__->table("site");
 
   data_type: 'integer'
   default_value: 1
-  is_nullable: 0
-
-=head2 can_change_domain
-
-  data_type: 'boolean'
-  default_value: false
   is_nullable: 0
 
 =head2 is_enabled
@@ -136,14 +130,14 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "domain_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
+  "builder_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "max_static_file_count",
   { data_type => "integer", default_value => 100, is_nullable => 0 },
   "max_static_file_size",
   { data_type => "integer", default_value => 2, is_nullable => 0 },
   "max_static_webroot_size",
   { data_type => "integer", default_value => 50, is_nullable => 0 },
-  "max_markdown_file_count",
-  { data_type => "integer", default_value => 20, is_nullable => 0 },
   "minutes_wait_after_build",
   { data_type => "integer", default_value => 10, is_nullable => 0 },
   "builds_per_hour",
@@ -152,8 +146,6 @@ __PACKAGE__->add_columns(
   { data_type => "integer", default_value => 12, is_nullable => 0 },
   "build_priority",
   { data_type => "integer", default_value => 1, is_nullable => 0 },
-  "can_change_domain",
-  { data_type => "boolean", default_value => \"false", is_nullable => 0 },
   "is_enabled",
   { data_type => "boolean", default_value => \"true", is_nullable => 0 },
   "created_at",
@@ -177,6 +169,26 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
+
+=head2 builder
+
+Type: belongs_to
+
+Related object: L<MarkdownSite::Panel::DB::Result::Builder>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "builder",
+  "MarkdownSite::Panel::DB::Result::Builder",
+  { id => "builder_id" },
+  {
+    is_deferrable => 0,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
+);
 
 =head2 builds
 
@@ -259,8 +271,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-04-04 14:48:58
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:X2lGsCjvYxuVacOwaoVjlw
+# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-04-20 15:44:06
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2Q6uzb6yWJHD56SAz3yYrQ
 
 use DateTime;
 
