@@ -58,6 +58,11 @@
             % }
             <td>How long ago the last build was.</td>
         </tr>
+        <tr>
+            <th>Builder</th>
+            <td><%= $site->builder_name %></td>
+            <td>The builder used for this repo.</td>
+        </tr>
         %# Build & Site Restrictions %>
         <tr>
             <th>Actions</th>
