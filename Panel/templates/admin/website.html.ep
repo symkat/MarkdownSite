@@ -35,19 +35,23 @@
         <tr>
             <th class="text-nowrap">Setting</th>
             <th class="text-nowrap">Value</th>
-            <th class="text-nowrap">Meaning</th>
         </tr>
     </thead>
     <tbody>
         <tr>
+            <th>Owner</th>
+            <td>
+                <%= $site->person->name %> (<%= $site->person->email %>)
+                <a class="float-end" href="<%= $c->url_for( 'show_admin_person', { person_id => $site->person->id } ) %>">View Account</a>
+            </td>
+        </tr>
+        <tr>
             <th>Domain</th>
             <td><a href="https://<%= $site->domain->domain %>"><%= $site->domain->domain %></a></td>
-            <td>This is the domain name for your website.  Users from the Internet can visit this domain to see your website.</td>
         </tr>
         <tr>
             <th>Repository</th>
             <td><%= $site->repo->url %></td>
-            <td>This is the URL we use to fetch your git repository when the website is built.</td>
         </tr>
         <tr>
             <th>Last Build</th>
@@ -56,12 +60,10 @@
             % } else {
                 <td>Never Built</td>
             % }
-            <td>How long ago the last build was.</td>
         </tr>
         <tr>
             <th>Builder</th>
             <td><%= $site->builder_name %></td>
-            <td>The builder used for this repo.</td>
         </tr>
         %# Build & Site Restrictions %>
         <tr>
