@@ -1,12 +1,21 @@
 % layout 'layout', title => 'Check Repo', sb_active => 'website';
 
-<h2 style="margin-top: 1.5em" class="h2">Checking the status...</h2>
+<div class="mt-5">
+    <div class="progress" style="height: 1px;">
+        <div class="progress-bar" role="progressbar" style="width: 33%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+        <div class="progress-bar bg-light" role="progressbar" style="width: 34%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+        <div class="progress-bar bg-light" role="progressbar" style="width: 33%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+    <div class="progress mt-1" style="height: 20px;">
+        <div class="progress-bar" role="progressbar" style="width: 33%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">Connect Repo</div>
+        <div class="text-center progress-bar-striped" style="width: 34%;">Choose Domain</div>
+        <div class="text-center progress-bar-striped" style="width: 33%">Select Builder</div>
+    </div>
+</div>
 
-<p>We should be checking for that job status and throwing an error or sending the user to set the domain name....</p>
+<h2 style="margin-top: 1.5em" class="h2">Connecting To Repository.</h2>
 
-<%= $c->stash->{repo}->url %>
-
-
+<p>This page will automatically refresh every 5 seconds.</p>
 
 % if ( $c->stash->{success} ) {
     <div style="margin-top: 2em" class="alert alert-success" role="alert">
