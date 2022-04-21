@@ -33,38 +33,24 @@
 %  }
 
 <div class="row row-cols-1 row-cols-md-3 g-4">
-    <div class="col">
-        <div class="card h-100">
-            <div class="text-center">
-                <img src="/assets/img/logo-jekyll.png" style="width: 80%" class="card-img-top" alt="...">
-            </div>
-            <div class="card-body">
-                <h5 class="card-title">Jekyll Blog</h5>
-                <p class="card-text">This builder uses the Jekyll/Jekyll container to build your website from a Jekyll repository.</p>
-                <form method="post" action="<%= $c->url_for( 'do_website_builder' ) %>">
-                    <input type="hidden" name="builder" value="jekyll">
-                    <input type="submit" class="btn btn-primary btn-sm" width="100%" value="Use This Builder">
-                </form>
-            </div>
-            <div class="card-footer">
-                <small class="text-muted"><a href="#">Read about this builder.</a></small>
-            </div>
-        </div>
-    </div>
-
-    <div class="col">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Hand-Rolled HTML/CSS/JS</h5>
-                <p class="card-text">This builder assumes the entire website is in the public/ directory of your repo.</p>
-                <form method="post" action="<%= $c->url_for( 'do_website_builder' ) %>">
-                    <input type="hidden" name="builder" value="static">
-                    <input type="submit" class="btn btn-primary btn-sm" width="100%" value="Use This Builder">
-                </form>
-            </div>
-            <div class="card-footer">
-                <small class="text-muted"><a href="#">Read about this builder.</a></small>
+    % foreach my $builder ( $c->db->builders->all ) {
+        <div class="col">
+            <div class="card h-100">
+                <div class="text-center">
+                    <img src="<%= $builder->img_url %>" style="width: 80%" class="card-img-top" alt="...">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title"><%= $builder->title %></h5>
+                    <p class="card-text"><%= $builder->description %></p>
+                    <form method="post" action="<%= $c->url_for( 'do_website_builder' ) %>">
+                        <input type="hidden" name="builder" value="<%= $builder->name %>">
+                        <input type="submit" class="btn btn-primary btn-sm" width="100%" value="Use This Builder">
+                    </form>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted"><a href="<%= $builder->doc_url %>">Read about this builder.</a></small>
+                </div>
             </div>
         </div>
-    </div>
+    % }
 </div>
