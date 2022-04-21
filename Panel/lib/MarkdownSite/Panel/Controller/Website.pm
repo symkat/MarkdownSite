@@ -13,12 +13,16 @@ sub builder ( $c ) {
 
 sub do_builder ( $c ) {
     $c->stash( template => 'website/builder' );
-    my $site_id = $c->stash->{site_id} = $c->param('site_id');
-    my $builder = $c->stash->{builder} = $c->param('builder');
-    my $site    = $c->stash->{site}    = $c->db->site( $site_id );
+    my $site_id    = $c->stash->{site_id}    = $c->param('site_id');
+    my $builder_id = $c->stash->{builder_id} = $c->param('builder_id');
+    my $site       = $c->stash->{site}       = $c->db->site( $site_id );
+    my $builder    = $c->stash->{builder}    = $c->db->builder( $builder_id );
 
     push @{$c->stash->{errors}}, "That doesn't look like a valid site.  Start over?"
         unless $site->person->id == $c->stash->{person}->id;
+    
+    push @{$c->stash->{errors}}, "That doesn't look like a valid builder?"
+        unless $builder;
 
     return if $c->stash->{errors};
 
@@ -27,9 +31,18 @@ sub do_builder ( $c ) {
     
     return if $c->stash->{errors};
 
-    $site->attr( 'builder' => $builder );
+    # Set builder.
+    $site->builder_id( $builder_id );
+    $site->update;
 
-    # TODO: Send to builder here.
+    # Queue the job to deploy the website.
+    my $id = $c->minion->enqueue( $site->builder->job_name, [ $site->id ] => {
+        notes    => { '_mds_sid_' . $site->id => 1 },
+        priority => $site->build_priority,
+    });
+    
+    # Create a build record in the database for the site.
+    $site->create_related( 'builds', { job_id => $id } );
 
     $c->redirect_to( $c->url_for( 'show_dashboard_website', { site_id => $site->id } ) );
 }

@@ -43,7 +43,7 @@
                     <h5 class="card-title"><%= $builder->title %></h5>
                     <p class="card-text"><%= $builder->description %></p>
                     <form method="post" action="<%= $c->url_for( 'do_website_builder' ) %>">
-                        <input type="hidden" name="builder" value="<%= $builder->name %>">
+                        <input type="hidden" name="builder_id" value="<%= $builder->id %>">
                         <input type="submit" class="btn btn-primary btn-sm" width="100%" value="Use This Builder">
                     </form>
                 </div>

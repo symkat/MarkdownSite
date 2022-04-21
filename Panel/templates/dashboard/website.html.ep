@@ -77,7 +77,7 @@
         </tr>
         <tr>
             <th>Builder</th>
-            <td><%= $site->builder_name %></td>
+            <td><%= $site->builder->title %></td>
             <td>The builder used for this repo.</td>
         </tr>
         %# Build & Site Restrictions %>
@@ -134,17 +134,6 @@
                             <form style="margin-top: 1.5em" method="POST" action="<%= $c->url_for( 'do_dashboard_website_setting' ) %>">
                                 <input type="hidden" name="setting" value="webroot">
                                 <input type="text" name="value" value="<%= $site->attr('webroot') %>">
-                                <button type="submit" class="btn btn-sm btn-primary float-end">Set Value</button>
-                            </form>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>builder</th>
-                        <td><%= $site->attr('builder') %></td>
-                        <td>
-                            <form style="margin-top: 1.5em" method="POST" action="<%= $c->url_for( 'do_dashboard_website_setting' ) %>">
-                                <input type="hidden" name="setting" value="builder">
-                                <input type="text" name="value" value="<%= $site->attr('builder') %>">
                                 <button type="submit" class="btn btn-sm btn-primary float-end">Set Value</button>
                             </form>
                         </td>

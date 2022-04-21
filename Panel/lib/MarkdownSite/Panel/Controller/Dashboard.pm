@@ -93,11 +93,10 @@ sub do_rebuild ( $c ) {
         $c->redirect_to( $c->url_for( 'show_dashboard_website', { site_id => $site->id  } )->query( reject_job => 1 ) );
         return;
     }
-    
-    my $builder = $site->attr( 'builder' );
 
+    
     # Queue the job to deploy the website.
-    my $id = $c->minion->enqueue( 'build_' . $builder, [ $site->id ] => {
+    my $id = $c->minion->enqueue( $site->builder->job_name, [ $site->id ] => {
         notes    => { '_mds_sid_' . $site->id => 1 },
         priority => $site->build_priority,
     });
