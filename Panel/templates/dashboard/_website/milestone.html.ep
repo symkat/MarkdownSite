@@ -1,7 +1,7 @@
 <!-- Begin dashboard/_website/milestone -->
 <div class="card mb-4">
     <div class="card-header">
-%       if ( $milestone->{is_complete} == 1 ) {
+%       if ( $milestone->{is_complete} && $milestone->{is_complete} == 1 ) {
             <span class="text-success" >
                 %=  include '_svg/checkmark'
             </span>
