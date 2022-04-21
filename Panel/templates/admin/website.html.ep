@@ -189,6 +189,35 @@
     </tbody>
 </table>
 
+<div class="card mt-4">
+    <div class="card-header">
+        <strong>User Defined Settings For <%= $site->domain->domain %></strong>
+    </div>
+    <div class="card-body">
+        <table style="border: 1px solid #ccc" class="table table-striped mb-5 mt-3">
+            <thead>
+                <tr>
+                    <th class="text-nowrap">Setting</th>
+                    <th class="text-nowrap">Value</th>
+                    <th class="text-nowrap">Editor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>webroot</th>
+                    <td><%= $site->attr('webroot') %></td>
+                    <td>
+                        <form style="margin-top: 1.5em" method="POST" action="<%= $c->url_for( 'do_dashboard_website_setting' ) %>">
+                            <input type="hidden" name="setting" value="webroot">
+                            <input type="text" name="value" value="<%= $site->attr('webroot') %>" disabled>
+                            <button type="submit" class="btn btn-sm btn-primary float-end" disabled>Set Value</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
 %# Job Panel %
 % my $index = 0;
