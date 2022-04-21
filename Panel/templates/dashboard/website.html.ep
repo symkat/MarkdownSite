@@ -3,7 +3,7 @@
 <nav aria-label="breadcrumb" class="mt-3 mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="<%= $c->url_for( 'show_dashboard' ) %>">Dashboard</a></li>
-    <li class="breadcrumb-item"><a href="<%= $c->url_for( 'show_dashboard_websites' ) %>">Websites</a></li>
+    <li class="breadcrumb-item"><a href="<%= $c->url_for( 'show_dashboard' ) %>">Websites</a></li>
     <li class="breadcrumb-item active" aria-current="page"><%= $site->domain->domain %></li>
   </ol>
 </nav>
