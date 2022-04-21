@@ -406,7 +406,7 @@ sub get_build_allowance {
 
         wait_minutes => {
             required  => $self->minutes_wait_after_build,
-            current   => $self->minutes_since_last_build || ( $self->minutes_wait_after_build + 1 ),
+            current   => defined $self->minutes_since_last_build ? $self->minutes_since_last_build : ( $self->minutes_wait_after_build + 1 ),
             can_build => undef,
         },
 
