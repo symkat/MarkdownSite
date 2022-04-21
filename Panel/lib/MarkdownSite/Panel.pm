@@ -24,7 +24,6 @@ sub startup ($self ) {
     });
 
     $self->plugin( Minion => { Pg => $self->config->{database}->{minion} } );
-    $self->plugin( 'Minion::Admin' );
     $self->minion->add_task( send_email     => 'MarkdownSite::Panel::Task::SendEmail'          );
     $self->minion->add_task( create_sshkey  => 'MarkdownSite::Panel::Task::Create::SSHKey'     );
     $self->minion->add_task( deploy_website => 'MarkdownSite::Panel::Task::DeployWebsite'      );
@@ -62,6 +61,24 @@ sub startup ($self ) {
         $c->redirect_to( $c->url_for( 'show_login' ) );
         return undef;
     });
+    
+    # Create a router chain that ensures the request is from an admin user.
+    my $admin = $r->under( '/' => sub ($c) {
+        
+        # Logged in user exists.
+        if ( $c->stash->{person}->is_admin ) {
+            return 1;
+        }
+
+        # No user account for this seession.
+        $c->redirect_to( $c->url_for( 'show_dashboard' ) );
+        return undef;
+    });
+
+    # Add the minion dashboard for admins.
+    $self->plugin( 'Minion::Admin' => { route => $admin->under('/minion'  => sub ($c) {
+        return 1;
+    })});
 
     # User registration, login, and logout.
     $r->get    ('/register' )->to('Auth#register'     )->name('show_register'  );
@@ -111,6 +128,14 @@ sub startup ($self ) {
     $auth->post ('/sshkey/create' )->to('Sshkey#do_create')->name('do_create_sshkey'   );
     $auth->post ('/sshkey/import' )->to('Sshkey#do_import')->name('do_import_sshkey'   );
     $auth->post ('/sshkey/remove' )->to('Sshkey#do_remove')->name('do_remove_sshkey'   );
+
+    # Admin Dashboard
+    $admin->get ('/admin'                   )->to('Admin#index'      )->name('show_admin'           );
+    $admin->get ('/admin/websites'          )->to('Dashboard#website')->name('show_admin_websiteis' );
+    $admin->get ('/admin/website/:site_id'  )->to('Admin#website'    )->name('show_admin_website'   );
+    $admin->post('/admin/website/:site_id'  )->to('Admin#do_website' )->name('do_admin_website'     );
+    $admin->get ('/admin/person/:person_id' )->to('Dashboard#person' )->name('show_admin_person'    );
+    $admin->get ('/admin/people'            )->to('Dashboard#person' )->name('show_admin_people'    );
 
 }
 

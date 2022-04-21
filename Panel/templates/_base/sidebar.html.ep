@@ -7,6 +7,16 @@
                     <span data-feather="home"></span>
                     Dashboard
                 </a>
+                % if ( $person->is_admin ) {
+                    <a class="nav-link" target="_blank" aria-current="page" href="<%= $c->url_for( 'minion' ) %>">
+                        <span data-feather="briefcase"></span>
+                        Minion
+                    </a>
+                    <a class="nav-link <%= $sb_active eq "admin" ? "active" : "" %>"  aria-current="page" href="<%= $c->url_for( 'show_admin' ) %>">
+                        <span data-feather="zoom-in"></span>
+                        Admin
+                    </a>
+                % } 
             </li>
         </ul>
 
