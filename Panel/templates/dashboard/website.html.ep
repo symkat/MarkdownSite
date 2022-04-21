@@ -27,6 +27,23 @@
     </div>
 % }
 
+% if ( $c->stash->{success} ) {
+    <div style="margin-top: 2em" class="alert alert-success" role="alert">
+    <%= $c->stash->{success_message} %>
+    </div>
+%  }
+
+% if ( $c->stash->{errors} ) {
+    <div style="margin-top: 2em" class="alert alert-danger" role="alert">
+        There were errors with your request that could not be resolved:
+        <ul>
+%      for my $error ( @{$c->stash->{errors}} ) {
+            <li><%= $error %></li>
+%  } 
+        </ul>
+    </div>
+%  }
+
 
 %# Website Information Block 
 <h3 class="mt-5 mb-3 h3">Information</h3>
@@ -73,10 +90,20 @@
                             <button class="btn btn-sm btn-primary" type="submit">Rebuild &amp; Deploy</button>
                         </div>
                     </form>
+                    
+                    <button class="mx-4 btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#website_settings">
+                        %= include '_svg/chevron'
+                        Manage Settings
+                    </button>
 
                     <button class="mx-4 btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#extra_settings">
                         %= include '_svg/chevron'
-                        See more settings
+                        View Limits
+                    </button>
+                    
+                    <button class="mx-4 btn btn-danger btn-sm" data-bs-toggle="collapse" data-bs-target="#delete_website">
+                        %= include '_svg/chevron'
+                        Delete Website
                     </button>
                 </div>
 
@@ -84,6 +111,66 @@
         </tr>
     </tbody>
 </table>
+
+<div id="website_settings" class="card-body collapse">
+    <div class="card mt-4">
+        <div class="card-header alert-warning">
+            <strong>Site Settings For <%= $site->domain->domain %>?</strong>
+        </div>
+        <div class="card-body">
+            <table style="border: 1px solid #ccc" class="table table-striped mb-5 mt-3">
+                <thead>
+                    <tr>
+                        <th class="text-nowrap">Setting</th>
+                        <th class="text-nowrap">Value</th>
+                        <th class="text-nowrap">Editor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>webroot</th>
+                        <td><%= $site->attr('webroot') %></td>
+                        <td>
+                            <form style="margin-top: 1.5em" method="POST" action="<%= $c->url_for( 'do_dashboard_website_setting' ) %>">
+                                <input type="hidden" name="setting" value="webroot">
+                                <input type="text" name="value" value="<%= $site->attr('webroot') %>">
+                                <button type="submit" class="btn btn-sm btn-primary float-end">Set Value</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>builder</th>
+                        <td><%= $site->attr('builder') %></td>
+                        <td>
+                            <form style="margin-top: 1.5em" method="POST" action="<%= $c->url_for( 'do_dashboard_website_setting' ) %>">
+                                <input type="hidden" name="setting" value="builder">
+                                <input type="text" name="value" value="<%= $site->attr('builder') %>">
+                                <button type="submit" class="btn btn-sm btn-primary float-end">Set Value</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="delete_website" class="card-body collapse">
+    <div class="card mt-4">
+        <div class="card-header alert-warnings">
+            <%= $site->domain->domain %> Settings
+        </div>
+        <div class="card-body">
+            <p>This button will cause the website <%= $site->domain->domain %> to be removed from hosting, and deleted from your account.</p>
+            <p>This action cannot be undone, and you will be required to go through the steps of setting the site up if you wish to host it again.</p>
+            <form  method="post" action="<%= $c->url_for( 'do_dashboard_website_remove', { site_id => $site->id } ) %>">
+                <div class="input-group text-center">
+                    <button class="btn btn-sm btn-danger" type="submit">Remove this website from my account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <div id="extra_settings" class="card-body collapse">
     <table style="border: 1px solid #ccc" class="table table-striped mb-5 mt-3">

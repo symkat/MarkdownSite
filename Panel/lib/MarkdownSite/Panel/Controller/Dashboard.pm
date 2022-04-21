@@ -1,6 +1,33 @@
 package MarkdownSite::Panel::Controller::Dashboard;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
+my @allow_settings = ( 'builder', 'webroot' );
+
+sub do_setting ( $c ) {
+    $c->stash( template => 'dashboard/website' );
+    my $site_id = $c->stash->{site_id} = $c->param('site_id');
+    my $site    = $c->stash->{site}    = $c->db->site( $site_id );
+
+    my $setting = $c->param('setting');
+    my $value   = $c->param('value');
+    
+    if ( ! $setting or ! ( grep { $_ eq $setting } @allow_settings ) ) {
+        push @{$c->stash->{errors}}, "Error: Unknown setting $setting";
+        return;
+    }
+
+
+    if ( $c->stash->{person}->id != $site->person_id ) {
+        push @{$c->stash->{errors}}, "You do not have permissions to change that site.";
+        return;
+    }
+
+    $site->attr( $setting, $value );
+
+    $c->redirect_to( $c->url_for( 'show_dashboard_website', { site_id => $site->id } ) );
+}
+
+
 sub index ($c) {
 
 

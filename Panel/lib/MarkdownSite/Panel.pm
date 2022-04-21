@@ -107,7 +107,9 @@ sub startup ($self ) {
     # User dashboard
     $auth->get ('/dashboard'                            )->to('Dashboard#index'      )->name('show_dashboard'               );
     $auth->get ('/dashboard/website/:site_id'           )->to('Dashboard#website'    )->name('show_dashboard_website'       );
+    $auth->post('/dashboard/website/:site_id/setting'   )->to('Dashboard#do_setting' )->name('do_dashboard_website_setting');
     $auth->post('/dashboard/website/:site_id/rebuild'   )->to('Dashboard#do_rebuild' )->name('do_dashboard_website_rebuild' );
+    $auth->post('/dashboard/website/:site_id/remove'    )->to('Dashboard#do_remove'  )->name('do_dashboard_website_remove'  );
 
     # User create new website
     #$auth->get  ('/create/website' )->to('Create::Website#start'   )->name('show_create_website' );
