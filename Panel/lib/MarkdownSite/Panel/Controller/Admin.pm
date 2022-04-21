@@ -9,6 +9,11 @@ sub users ($c) {
     );
 }
 
+sub person ($c) {
+    my $user_id = $c->stash->{user_id} = $c->param('person_id');
+    my $user    = $c->stash->{user}    = $c->db->person($user_id);
+}
+
 sub website ( $c ){
     my $site_id = $c->stash->{site_id} = $c->param('site_id');
 

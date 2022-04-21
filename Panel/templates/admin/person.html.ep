@@ -1,0 +1,44 @@
+% layout 'layout', title => 'Admin Dashboard', sb_active => 'admin';
+
+
+<h3 class="h3 mt-5 mb-3">Account Information</h3>
+<table style="border: 1px solid #ccc" class="table mb-5">
+    <tbody>
+        <tr>
+            <th class="text-nowrap">Name</th>
+            <th class="text-nowrap">Email Address</th>
+            <th class="text-nowrap">Number Of Sites</th>
+            <th class="text-nowrap">Created</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><%= $user->name %></td>
+            <td><%= $user->email %></td>
+            <td><%= $user->search_related('sites')->count %></td>
+            <td><%= $user->created_at->strftime( "%F %T" ) %></td>
+        </tr>
+    </tbody>
+</table>
+
+<h3 class="h3 mt-5 mb-3"><%= $user->name %>'s Websites <span style="font-size: 0.5em" class="align-text-top text-muted" >(<%= $c->db->sites->count %>)</span></h3>
+<table style="border: 1px solid #ccc" class="table mb-5">
+    <tbody>
+        <tr>
+            <th class="text-nowrap">Domain</th>
+            <th class="text-nowrap">Owner</th>
+            <th class="text-nowrap">Repository</th>
+            <th class="text-nowrap">Status Link</th>
+        </tr>
+    </thead>
+    <tbody>
+        % for my $site ( $user->search_related('sites')->all ) {
+        <tr>
+            <td><a href="https://<%= $site->domain->domain %>"><%= $site->domain->domain %></a></td>
+            <td><%= $site->person->email %></td>
+            <td><%= $site->repo->url %></td>
+            <td><a href="<%= $c->url_for( 'show_admin_website', { site_id => $site->id } ) %>">Settings</a></td>
+        </tr>
+        % }
+    </tbody>
+</table>

@@ -136,7 +136,7 @@ sub startup ($self ) {
     $admin->get ('/admin/websites'          )->to('Dashboard#website')->name('show_admin_websiteis' );
     $admin->get ('/admin/website/:site_id'  )->to('Admin#website'    )->name('show_admin_website'   );
     $admin->post('/admin/website/:site_id'  )->to('Admin#do_website' )->name('do_admin_website'     );
-    $admin->get ('/admin/person/:person_id' )->to('Dashboard#person' )->name('show_admin_person'    );
+    $admin->get ('/admin/person/:person_id' )->to('Admin#person'     )->name('show_admin_person'    );
     $admin->get ('/admin/people'            )->to('Dashboard#person' )->name('show_admin_people'    );
 
 }
