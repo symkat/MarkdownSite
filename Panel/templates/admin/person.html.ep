@@ -1,5 +1,12 @@
 % layout 'layout', title => 'Admin Dashboard', sb_active => 'admin';
 
+<nav aria-label="breadcrumb" class="mt-3 mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="<%= $c->url_for( 'show_admin' ) %>">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="<%= $c->url_for( 'show_admin' ) %>">People</a></li>
+    <li class="breadcrumb-item active" aria-current="page"><%= $user->name %></li>
+  </ol>
+</nav>
 
 <h3 class="h3 mt-5 mb-3">Account Information</h3>
 <table style="border: 1px solid #ccc" class="table mb-5">
