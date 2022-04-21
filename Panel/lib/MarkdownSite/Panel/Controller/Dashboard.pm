@@ -113,4 +113,52 @@ sub do_rebuild ( $c ) {
     $c->redirect_to( $c->url_for( 'show_dashboard_website', { site_id => $site->id } ) );
 }
 
+sub do_remove ($c) {
+    $c->stash( template => 'dashboard/website' );
+
+    my $site_id = $c->stash->{site_id} = $c->param('site_id');
+    my $site    = $c->stash->{site}    = $c->db->site($site_id);
+
+    if ( ! $site ) {
+        $c->render( 
+            text   => "Error: That site does not exist.",
+            status => 404,
+            format => 'txt',
+        );
+        return;
+    }
+    
+    if ( $site->person->id != $c->stash->{person}->id ) {
+        $c->render( 
+            text   => "Error: You do not have permission to that site.",
+            status => 403,
+            format => 'txt',
+        );
+        return;
+    }
+
+    
+    $c->minion->enqueue( purge_website =>  [ $site->domain->domain ] => {
+        notes    => { '_mds_sid_' . $site->id => 1 },
+        priority => $site->build_priority,
+    });
+
+    # Okay, delete the website.
+    $c->db->storage->schema->txn_do( sub {
+        $site->search_related('repoes')->delete;
+        $site->search_related('builds')->delete;
+        $site->search_related('site_attributes')->delete;
+        
+        # Remove the domain record as well.
+        my $domain = $site->domain;
+
+        $site->delete;
+        $domain->delete;
+    } );
+
+    # Kick the user back to the dashboard.
+    $c->redirect_to( $c->url_for( 'show_dashboard' ) );
+
+}
+
 1;
