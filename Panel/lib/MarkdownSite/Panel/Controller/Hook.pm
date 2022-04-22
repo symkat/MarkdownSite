@@ -1,27 +1,63 @@
 package MarkdownSite::Panel::Controller::Hook;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
+use Digest::SHA qw(hmac_sha256_hex hmac_sha1_hex);
+use Digest::MD5 qw( md5_hex );
 
 sub do_github ( $c ) {
     my $site_id   = $c->param('site_id');
     my $site      = $c->db->site( $site_id );
+        
+    # No such website.
+    return $c->render( text => "Error: No site found by that id.", status => 403, format => 'txt' )
+        unless $site;
 
-    # > X-GitHub-Delivery: 72d3162e-cc78-11e3-81ab-4c9367dc0958
-    # > X-Hub-Signature: sha1=7d38cdd689735b008b3c702edd92eea23791c5f6
-    # > X-Hub-Signature-256: sha256=d57c68ca6f92289e6987922ff26938930f6e66a2d161ef06abdf1859230aa23c
-    # > User-Agent: GitHub-Hookshot/044aadd
+    my $content = $c->req->body;
+    my $payload = $c->req->json;
+    my $sha256  = $c->req->headers->header('X-Hub-Signature-256');
+    my $sha1    = $c->req->headers->header('X-Hub-Signature');
+
+    my $secret  = md5_hex(
+        $site->created_at->epoch . $site->person->created_at->epoch 
+    );
+
+    # No request body for content/payload recieved.
+    return $c->render( text => "No request body found.", status => 403, format => 'txt' )
+        unless $content;
     
-    my $gh_sha1   = $c->req->headers->header('X-Hub-Signature');
-    my $gh_sha256 = $c->req->headers->header('X-Hub-Signature-256');
-    my $gh_token  = $c->req->headers->header('X-GitHub-Delivery');
-    my $useragent = $c->req->headers->header('User-Agent');
+    # Expected header missing.
+    return $c->render( text => "No X-Hub-Signature header found.", status => 403, format => 'txt' )
+        unless $sha1;
+    
+    # Expected header missing.
+    return $c->render( text => "No X-Hub-Signature-256 header found.", status => 403, format => 'txt' )
+        unless $sha256;
 
-    my $action     = $c->param('action');
-    my $sender     = $c->param('sender');
-    my $repository = $c->param('repository');
+    # Mismatch secret for sha1 test
+    my $serv_sha1 = hmac_sha1_hex($content, $secret);
+    if ( "sha1=$serv_sha1" ne $sha1 ) {
+        return $c->render( text => "(invalid signature) sha1 test failed.", status => 403, format => 'txt' );
+    }
 
+    # Mismatch secret for sha256 test
+    my $serv_sha256 = hmac_sha256_hex($content, $secret);
+    if ( "sha256=$serv_sha256" ne $sha256 ) {
+        return $c->render( text => "(invalid signature) sha256 test failed.", status => 403, format => 'txt' );
+    }
+    
+    if ( ! $site->get_build_allowance->{can_build} ) {
+        return $c->render( text => "Build limit exceeded.", status => 429, format => 'txt' );
+    }
 
+    # Queue the job to deploy the website.
+    my $id = $c->minion->enqueue( $site->builder->job_name, [ $site->id ] => {
+        notes    => { '_mds_sid_' . $site->id => 1 },
+        priority => $site->build_priority,
+    });
+    
+    # Create a build record in the database for the site.
+    $site->create_related( 'builds', { job_id => $id } );
 
-
+    $c->render( text => "OK", status => 200, format => 'txt' );
 }
 
 1;
