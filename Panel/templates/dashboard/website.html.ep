@@ -8,7 +8,6 @@
   </ol>
 </nav>
 
-%= $hook_secret 
 %# Job Rejection Panel
 % if ( $c->param('reject_job') ) {
     <div class="card mb-4 alert alert-danger">
@@ -45,212 +44,22 @@
     </div>
 %  }
 
+%= include 'dashboard/_website/information'
 
-%# Website Information Block 
-<h3 class="mt-5 mb-3 h3">Information</h3>
-<table style="border: 1px solid #ccc" class="table table-striped mb-5 mt-3">
-    <thead>
-        <tr>
-            <th class="text-nowrap">Setting</th>
-            <th class="text-nowrap">Value</th>
-            <th class="text-nowrap">Meaning</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <th>Domain</th>
-            <td><a href="https://<%= $site->domain->domain %>"><%= $site->domain->domain %></a></td>
-            <td>This is the domain name for your website.  Users from the Internet can visit this domain to see your website.</td>
-        </tr>
-        <tr>
-            <th>Repository</th>
-            <td><%= $site->repo->url %></td>
-            <td>This is the URL we use to fetch your git repository when the website is built.</td>
-        </tr>
-        <tr>
-            <th>Last Build</th>
-            % if ( $site->minutes_since_last_build ) {
-                <td><%= $site->minutes_since_last_build %> minutes ago</td>
-            % } else {
-                <td>Never Built</td>
-            % }
-            <td>How long ago the last build was.</td>
-        </tr>
-        <tr>
-            <th>Builder</th>
-            <td><%= $site->builder->title %></td>
-            <td>The builder used for this repo.</td>
-        </tr>
-        %# Build & Site Restrictions %>
-        <tr>
-            <th>Actions</th>
-            <td colspan=2>
-                <div class="btn-group">
-                    <form  method="post" action="<%= $c->url_for( 'do_dashboard_website_rebuild', { site_id => $site->id } ) %>">
-                        <div class="input-group">
-                            <button class="btn btn-sm btn-primary" type="submit">Rebuild &amp; Deploy</button>
-                        </div>
-                    </form>
-                    
-                    <button class="mx-4 btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#website_settings">
-                        %= include '_svg/chevron'
-                        Manage Settings
-                    </button>
-
-                    <button class="mx-4 btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#extra_settings">
-                        %= include '_svg/chevron'
-                        View Limits
-                    </button>
-                    
-                    <button class="mx-4 btn btn-danger btn-sm" data-bs-toggle="collapse" data-bs-target="#delete_website">
-                        %= include '_svg/chevron'
-                        Delete Website
-                    </button>
-                </div>
-
-            </td>
-        </tr>
-    </tbody>
-</table>
-
-%# Website Information Block 
-<h5 class="mt-5 mb-3 h5">GitHub Hook Configuration</h5>
-<table style="border: 1px solid #ccc" class="table table-striped mb-5 mt-3">
-    <thead>
-        <tr>
-            <th class="text-nowrap">GitHub Hook Setting</th>
-            <th class="text-nowrap">Value You Select</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <th>Payload URL</th>
-            <td><%= $c->url_for( 'do_hook_github', { site_id => $site_id } )->to_abs->scheme( $c->req->headers->header('X-Forwarded-Proto') || 'http' )  %></td>
-        </tr>
-        <tr>
-            <th>Content type</th>
-            <td>application/x-www-form-urlencoded</td>
-        </tr>
-        <tr>
-            <th>Secret</th>
-            <td><%= $hook_secret %>.</td>
-        </tr>
-        <tr>
-            <th>Which events would you like to trigger this webhook?</th>
-            <td>Just the push event</td>
-        </tr>
-        <tr>
-            <th>Active</th>
-            <td>Should be checked</td>
-        </tr>
-    </tbody>
-</table>
-
-<div id="website_settings" class="card-body collapse">
-    <div class="card mt-4">
-        <div class="card-header alert-warning">
-            <strong>Site Settings For <%= $site->domain->domain %>?</strong>
-        </div>
-        <div class="card-body">
-            <table style="border: 1px solid #ccc" class="table table-striped mb-5 mt-3">
-                <thead>
-                    <tr>
-                        <th class="text-nowrap">Setting</th>
-                        <th class="text-nowrap">Value</th>
-                        <th class="text-nowrap">Editor</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th>webroot</th>
-                        <td><%= $site->attr('webroot') %></td>
-                        <td>
-                            <form style="margin-top: 1.5em" method="POST" action="<%= $c->url_for( 'do_dashboard_website_setting' ) %>">
-                                <input type="hidden" name="setting" value="webroot">
-                                <input type="text" name="value" value="<%= $site->attr('webroot') %>">
-                                <button type="submit" class="btn btn-sm btn-primary float-end">Set Value</button>
-                            </form>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<div id="delete_website" class="card-body collapse">
-    <div class="card mt-4">
-        <div class="card-header alert-warnings">
-            <%= $site->domain->domain %> Settings
-        </div>
-        <div class="card-body">
-            <p>This button will cause the website <%= $site->domain->domain %> to be removed from hosting, and deleted from your account.</p>
-            <p>This action cannot be undone, and you will be required to go through the steps of setting the site up if you wish to host it again.</p>
-            <form  method="post" action="<%= $c->url_for( 'do_dashboard_website_remove', { site_id => $site->id } ) %>">
-                <div class="input-group text-center">
-                    <button class="btn btn-sm btn-danger" type="submit">Remove this website from my account</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div id="extra_settings" class="card-body collapse">
-    <table style="border: 1px solid #ccc" class="table table-striped mb-5 mt-3">
-        <thead>
-            <tr>
-                <th class="text-nowrap">Setting</th>
-                <th class="text-nowrap">Value</th>
-                <th class="text-nowrap">Meaning</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <th>max_static_file_count</th>
-                <td><%= $site->max_static_file_count %> files</td>
-                <td>The total count of static files your website may have.</td>
-            </tr>
-            <tr>
-                <th>max_static_file_size</th>
-                <td><%= $site->max_static_file_size %> MiB</td>
-                <td>The largest size any one file in your website may be.</td>
-            </tr>
-            <tr>
-                <th>max_static_webroot_size</th>
-                <td><%= $site->max_static_webroot_size %> MiB</td>
-                <td>The largest size allowed for the combined size of all of the files on your website.</td>
-            </tr>
-            <tr>
-                <th>minutes_wait_after_build</th>
-                <td><%= $site->minutes_wait_after_build %> minutes</td>
-                <td>The amount of time you must wait between rebuilding this website.</td>
-            </tr>
-            <tr>
-                <th>builds_per_hour</th>
-                <td><%= $site->builds_per_hour %> builds</td>
-                <td>The total amount of builds allowed for this site per hour.</td>
-            </tr>
-            <tr>
-                <th>builds_per_day</th>
-                <td><%= $site->builds_per_day %> builds</td>
-                <td>The total amount of builds allowed for this site per day.</td>
-            </tr>
-            <tr>
-                <th>build_priority</th>
-                <td><%= $site->build_priority %></td>
-                <td>The priority of your builds.</td>
-            </tr>
-            <tr>
-                <th>is_enabled</th>
-                <td><%= $site->is_enabled %></td>
-                <td></td>
-            </tr>
-            </div>
-
-        </tbody>
-    </table>
-</div>
-
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="<%= $c->url_for( 'show_dashboard_website' ) %>">Jobs</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="<%= $c->url_for( 'show_dashboard_website_limits' ) %>">Limits</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="<%= $c->url_for( 'show_dashboard_website_settings' ) %>">Settings</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="<%= $c->url_for( 'show_dashboard_website_hooks' ) %>">Hooks</a>
+    </li>
+</ul>
 
 %# Job Panel %
 % my $index = 0;

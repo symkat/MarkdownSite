@@ -65,6 +65,33 @@ sub website ( $c ){
     $c->stash->{refresh_for_minion} = 1;
 }
 
+sub website_limits ( $c ){
+    my $site_id = $c->stash->{site_id} = $c->param('site_id');
+    my $site    = $c->stash->{site}    = $c->db->site( $site_id );
+
+    $c->stash->{hook_secret}  = md5_hex(
+        $site->created_at->epoch . $c->stash->{person}->created_at->epoch 
+    );
+}
+
+sub website_settings ( $c ){
+    my $site_id = $c->stash->{site_id} = $c->param('site_id');
+    my $site    = $c->stash->{site}    = $c->db->site( $site_id );
+
+    $c->stash->{hook_secret}  = md5_hex(
+        $site->created_at->epoch . $c->stash->{person}->created_at->epoch 
+    );
+}
+
+sub website_hooks ( $c ){
+    my $site_id = $c->stash->{site_id} = $c->param('site_id');
+    my $site    = $c->stash->{site}    = $c->db->site( $site_id );
+
+    $c->stash->{hook_secret}  = md5_hex(
+        $site->created_at->epoch . $c->stash->{person}->created_at->epoch 
+    );
+}
+
 sub rebuild ( $c ) { }
 
 sub do_rebuild ( $c ) {

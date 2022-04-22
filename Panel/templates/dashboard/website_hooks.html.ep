@@ -1,0 +1,97 @@
+% layout 'layout', title => 'Dashboard', sb_active => 'dashboard';
+
+<nav aria-label="breadcrumb" class="mt-3 mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="<%= $c->url_for( 'show_dashboard' ) %>">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="<%= $c->url_for( 'show_dashboard' ) %>">Websites</a></li>
+    <li class="breadcrumb-item active" aria-current="page"><%= $site->domain->domain %></li>
+  </ol>
+</nav>
+
+%# Job Rejection Panel
+% if ( $c->param('reject_job') ) {
+    <div class="card mb-4 alert alert-danger">
+        <div class="card-header">
+            %= include '_svg/failed'
+            Build Rejected
+        </div>
+        <div class="card-body">
+            % my $sba = $site->get_build_allowance;
+            <p>Rules</p>
+            <ul>
+                <li>Must wait <%= $sba->{wait_minutes}{required} %> between builds.  You have waited <%= $sba->{wait_minutes}{current} %> minutes.</li>
+                <li>In one hour, <%= $sba->{builds_over_hour}{allowed} %> builds are allowed.  You have built <%= $sba->{builds_over_hour}{used} %> times in that time.</li>
+                <li>In one day, <%= $sba->{builds_over_day}{allowed} %> builds are allowed.  You have built <%= $sba->{builds_over_day}{used} %> times in that time.</li>
+            </ul>
+        </div>
+    </div>
+% }
+
+% if ( $c->stash->{success} ) {
+    <div style="margin-top: 2em" class="alert alert-success" role="alert">
+    <%= $c->stash->{success_message} %>
+    </div>
+%  }
+
+% if ( $c->stash->{errors} ) {
+    <div style="margin-top: 2em" class="alert alert-danger" role="alert">
+        There were errors with your request that could not be resolved:
+        <ul>
+%      for my $error ( @{$c->stash->{errors}} ) {
+            <li><%= $error %></li>
+%  } 
+        </ul>
+    </div>
+%  }
+
+%= include 'dashboard/_website/information'
+
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link" aria-current="page" href="<%= $c->url_for( 'show_dashboard_website' ) %>">Jobs</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="<%= $c->url_for( 'show_dashboard_website_limits' ) %>">Limits</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="<%= $c->url_for( 'show_dashboard_website_settings' ) %>">Settings</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" href="<%= $c->url_for( 'show_dashboard_website_hooks' ) %>">Hooks</a>
+    </li>
+</ul>
+
+<h5 class="mt-5 mb-3 h5">GitHub Hook Configuration</h5>
+<p>To add a hook so that this website is rebuilt when you push changes to GitHub, go to the settings page for your repository, then click <strong>Webhooks</strong> and fill the form out with the information provided below.</p>
+
+<table style="border: 1px solid #ccc" class="table table-striped mb-5 mt-3">
+    <thead>
+        <tr>
+            <th class="text-nowrap">GitHub Hook Setting</th>
+            <th class="text-nowrap">Value You Select</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th>Payload URL</th>
+            <td><%= $c->url_for( 'do_hook_github', { site_id => $site_id } )->to_abs->scheme( $c->req->headers->header('X-Forwarded-Proto') || 'http' )  %></td>
+        </tr>
+        <tr>
+            <th>Content type</th>
+            <td>application/x-www-form-urlencoded</td>
+        </tr>
+        <tr>
+            <th>Secret</th>
+            <td><%= $hook_secret %></td>
+        </tr>
+        <tr>
+            <th>Which events would you like to trigger this webhook?</th>
+            <td>Just the push event</td>
+        </tr>
+        <tr>
+            <th>Active</th>
+            <td>Should be checked</td>
+        </tr>
+    </tbody>
+</table>
+

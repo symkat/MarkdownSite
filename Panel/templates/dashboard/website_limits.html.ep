@@ -1,0 +1,119 @@
+% layout 'layout', title => 'Dashboard', sb_active => 'dashboard';
+
+<nav aria-label="breadcrumb" class="mt-3 mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="<%= $c->url_for( 'show_dashboard' ) %>">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="<%= $c->url_for( 'show_dashboard' ) %>">Websites</a></li>
+    <li class="breadcrumb-item active" aria-current="page"><%= $site->domain->domain %></li>
+  </ol>
+</nav>
+
+%# Job Rejection Panel
+% if ( $c->param('reject_job') ) {
+    <div class="card mb-4 alert alert-danger">
+        <div class="card-header">
+            %= include '_svg/failed'
+            Build Rejected
+        </div>
+        <div class="card-body">
+            % my $sba = $site->get_build_allowance;
+            <p>Rules</p>
+            <ul>
+                <li>Must wait <%= $sba->{wait_minutes}{required} %> between builds.  You have waited <%= $sba->{wait_minutes}{current} %> minutes.</li>
+                <li>In one hour, <%= $sba->{builds_over_hour}{allowed} %> builds are allowed.  You have built <%= $sba->{builds_over_hour}{used} %> times in that time.</li>
+                <li>In one day, <%= $sba->{builds_over_day}{allowed} %> builds are allowed.  You have built <%= $sba->{builds_over_day}{used} %> times in that time.</li>
+            </ul>
+        </div>
+    </div>
+% }
+
+% if ( $c->stash->{success} ) {
+    <div style="margin-top: 2em" class="alert alert-success" role="alert">
+    <%= $c->stash->{success_message} %>
+    </div>
+%  }
+
+% if ( $c->stash->{errors} ) {
+    <div style="margin-top: 2em" class="alert alert-danger" role="alert">
+        There were errors with your request that could not be resolved:
+        <ul>
+%      for my $error ( @{$c->stash->{errors}} ) {
+            <li><%= $error %></li>
+%  } 
+        </ul>
+    </div>
+%  }
+
+%= include 'dashboard/_website/information'
+
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link" aria-current="page" href="<%= $c->url_for( 'show_dashboard_website' ) %>">Jobs</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" href="<%= $c->url_for( 'show_dashboard_website_limits' ) %>">Limits</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="<%= $c->url_for( 'show_dashboard_website_settings' ) %>">Settings</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="<%= $c->url_for( 'show_dashboard_website_hooks' ) %>">Hooks</a>
+    </li>
+</ul>
+
+<h5 class="mt-5 mb-3 h5">Website Limits</h5>
+<table style="border: 1px solid #ccc" class="table table-striped mb-5 mt-3">
+    <thead>
+        <tr>
+            <th class="text-nowrap">Setting</th>
+            <th class="text-nowrap">Value</th>
+            <th class="text-nowrap">Meaning</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th>max_static_file_count</th>
+            <td><%= $site->max_static_file_count %> files</td>
+            <td>The total count of static files your website may have.</td>
+        </tr>
+        <tr>
+            <th>max_static_file_size</th>
+            <td><%= $site->max_static_file_size %> MiB</td>
+            <td>The largest size any one file in your website may be.</td>
+        </tr>
+        <tr>
+            <th>max_static_webroot_size</th>
+            <td><%= $site->max_static_webroot_size %> MiB</td>
+            <td>The largest size allowed for the combined size of all of the files on your website.</td>
+        </tr>
+        <tr>
+            <th>minutes_wait_after_build</th>
+            <td><%= $site->minutes_wait_after_build %> minutes</td>
+            <td>The amount of time you must wait between rebuilding this website.</td>
+        </tr>
+        <tr>
+            <th>builds_per_hour</th>
+            <td><%= $site->builds_per_hour %> builds</td>
+            <td>The total amount of builds allowed for this site per hour.</td>
+        </tr>
+        <tr>
+            <th>builds_per_day</th>
+            <td><%= $site->builds_per_day %> builds</td>
+            <td>The total amount of builds allowed for this site per day.</td>
+        </tr>
+        <tr>
+            <th>build_priority</th>
+            <td><%= $site->build_priority %></td>
+            <td>The priority of your builds.</td>
+        </tr>
+        <tr>
+            <th>is_enabled</th>
+            <td><%= $site->is_enabled %></td>
+            <td></td>
+        </tr>
+        </div>
+
+    </tbody>
+</table>
+
+

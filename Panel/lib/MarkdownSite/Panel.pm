@@ -109,11 +109,14 @@ sub startup ($self ) {
     $auth->post('/password'  )->to('UserSettings#do_change_password' )->name('do_change_password'    );
 
     # User dashboard
-    $auth->get ('/dashboard'                            )->to('Dashboard#index'      )->name('show_dashboard'               );
-    $auth->get ('/dashboard/website/:site_id'           )->to('Dashboard#website'    )->name('show_dashboard_website'       );
-    $auth->post('/dashboard/website/:site_id/setting'   )->to('Dashboard#do_setting' )->name('do_dashboard_website_setting');
-    $auth->post('/dashboard/website/:site_id/rebuild'   )->to('Dashboard#do_rebuild' )->name('do_dashboard_website_rebuild' );
-    $auth->post('/dashboard/website/:site_id/remove'    )->to('Dashboard#do_remove'  )->name('do_dashboard_website_remove'  );
+    $auth->get ('/dashboard'                            )->to('Dashboard#index'            )->name('show_dashboard'                  );
+    $auth->get ('/dashboard/website/:site_id'           )->to('Dashboard#website'          )->name('show_dashboard_website'          );
+    $auth->get ('/dashboard/website/:site_id/limits'    )->to('Dashboard#website_limits'   )->name('show_dashboard_website_limits'   );
+    $auth->get ('/dashboard/website/:site_id/settings'  )->to('Dashboard#website_settings' )->name('show_dashboard_website_settings' );
+    $auth->get ('/dashboard/website/:site_id/hooks'     )->to('Dashboard#website_hooks'    )->name('show_dashboard_website_hooks'    );
+    $auth->post('/dashboard/website/:site_id/setting'   )->to('Dashboard#do_setting'       )->name('do_dashboard_website_setting'    );
+    $auth->post('/dashboard/website/:site_id/rebuild'   )->to('Dashboard#do_rebuild'       )->name('do_dashboard_website_rebuild'    );
+    $auth->post('/dashboard/website/:site_id/remove'    )->to('Dashboard#do_remove'        )->name('do_dashboard_website_remove'     );
 
     # Manage Websites
     $auth->get  ('/website'                  )->to('Website#create'      )->name('show_create_website'      );

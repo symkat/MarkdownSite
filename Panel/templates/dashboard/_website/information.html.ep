@@ -1,0 +1,50 @@
+%# Website Information Block 
+<h3 class="mt-5 mb-3 h3">Information</h3>
+<table style="border: 1px solid #ccc" class="table table-striped mb-5 mt-3">
+    <thead>
+        <tr>
+            <th class="text-nowrap">Setting</th>
+            <th class="text-nowrap">Value</th>
+            <th class="text-nowrap">Meaning</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th>Domain</th>
+            <td><a href="https://<%= $site->domain->domain %>"><%= $site->domain->domain %></a></td>
+            <td>This is the domain name for your website.  Users from the Internet can visit this domain to see your website.</td>
+        </tr>
+        <tr>
+            <th>Repository</th>
+            <td><%= $site->repo->url %></td>
+            <td>This is the URL we use to fetch your git repository when the website is built.</td>
+        </tr>
+        <tr>
+            <th>Last Build</th>
+            % if ( $site->minutes_since_last_build ) {
+                <td><%= $site->minutes_since_last_build %> minutes ago</td>
+            % } else {
+                <td>Never Built</td>
+            % }
+            <td>How long ago the last build was.</td>
+        </tr>
+        <tr>
+            <th>Builder</th>
+            <td><%= $site->builder->title %></td>
+            <td>The builder used for this repo.</td>
+        </tr>
+        %# Build & Site Restrictions %>
+        <tr>
+            <th>Actions</th>
+            <td colspan=2>
+                <div class="btn-group">
+                    <form  method="post" action="<%= $c->url_for( 'do_dashboard_website_rebuild', { site_id => $site->id } ) %>">
+                        <div class="input-group">
+                            <button class="btn btn-sm btn-primary" type="submit">Rebuild &amp; Deploy</button>
+                        </div>
+                    </form>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
