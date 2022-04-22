@@ -1,5 +1,6 @@
 package MarkdownSite::Panel::Controller::Dashboard;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
+use Digest::MD5 qw( md5_hex );
 
 my @allow_settings = ( 'builder', 'webroot' );
 
@@ -55,12 +56,13 @@ sub users ($c) {
 
 sub website ( $c ){
     my $site_id = $c->stash->{site_id} = $c->param('site_id');
+    my $site    = $c->stash->{site}    = $c->db->site( $site_id );
 
-    my $site = $c->db->site( $site_id );
+    $c->stash->{hook_secret}  = md5_hex(
+        $site->created_at->epoch . $c->stash->{person}->created_at->epoch 
+    );
 
     $c->stash->{refresh_for_minion} = 1;
-
-    $c->stash->{site} = $site;
 }
 
 sub rebuild ( $c ) { }

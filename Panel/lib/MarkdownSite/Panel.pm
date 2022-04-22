@@ -93,6 +93,10 @@ sub startup ($self ) {
     $r->get ('/reset/:token' )->to('Auth#reset'       )->name('show_reset'     );
     $r->post('/reset/:token' )->to('Auth#do_reset'    )->name('do_reset'       );
 
+    # GitHub Webhook
+    $r->post( '/hook/github/:site_id' )->to( 'Hook#do_github' )->name( 'do_hook_github' );
+
+    
     # Send requests for / to the dashboard.
     $r->get('/')->to(cb => sub ($c) {
         $c->redirect_to( $c->url_for('dashboard') )
@@ -110,10 +114,6 @@ sub startup ($self ) {
     $auth->post('/dashboard/website/:site_id/setting'   )->to('Dashboard#do_setting' )->name('do_dashboard_website_setting');
     $auth->post('/dashboard/website/:site_id/rebuild'   )->to('Dashboard#do_rebuild' )->name('do_dashboard_website_rebuild' );
     $auth->post('/dashboard/website/:site_id/remove'    )->to('Dashboard#do_remove'  )->name('do_dashboard_website_remove'  );
-
-    # User create new website
-    #$auth->get  ('/create/website' )->to('Create::Website#start'   )->name('show_create_website' );
-    #$auth->post ('/create/website' )->to('Create::Website#do_start')->name('do_create_website'   );
 
     # Manage Websites
     $auth->get  ('/website'                  )->to('Website#create'      )->name('show_create_website'      );

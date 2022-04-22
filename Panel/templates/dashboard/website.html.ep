@@ -8,6 +8,7 @@
   </ol>
 </nav>
 
+%= $hook_secret 
 %# Job Rejection Panel
 % if ( $c->param('reject_job') ) {
     <div class="card mb-4 alert alert-danger">
@@ -108,6 +109,39 @@
                 </div>
 
             </td>
+        </tr>
+    </tbody>
+</table>
+
+%# Website Information Block 
+<h5 class="mt-5 mb-3 h5">GitHub Hook Configuration</h5>
+<table style="border: 1px solid #ccc" class="table table-striped mb-5 mt-3">
+    <thead>
+        <tr>
+            <th class="text-nowrap">GitHub Hook Setting</th>
+            <th class="text-nowrap">Value You Select</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th>Payload URL</th>
+            <td><%= $c->url_for( 'do_hook_github', { site_id => $site_id } )->to_abs->scheme( $c->req->headers->header('X-Forwarded-Proto') || 'http' )  %></td>
+        </tr>
+        <tr>
+            <th>Content type</th>
+            <td>application/x-www-form-urlencoded</td>
+        </tr>
+        <tr>
+            <th>Secret</th>
+            <td><%= $hook_secret %>.</td>
+        </tr>
+        <tr>
+            <th>Which events would you like to trigger this webhook?</th>
+            <td>Just the push event</td>
+        </tr>
+        <tr>
+            <th>Active</th>
+            <td>Should be checked</td>
         </tr>
     </tbody>
 </table>
