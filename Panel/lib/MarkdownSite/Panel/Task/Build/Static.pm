@@ -23,6 +23,12 @@ sub run ( $job, $site_id ) {
         $build_dir->child('src')->child($site->attr('webroot') || 'public')->to_string,
         $build_dir->child('build')->to_string
     );
+    
+    $job->process_markdownsite(
+        $site,
+        $build_dir->child('src')->child($site->attr('site') || 'site')->to_string,
+        $build_dir->child('build')->to_string
+    );
 
     #==
     # Build Site Config

@@ -147,6 +147,34 @@ sub process_webroot ( $job, $site, $source, $dest ) {
     }
 }
 
+sub process_markdownsite ( $job, $site, $source, $dest ) {
+    if ( -d $source ) {
+
+        chdir $source
+            or die "Failed to chdir to $source: $!";
+
+        $job->append_log( "\n\n--- Processing MarkdownSite Files ---" );
+
+        my $files = Mojo::File->new( $source )->list_tree;
+
+        foreach my $file ( $files->each ) {
+            # Does file exceed size allowed?
+            if ( $file->stat->size >= ( 256 * 1024 ) ) {
+                $job->fail("MarkdownSite limits markdown files to 256 KiB.  $file exceeds that.");
+                return;
+            }
+
+            Mojo::File->new( "$dest/pages/" . $file->to_rel($source)->dirname )->make_path;
+            $file->move_to( "$dest/pages/" . $file->to_rel($source) );
+            $job->append_log("File Processed: " . $file->to_rel( $source ));
+
+        }
+        $job->append_log( "--- Done Processing MarkdownSite Files ---" );
+    }
+}
+
+
+
 sub append_log ( $self, @lines ){
     my @logs = @{$self->info->{notes}{logs} || []};
     
