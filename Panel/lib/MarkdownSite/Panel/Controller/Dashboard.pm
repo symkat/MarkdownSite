@@ -147,6 +147,7 @@ sub do_remove ($c) {
 
     my $site_id = $c->stash->{site_id} = $c->param('site_id');
     my $site    = $c->stash->{site}    = $c->db->site($site_id);
+    my $domain  = $c->param('confirm_domain');
 
     if ( ! $site ) {
         $c->render( 
@@ -163,6 +164,12 @@ sub do_remove ($c) {
             status => 403,
             format => 'txt',
         );
+        return;
+    }
+
+    # Kick the user back if they typo the domain name.
+    if ( $site->domain->domain ne $domain ) {
+        $c->redirect_to( $c->url_for( 'show_dashboard' ) );
         return;
     }
 
