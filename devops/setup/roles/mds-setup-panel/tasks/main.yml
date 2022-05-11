@@ -27,21 +27,13 @@
     ]
     state: present
 
-- name: Install MarkdownSite::Manager::DB
-  cpanm:
-    name: "{{ config.pkg.manager_db }}"
-
-- name: Install MarkdownSite::Panelr::DB
-  cpanm:
-    name: "{{ config.pkg.panel_db }}"
-
-- name: Install MarkdownSite::Manager
-  cpanm:
-    name: "{{ config.pkg.manager }}"
-
-- name: Install MarkdownSite::Panel
-  cpanm:
-    name: "{{ config.pkg.panel }}"
+      # - name: Install MarkdownSite::Panel::DB
+      #   cpanm:
+      #     name: "{{ config.pkg.panel_db }}"
+      # 
+      # - name: Install MarkdownSite::Panel
+      #   cpanm:
+      #     name: "{{ config.pkg.panel }}"
 
 - name: Install /etc/markdownsite.yml
   template:
@@ -136,6 +128,22 @@
     group: root
     mode: 0644
 
+- name: "Install /etc/nginx/sites-enabled/pkgs.{{ config.panel.domain }}"
+  template:
+    src: "{{ role_path }}/templates/nginx-pkgs.conf"
+    dest: "/etc/nginx/sites-enabled/pkgs.{{ config.panel.domain }}"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Create /var/www/pkgs.{{ config.panel.domain }}"
+  file:
+    state: directory
+    path: "/var/www/pkgs.{{ config.panel.domain }}"
+    owner: www-data
+    group: www-data
+    mode: 0755
+
 - name: Add auth lines to pgsql hba config
   postgresql_pg_hba:
     dest: /etc/postgresql/13/main/pg_hba.conf
@@ -170,15 +178,146 @@
   become: true
   become_user: manager
 
-## TODO ensure mds-panel gets dbc, and then replace this command.
-- name: Import the database
-  shell: mds-manager dbc < /home/manager/markdownsite/Panel-DB/etc/schema.sql > /home/manager/markdownsite/Panel-DB/etc/schema.log
-  args:
-    creates: /home/manager/markdownsite/Panel-DB/etc/schema.log
+- name: Install Dist::Zilla
+  shell: cpanm Dist::Zilla
+  environment:
+    PATH:                '/home/manager/perl5/bin:/usr/local/bin:/usr/bin:/bin'
+    PERL5LIB:            '/home/manager/perl5/lib/perl5'
+    PERL_MB_OPT:         '--install_base "/home/manager/perl5"'
+    PERL_MM_OPT:         'INSTALL_BASE=/home/manager/perl5'
+    PERL_LOCAL_LIB_ROOT: '/home/manager/perl5'
   become: true
   become_user: manager
 
-# Start markdownsite.panel
+- name: Build Panel::DB
+  shell: dzil build
+  args:
+    chdir: /home/manager/markdownsite/Panel-DB
+  environment:
+    PATH:                '/home/manager/perl5/bin:/usr/local/bin:/usr/bin:/bin'
+    PERL5LIB:            '/home/manager/perl5/lib/perl5'
+    PERL_MB_OPT:         '--install_base "/home/manager/perl5"'
+    PERL_MM_OPT:         'INSTALL_BASE=/home/manager/perl5'
+    PERL_LOCAL_LIB_ROOT: '/home/manager/perl5'
+  become: true
+  become_user: manager
+
+- name: Install MarkdownSite::Panel::DB
+  shell: cpanm MarkdownSite-Panel-DB-*.tar.gz
+  args:
+    chdir: /home/manager/markdownsite/Panel-DB
+  environment:
+    PATH:                '/home/manager/perl5/bin:/usr/local/bin:/usr/bin:/bin'
+    PERL5LIB:            '/home/manager/perl5/lib/perl5'
+    PERL_MB_OPT:         '--install_base "/home/manager/perl5"'
+    PERL_MM_OPT:         'INSTALL_BASE=/home/manager/perl5'
+    PERL_LOCAL_LIB_ROOT: '/home/manager/perl5'
+  become: true
+  become_user: manager
+
+- name: Build MarkdownSite::Panel
+  shell: dzil build
+  args:
+    chdir: /home/manager/markdownsite/Panel
+  environment:
+    PATH:                '/home/manager/perl5/bin:/usr/local/bin:/usr/bin:/bin'
+    PERL5LIB:            '/home/manager/perl5/lib/perl5'
+    PERL_MB_OPT:         '--install_base "/home/manager/perl5"'
+    PERL_MM_OPT:         'INSTALL_BASE=/home/manager/perl5'
+    PERL_LOCAL_LIB_ROOT: '/home/manager/perl5'
+  become: true
+  become_user: manager
+
+- name: Install MarkdownSite::Panel
+  shell: cpanm MarkdownSite-Panel-*.tar.gz
+  args:
+    chdir: /home/manager/markdownsite/Panel
+  environment:
+    PATH:                '/home/manager/perl5/bin:/usr/local/bin:/usr/bin:/bin'
+    PERL5LIB:            '/home/manager/perl5/lib/perl5'
+    PERL_MB_OPT:         '--install_base "/home/manager/perl5"'
+    PERL_MM_OPT:         'INSTALL_BASE=/home/manager/perl5'
+    PERL_LOCAL_LIB_ROOT: '/home/manager/perl5'
+  become: true
+  become_user: manager
+
+- name: Build MarkdownSite::CGI
+  shell: dzil build
+  args:
+    chdir: /home/manager/markdownsite/CGI
+  environment:
+    PATH:                '/home/manager/perl5/bin:/usr/local/bin:/usr/bin:/bin'
+    PERL5LIB:            '/home/manager/perl5/lib/perl5'
+    PERL_MB_OPT:         '--install_base "/home/manager/perl5"'
+    PERL_MM_OPT:         'INSTALL_BASE=/home/manager/perl5'
+    PERL_LOCAL_LIB_ROOT: '/home/manager/perl5'
+  become: true
+  become_user: manager
+
+- name: "Find MarkdownSite::CGI on remote"
+  find:
+    paths: "/home/manager/markdownsite/CGI/"
+    patterns: "MarkdownSite-CGI-*.tar.gz"
+  register: mds_cgi_glob
+
+- name: "Copy MarkdownSite::CGI to /var/www/pkgs.{{ config.panel.domain }}"
+  copy:
+    remote_src: true
+    src: "{{ item.path }}"
+    dest: "/var/www/pkgs.{{ config.panel.domain }}/MarkdownSite-CGI.tar.gz"
+    owner: www-data
+    group: www-data
+    mode: 0755
+  with_items:
+    - "{{ mds_cgi_glob.files }}"
+
+- name: "Find MarkdownSite::Panel on remote"
+  find:
+    paths: "/home/manager/markdownsite/Panel/"
+    patterns: "MarkdownSite-Panel-*.tar.gz"
+  register: mds_panel_glob
+
+- name: "Copy MarkdownSite::Panel to /var/www/pkgs.{{ config.panel.domain }}"
+  copy:
+    remote_src: true
+    src: "{{ item.path }}"
+    dest: "/var/www/pkgs.{{ config.panel.domain }}/MarkdownSite-Panel.tar.gz"
+    owner: www-data
+    group: www-data
+    mode: 0755
+  with_items:
+    - "{{ mds_panel_glob.files }}"
+
+- name: "Find MarkdownSite::Panel::DB on remote"
+  find:
+    paths: "/home/manager/markdownsite/Panel-DB/"
+    patterns: "MarkdownSite-Panel-DB-*.tar.gz"
+  register: mds_panel_db_glob
+
+- name: "Copy MarkdownSite::Panel::DB to /var/www/pkgs.{{ config.panel.domain }}"
+  copy:
+    remote_src: true
+    src: "{{ item.path }}"
+    dest: "/var/www/pkgs.{{ config.panel.domain }}/MarkdownSite-Panel-DB.tar.gz"
+    owner: www-data
+    group: www-data
+    mode: 0755
+  with_items:
+    - "{{ mds_panel_db_glob.files }}"
+
+- name: Import the database
+  shell: mds-panel dbc < /home/manager/markdownsite/Panel-DB/etc/schema.sql > /home/manager/markdownsite/Panel-DB/etc/schema.log
+  args:
+    creates: /home/manager/markdownsite/Panel-DB/etc/schema.log
+  environment:
+    PATH:                '/home/manager/perl5/bin:/usr/local/bin:/usr/bin:/bin'
+    PERL5LIB:            '/home/manager/perl5/lib/perl5'
+    PERL_MB_OPT:         '--install_base "/home/manager/perl5"'
+    PERL_MM_OPT:         'INSTALL_BASE=/home/manager/perl5'
+    PERL_LOCAL_LIB_ROOT: '/home/manager/perl5'
+  become: true
+  become_user: manager
+
 - name: Start Markdownsite Panel
   service:
     name: markdownsite.panel
