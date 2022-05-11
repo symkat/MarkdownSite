@@ -43,6 +43,7 @@
       'vim',
       'postgresql-contrib',
       'postgresql-client',
+      'podman',
     ]
     state: present
 
