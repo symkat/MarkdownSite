@@ -306,7 +306,7 @@
     - "{{ mds_panel_db_glob.files }}"
 
 - name: Import the database
-  shell: mds-panel dbc < /home/manager/markdownsite/Panel-DB/etc/schema.sql > /home/manager/markdownsite/Panel-DB/etc/schema.log
+  shell: /home/manager/perl5/bin/mds-panel dbc < /home/manager/markdownsite/Panel-DB/etc/schema.sql > /home/manager/markdownsite/Panel-DB/etc/schema.log
   args:
     creates: /home/manager/markdownsite/Panel-DB/etc/schema.log
   environment:
