@@ -86,15 +86,6 @@
     group: minion
     mode: 0600
 
-- name: Install ~minion/.ssh/id_rsa (for git clone)
-  copy:
-    dest: /home/minion/.ssh/id_rsa
-    content: "{{ config.sshkeys.deploy_private }}"
-    src: ./id_rsa
-    owner: minion
-    group: minion
-    mode: 0600
-
 - name: Install ~minion/.ssh/config
   copy:
     dest: /home/minion/.ssh/config
