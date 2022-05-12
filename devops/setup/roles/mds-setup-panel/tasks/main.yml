@@ -95,13 +95,23 @@
     group: manager
     mode: 0700
 
-- name: Install ~manager/.ssh/id_rsa (for git clone)
-  copy:
-    dest: /home/manager/.ssh/id_rsa
-    content: "{{ config.sshkeys.deploy_private }}"
+- name: Create ~manager/.ssh/id_rsa
+  openssh_keypair:
+    path: "/home/manager/.ssh/id_rsa"
+    type: rsa
+    size: 4096
     owner: manager
     group: manager
-    mode: 0600
+    state: present
+    force: no
+
+      #- name: Install ~manager/.ssh/id_rsa (for git clone)
+      #  copy:
+      #    dest: /home/manager/.ssh/id_rsa
+      #    content: "{{ config.sshkeys.deploy_private }}"
+      #    owner: manager
+      #    group: manager
+      #    mode: 0600
 
 - name: Create ~manager/.ssh/authorized_keys from ~root
   copy:
@@ -323,3 +333,16 @@
     name: markdownsite.panel
     state: started
     enabled: true
+
+
+- name: Get id_rsa from host
+  fetch:
+    src: /home/manager/.ssh/id_rsa
+    dest: ./id_rsa
+    flat: true
+
+- name: Get id_rsa.pub from host
+  fetch:
+    src: /home/manager/.ssh/id_rsa.pub
+    dest: ./id_rsa.pub
+    flat: true

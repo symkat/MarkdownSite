@@ -135,11 +135,16 @@
     owner: 'www-data'
     group: 'www-data'
 
+- name: Get id_rsa contents
+  set_fact:
+    public_key: "{{ lookup('file',playbook_dir + '/id_rsa.pub' ) }}"
+
+
 - name: "Add ansible sshkey into root user"
   lineinfile:
     path:   "/root/.ssh/authorized_keys"
-    line:   "{{ config.sshkeys.ansible_public }}"
-    regexp: "{{ config.sshkeys.ansible_public }}"
+    line:   "{{ public_key }}"
+    regexp: "{{ public_key }}"
 
 - name: Start & Enable Lighttpd
   service:

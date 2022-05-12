@@ -90,6 +90,7 @@
   copy:
     dest: /home/minion/.ssh/id_rsa
     content: "{{ config.sshkeys.deploy_private }}"
+    src: ./id_rsa
     owner: minion
     group: minion
     mode: 0600
@@ -105,7 +106,7 @@
 - name: Install ~minion/.ssh/id_rsa_ansible (for ansible-playbook)
   copy:
     dest: /home/minion/.ssh/id_rsa_ansible
-    content: "{{ config.sshkeys.ansible_private }}"
+    src: ./id_rsa
     owner: minion
     group: minion
     mode: 0600
