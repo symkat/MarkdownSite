@@ -1,0 +1,44 @@
+- name: Configure Panel Server
+  remote_user: root
+  hosts: panel
+  vars:
+    ansible_ssh_common_args: -oControlMaster=auto -oControlPersist=60s -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no
+    config: "{{ lookup('file', 'config.yml' ) | from_yaml }}"
+  roles:
+    - mds-setup-panel
+
+- name: Configure Build Servers
+  remote_user: root
+  hosts: buildservers
+  vars:
+    ansible_ssh_common_args: -oControlMaster=auto -oControlPersist=60s -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no
+    config: "{{ lookup('file', 'config.yml' ) | from_yaml }}"
+  roles:
+    - mds-setup-build
+
+- name: Configure Web Servers
+  remote_user: root
+  hosts: webservers
+  vars:
+    ansible_ssh_common_args: -oControlMaster=auto -oControlPersist=60s -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no
+    config: "{{ lookup('file', 'config.yml' ) | from_yaml }}"
+  roles:
+    - mds-setup-webserver
+
+- name: Configure Insight Server
+  remote_user: root
+  hosts: insight
+  vars:
+    ansible_ssh_common_args: -oControlMaster=auto -oControlPersist=60s -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no
+    config: "{{ lookup('file', 'config.yml' ) | from_yaml }}"
+  roles:
+    - mds-setup-insight
+
+- name: Ensure SSL Configuration
+  remote_user: root
+  hosts: all
+  vars:
+    ansible_ssh_common_args: -oControlMaster=auto -oControlPersist=60s -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no
+    config: "{{ lookup('file', 'config.yml' ) | from_yaml }}"
+  roles:
+    - mds-ssl

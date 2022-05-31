@@ -1,0 +1,15 @@
+[Unit]
+Description=MarkdownSite Worker Service
+After=postgresql.target
+
+[Service]
+User=minion
+Group=minion
+
+ExecStart=mds-panel minion worker
+WorkingDirectory=/home/minion
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

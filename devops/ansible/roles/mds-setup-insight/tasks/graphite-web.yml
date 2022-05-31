@@ -1,0 +1,97 @@
+---
+- name: "Install /tmp/graphite-web-1.1.8.tar.gz"
+  get_url:
+    url: https://pkgs.markdownsite.com/graphite-web-1.1.8.tar.gz
+    dest: "/tmp/graphite-web-1.1.8.tar.gz"
+    checksum: sha256:6e35629493b9be77fa9902471053f6789e300c06fe74a0215253d986fc0b866c
+
+- name: "Unpack Graphite-Web"
+  shell: tar -C /tmp -xf /tmp/graphite-web-1.1.8.tar.gz
+
+- name: "Install Graphite-Web"
+  shell: python3 setup.py install
+  args:
+    chdir: /tmp/graphite-web-1.1.8
+
+- name: "Install /opt/graphite/webapp/graphite-web.py"
+  copy:
+    dest: "/opt/graphite/webapp/graphite-web.py"
+    src: "{{ role_path }}/files/graphite/graphite-web.py"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: "Install /etc/uwsgi/apps-available/graphite.ini"
+  copy:
+    dest: "/etc/uwsgi/apps-available/graphite.ini"
+    src: "{{ role_path }}/files/uwsgi/graphite.ini"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Install /etc/nginx/sites-available/{{ config.insight.graphite.domain }}.conf"
+  template:
+    src: "{{ role_path }}/templates/nginx-graphite.conf.j2"
+    dest: "/etc/nginx/sites-available/{{ config.insight.graphite.domain }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Ensure /etc/nginx/auth.basic exists"
+  file:
+    state: touch
+    path: /etc/nginx/auth.basic
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Add users to /etc/nginx/auth.basic"
+  lineinfile:
+    path: /etc/nginx/auth.basic
+    line: "{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  with_items: "{{ config.insight.basic_auth }}"
+
+- name: "Install /opt/graphite/webapp/graphite/local_settings.py"
+  template:
+    src: "{{ role_path }}/templates/local_settings.py.j2"
+    dest: /opt/graphite/webapp/graphite/local_settings.py
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Create symlink for nginx domain: {{ config.insight.graphite.domain }}"
+  file:
+    state: link
+    path: "/etc/nginx/sites-enabled/{{ config.insight.graphite.domain }}.conf"
+    src: "/etc/nginx/sites-available/{{ config.insight.graphite.domain }}.conf"
+
+- name: "Create symlink for uwsgi graphite config"
+  file:
+    state: link
+    path: /etc/uwsgi/apps-enabled/graphite.ini 
+    src: /etc/uwsgi/apps-available/graphite.ini
+
+- name: Setup the database.
+  shell: django-admin migrate --settings=graphite.settings > /opt/graphite/.db_init_done
+  environment:
+    PYTHONPATH: /opt/graphite/webapp
+  args:
+    creates: /opt/graphite/.db_init_done
+
+- name: Ensure permissions on /opt/graphite/storage/
+  shell: chown -R graphite:graphite /opt/graphite/storage/
+
+- name: Start & Enable uwsgi (graphite-web)
+  service:
+    name: uwsgi
+    enabled: true
+    state: restarted
+
+- name: Start & Enable nginx
+  service:
+    name: nginx
+    enabled: true
+    state: restarted

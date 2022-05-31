@@ -1,0 +1,153 @@
+---
+- name: Update all packages to their latest version
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+
+- name: Install packages
+  apt:
+    name: [
+      'git',
+      'build-essential',
+      'cpanminus',
+      'liblwp-protocol-https-perl',
+      'strace',
+      'libssl-dev',
+      'libexpat1-dev',
+      'libz-dev',
+      'vim',
+      'libpq-dev',
+      'libpcre2-dev',
+       'liblua5.4-dev',
+       'python3-certbot-dns-linode',
+    ]
+    state: present
+
+- name: Install MarkdownSite::CGI
+  cpanm:
+    name: "{{ config.pkg.cgi }}"
+
+- name: Download lighttpd
+  get_url:
+    url: https://pkgs.markdownsite.com/lighttpd-1.4.64.tar.gz
+    dest: "/tmp/lighttpd-1.4.64.tar.gz"
+    checksum: sha256:71e46403fb28371a06b23ef1cceffd75285140c6f62a879c777ee5af0d248801
+
+- name: "Unpack Lighttpd"
+  shell: tar -C /tmp -xf /tmp/lighttpd-1.4.64.tar.gz
+
+- name: "Configure Lighttpd"
+  shell: ./configure --with-lua --with-openssl
+  args:
+    chdir: /tmp/lighttpd-1.4.64
+
+- name: "Compile & Install Lighttpd"
+  shell: make install
+  args:
+    chdir: /tmp/lighttpd-1.4.64
+
+- name: Install /etc/systemd/system/lighttpd.service
+  copy:
+    dest: /etc/systemd/system/lighttpd.service
+    src: "{{ role_path }}/files/lighttpd.service"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Create /etc/lighttpd
+  file:
+    state: directory
+    path: /etc/lighttpd
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create /etc/lighttpd/conf.d
+  file:
+    state: directory
+    path: /etc/lighttpd/conf.d
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create /var/cache/lighttpd/uploads
+  file:
+    state: directory
+    path: /var/cache/lighttpd/uploads
+    owner: www-data
+    group: www-data
+    mode: 0755
+
+- name: Create /var/log/lighttpd
+  file:
+    state: directory
+    path: /var/log/lighttpd
+    owner: www-data
+    group: www-data
+    mode: 0755
+
+- name: Install /etc/lighttpd/lighttpd.conf
+  copy:
+    dest: /etc/lighttpd/lighttpd.conf
+    src: "{{ role_path }}/files/lighttpd.conf"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install /etc/lighttpd/rewrite.lua
+  copy:
+    dest: /etc/lighttpd/rewrite.lua
+    src: "{{ role_path }}/files/rewrite.lua"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install /etc/lighttpd/create-mime.conf.pl
+  copy:
+    dest: /etc/lighttpd/create-mime.conf.pl
+    src: /tmp/lighttpd-1.4.64/doc/scripts/create-mime.conf.pl
+    remote_src: true
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create /usr/lib/cgi-bin/
+  file:
+    state: directory
+    path: /usr/lib/cgi-bin/
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Setup /var/lib/cgi-bin/markdownsite.cgi 
+  file:
+    src: /usr/local/bin/markdownsite_cgi
+    dest: /usr/lib/cgi-bin/markdownsite.cgi
+    state: link
+
+- name: Ensure /var/www/themes is populated.
+  copy:
+    src: "{{ role_path }}/files/themes/"
+    dest: "/var/www/themes"
+    mode: '0644'
+    directory_mode: '0755'
+    owner: 'www-data'
+    group: 'www-data'
+
+- name: Get id_rsa contents
+  set_fact:
+    public_key: "{{ lookup('file',playbook_dir + '/id_rsa.pub' ) }}"
+
+
+- name: "Add ansible sshkey into root user"
+  lineinfile:
+    path:   "/root/.ssh/authorized_keys"
+    line:   "{{ public_key }}"
+    regexp: "{{ public_key }}"
+
+- name: Start & Enable Lighttpd
+  service:
+    name: lighttpd
+    enabled: true
+    state: restarted

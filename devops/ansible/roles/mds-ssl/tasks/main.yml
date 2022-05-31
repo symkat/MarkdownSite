@@ -1,0 +1,74 @@
+---
+- name: Ensure /etc/letsencrypt exists
+  file:
+    state: directory
+    path: /etc/letsencrypt
+    owner: root
+    group: root
+    mode: 0700
+  when: inventory_hostname in groups['webservers'] or
+        inventory_hostname in groups['insight']   or
+        inventory_hostname in groups['panel']
+
+- name: Install Certificates
+  copy:
+    dest: "/etc/letsencrypt/live"
+    src: "{{ role_path }}/files/letsencrypt/live/"
+    directory_mode: 0700
+    mode: 0600
+    owner: root
+    group: root
+  when: inventory_hostname in groups['webservers'] or
+        inventory_hostname in groups['insight']   or
+        inventory_hostname in groups['panel']
+
+- name: Add SSL-Aware lighty template
+  template:
+    dest: "/etc/ansible/roles/deploy-website/templates/lighttpd-conf-domain.j2"
+    src: "{{ role_path }}/templates/lighttpd-conf-domain.j2.j2"
+    owner: root
+    group: root
+    mode: 0644
+  when: inventory_hostname in groups['buildservers']
+
+- name: "SSL-Aware nginx config for {{ config.panel.domain }}"
+  template:
+    src: "{{ role_path }}/templates/panel-nginx-domain.conf"
+    dest: "/etc/nginx/sites-enabled/{{ config.panel.domain }}"
+    owner: root
+    group: root
+    mode: 0644
+  when: inventory_hostname in groups['panel']
+
+- name: SSL-Aware nginx config for grafana.markdownsite.com
+  template:
+    src: "{{ role_path }}/templates/nginx-grafana.conf.j2"
+    dest: "/etc/nginx/sites-enabled/{{ config.insight.grafana.domain }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+  when: inventory_hostname in groups['insight']
+
+- name: SSL-Aware nginx config for graphite.markdownsite.com
+  template:
+    src: "{{ role_path }}/templates/nginx-graphite.conf.j2"
+    dest: "/etc/nginx/sites-enabled/{{ config.insight.graphite.domain }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+  when: inventory_hostname in groups['insight']
+        
+- name: Generate /etc/nginx/ssl-dhparams.pem
+  shell: openssl dhparam -out /etc/nginx/ssl-dhparams.pem 4096
+  args:
+    creates: /etc/nginx/ssl-dhparams.pem
+  when: inventory_hostname in groups['insight'] or
+        inventory_hostname in groups['panel']
+
+- name: Restart nginx
+  service:
+    name: nginx
+    state: restarted
+  when: inventory_hostname in groups['insight'] or
+        inventory_hostname in groups['panel']
+    

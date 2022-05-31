@@ -1,0 +1,148 @@
+---
+- name: Update all packages to their latest version
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+
+- name: Install packages
+  apt:
+    name: [ 'gnupg2', 'curl' ]
+
+- name: Add the ansible key.
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: 93C4A3FD7BB9C367
+
+- name: Install ansible.list for apt.
+  copy:
+    dest: /etc/apt/sources.list.d/ansible.list
+    content: "deb http://ppa.launchpad.net/ansible/ansible/ubuntu focal main"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Reload apt with new source
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+
+- name: Install packages
+  apt:
+    name: [
+      'ansible',
+      'ansible-core',
+      'git',
+      'build-essential',
+      'cpanminus',
+      'libssl-dev',
+      'libpq-dev',
+      'libz-dev',
+      'libexpat1-dev',
+      'vim',
+      'postgresql-contrib',
+      'postgresql-client',
+      'podman',
+    ]
+    state: present
+
+- name: Install MarkdownSite::Panel::DB
+  cpanm:
+    name: "{{ config.pkg.panel_db }}"
+
+- name: Install MarkdownSite::Panel
+  cpanm:
+    name: "{{ config.pkg.panel }}"
+
+- name: Install /etc/markdownsite.yml
+  template:
+    src: "{{ role_path }}/templates/markdownsite.yml.j2"
+    dest: /etc/markdownsite.yml
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Create minion user
+  user:
+    name: minion
+    shell: /bin/bash
+    comment: Minion User Account
+
+- name: Create ~minion/.ssh
+  file:
+    state: directory
+    path: /home/minion/.ssh
+    owner: minion
+    group: minion
+    mode: 0700
+
+- name: Create ~minion/.ssh/authorized_keys from ~root
+  copy:
+    dest: /home/minion/.ssh/authorized_keys
+    src: /root/.ssh/authorized_keys
+    remote_src: true
+    owner: minion
+    group: minion
+    mode: 0600
+
+- name: Install ~minion/.ssh/config
+  copy:
+    dest: /home/minion/.ssh/config
+    src: "{{ role_path }}/files/ssh_config"
+    owner: minion
+    group: minion
+    mode: 0600
+
+- name: Install ~minion/.ssh/id_rsa_ansible (for ansible-playbook)
+  copy:
+    dest: /home/minion/.ssh/id_rsa_ansible
+    src: ./id_rsa
+    owner: minion
+    group: minion
+    mode: 0600
+
+- name: Install ansible roles for deployment
+  copy:
+    src: "{{ role_path }}/files/ansible/"
+    dest: "/etc/ansible"
+    mode: '0644'
+    directory_mode: '0755'
+    owner: 'root'
+    group: 'root'
+
+- name: "Delete /etc/ansible/hosts."
+  file:
+    path: /etc/ansible/hosts
+    state: absent
+
+- name: "Create /etc/ansible/hosts."
+  copy:
+    dest: /etc/ansible/hosts
+    content: "[webservers]"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Add hosts to /etc/ansible/hosts"
+  lineinfile:
+    path: /etc/ansible/hosts
+    line: "{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  with_items: "{{ config.build.deploy_addresses }}"
+
+- name: Install markdownsite.worker.service file.
+  copy:
+    dest: /etc/systemd/system/markdownsite.worker.service
+    src: "{{ role_path }}/files/markdownsite.worker.service"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Start markdownsite.worker
+  service:
+    name: markdownsite.worker
+    state: started
+    enabled: true

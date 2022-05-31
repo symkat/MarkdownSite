@@ -1,0 +1,22 @@
+$HTTP["host"] =~ "^{{ site.domain }}$" {
+    $SERVER["socket"] == ":443" {
+        # SSL Settings
+        ssl.engine  = "enable"
+        ssl.pemfile = "/etc/letsencrypt/live/markdownsite.net/cert.pem"
+        ssl.ca-file = "/etc/letsencrypt/live/markdownsite.net/fullchain.pem"
+        ssl.privkey = "/etc/letsencrypt/live/markdownsite.net/privkey.pem"
+
+        # Docroot & Logs.
+        server.document-root = "/var/www/{{ site.domain }}/html"
+        server.errorlog      = "/var/log/lighttpd/{{ site.domain }}.error.log"
+        accesslog.filename   = "/var/log/lighttpd/{{ site.domain }}.access.log"
+
+        # Pass to Markdown::CGI if there is no static file to serve.
+        magnet.attract-physical-path-to = ( "/etc/lighttpd/rewrite.lua" )
+    }
+
+    # Redirect http -> https
+    $SERVER["socket"] == ":80" {
+        url.redirect = ( "^/(.*)" => "https://{{ site.domain }}/$1" )
+    }
+}

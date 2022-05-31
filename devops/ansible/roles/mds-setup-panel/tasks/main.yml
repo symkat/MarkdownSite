@@ -1,0 +1,348 @@
+---
+- name: Update all packages to their latest version
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+
+- name: Install packages
+  apt:
+    name: [
+      'git',
+      'build-essential',
+      'cpanminus',
+      'libssl-dev',
+      'libpq-dev',
+      'libz-dev',
+      'libexpat1-dev',
+      'vim',
+      'postgresql-client',
+      'postgresql-contrib',
+      'postgresql',
+      'python3-psycopg2',
+      'nginx',
+      'certbot',
+      'curl',
+      'python3-certbot-nginx',
+    ]
+    state: present
+
+      # - name: Install MarkdownSite::Panel::DB
+      #   cpanm:
+      #     name: "{{ config.pkg.panel_db }}"
+      # 
+      # - name: Install MarkdownSite::Panel
+      #   cpanm:
+      #     name: "{{ config.pkg.panel }}"
+
+- name: Install /etc/markdownsite.yml
+  template:
+    src: "{{ role_path }}/templates/markdownsite.yml.j2"
+    dest: /etc/markdownsite.yml
+    owner: root
+    group: root
+    mode: 0644
+
+- name: start postgresql
+  service:
+    name: postgresql
+    state: started
+    enabled: true
+
+- name: Create db user account for markdownsite
+  postgresql_user:
+    name: "{{ config.database.markdownsite.user }}"
+    password: "{{ config.database.markdownsite.pass }}"
+    state: present
+  become_user: postgres
+  become: true
+
+- name: Create db user account for minion
+  postgresql_user:
+    name: "{{ config.database.minion.user }}"
+    password: "{{ config.database.minion.pass }}"
+    state: present
+  become_user: postgres
+  become: true
+
+- name: Create markdown database
+  postgresql_db:
+    name: "{{ config.database.markdownsite.name }}"
+    owner: "{{ config.database.markdownsite.user }}"
+    state: present
+  become_user: postgres
+  become: true
+
+- name: Create minion database
+  postgresql_db:
+    name: "{{ config.database.minion.name }}"
+    owner: "{{ config.database.minion.user }}"
+    state: present
+  become_user: postgres
+  become: true
+
+- name: Create manager user
+  user:
+    name: manager
+    shell: /bin/bash
+    comment: MarkdownSite Manager User Account
+
+- name: Create ~manager/.ssh
+  file:
+    state: directory
+    path: /home/manager/.ssh
+    owner: manager
+    group: manager
+    mode: 0700
+
+- name: Create ~manager/.ssh/id_rsa
+  openssh_keypair:
+    path: "/home/manager/.ssh/id_rsa"
+    type: rsa
+    size: 4096
+    owner: manager
+    group: manager
+    state: present
+    force: no
+
+      #- name: Install ~manager/.ssh/id_rsa (for git clone)
+      #  copy:
+      #    dest: /home/manager/.ssh/id_rsa
+      #    content: "{{ config.sshkeys.deploy_private }}"
+      #    owner: manager
+      #    group: manager
+      #    mode: 0600
+
+- name: Create ~manager/.ssh/authorized_keys from ~root
+  copy:
+    dest: /home/manager/.ssh/authorized_keys
+    src: /root/.ssh/authorized_keys
+    remote_src: true
+    owner: manager
+    group: manager
+    mode: 0600
+
+- name: Install markdownsite.panel.service file.
+  copy:
+    dest: /etc/systemd/system/markdownsite.panel.service
+    src: "{{ role_path }}/files/markdownsite.panel.service"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Install /etc/nginx/sites-enabled/{{ config.panel.domain }}"
+  template:
+    src: "{{ role_path }}/templates/nginx-domain.conf"
+    dest: "/etc/nginx/sites-enabled/{{ config.panel.domain }}"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Install /etc/nginx/sites-enabled/pkgs.{{ config.panel.domain }}"
+  template:
+    src: "{{ role_path }}/templates/nginx-pkgs.conf"
+    dest: "/etc/nginx/sites-enabled/pkgs.{{ config.panel.domain }}"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Create /var/www/pkgs.{{ config.panel.domain }}"
+  file:
+    state: directory
+    path: "/var/www/pkgs.{{ config.panel.domain }}"
+    owner: www-data
+    group: www-data
+    mode: 0755
+
+- name: Add auth lines to pgsql hba config
+  postgresql_pg_hba:
+    dest: /etc/postgresql/13/main/pg_hba.conf
+    contype: host
+    source: "{{ item.address }}/32" 
+    method: md5
+    create: true
+  with_items: "{{ config.database.allow_addresses }}"
+
+- name: "Bind PSQL to localhost and {{ config.database.bind }}"
+  lineinfile:
+    path: /etc/postgresql/13/main/postgresql.conf
+    regexp: '^listen_addresses '
+    insertafter: '^#listen_addresses'
+    line: "listen_addresses = 'localhost,{{ config.database.bind }}'"
+
+- name: start postgresql
+  service:
+    name: postgresql
+    state: restarted
+
+- name: start nginx
+  service:
+    name: nginx
+    state: restarted
+
+- name: "Git clone from {{ config.panel.markdownsite_repo }}"
+  git:
+    repo: "{{ config.panel.markdownsite_repo }}"
+    dest: /home/manager/markdownsite
+    accept_hostkey: true
+  become: true
+  become_user: manager
+
+- name: Install Dist::Zilla
+  shell: cpanm Dist::Zilla
+  environment:
+    PATH:                '/home/manager/perl5/bin:/usr/local/bin:/usr/bin:/bin'
+    PERL5LIB:            '/home/manager/perl5/lib/perl5'
+    PERL_MB_OPT:         '--install_base "/home/manager/perl5"'
+    PERL_MM_OPT:         'INSTALL_BASE=/home/manager/perl5'
+    PERL_LOCAL_LIB_ROOT: '/home/manager/perl5'
+  become: true
+  become_user: manager
+
+- name: Build Panel::DB
+  shell: dzil build
+  args:
+    chdir: /home/manager/markdownsite/Panel-DB
+  environment:
+    PATH:                '/home/manager/perl5/bin:/usr/local/bin:/usr/bin:/bin'
+    PERL5LIB:            '/home/manager/perl5/lib/perl5'
+    PERL_MB_OPT:         '--install_base "/home/manager/perl5"'
+    PERL_MM_OPT:         'INSTALL_BASE=/home/manager/perl5'
+    PERL_LOCAL_LIB_ROOT: '/home/manager/perl5'
+  become: true
+  become_user: manager
+
+- name: Install MarkdownSite::Panel::DB
+  shell: cpanm MarkdownSite-Panel-DB-*.tar.gz
+  args:
+    chdir: /home/manager/markdownsite/Panel-DB
+  environment:
+    PATH:                '/home/manager/perl5/bin:/usr/local/bin:/usr/bin:/bin'
+    PERL5LIB:            '/home/manager/perl5/lib/perl5'
+    PERL_MB_OPT:         '--install_base "/home/manager/perl5"'
+    PERL_MM_OPT:         'INSTALL_BASE=/home/manager/perl5'
+    PERL_LOCAL_LIB_ROOT: '/home/manager/perl5'
+  become: true
+  become_user: manager
+
+- name: Build MarkdownSite::Panel
+  shell: dzil build
+  args:
+    chdir: /home/manager/markdownsite/Panel
+  environment:
+    PATH:                '/home/manager/perl5/bin:/usr/local/bin:/usr/bin:/bin'
+    PERL5LIB:            '/home/manager/perl5/lib/perl5'
+    PERL_MB_OPT:         '--install_base "/home/manager/perl5"'
+    PERL_MM_OPT:         'INSTALL_BASE=/home/manager/perl5'
+    PERL_LOCAL_LIB_ROOT: '/home/manager/perl5'
+  become: true
+  become_user: manager
+
+- name: Install MarkdownSite::Panel
+  shell: cpanm MarkdownSite-Panel-*.tar.gz
+  args:
+    chdir: /home/manager/markdownsite/Panel
+  environment:
+    PATH:                '/home/manager/perl5/bin:/usr/local/bin:/usr/bin:/bin'
+    PERL5LIB:            '/home/manager/perl5/lib/perl5'
+    PERL_MB_OPT:         '--install_base "/home/manager/perl5"'
+    PERL_MM_OPT:         'INSTALL_BASE=/home/manager/perl5'
+    PERL_LOCAL_LIB_ROOT: '/home/manager/perl5'
+  become: true
+  become_user: manager
+
+- name: Build MarkdownSite::CGI
+  shell: dzil build
+  args:
+    chdir: /home/manager/markdownsite/CGI
+  environment:
+    PATH:                '/home/manager/perl5/bin:/usr/local/bin:/usr/bin:/bin'
+    PERL5LIB:            '/home/manager/perl5/lib/perl5'
+    PERL_MB_OPT:         '--install_base "/home/manager/perl5"'
+    PERL_MM_OPT:         'INSTALL_BASE=/home/manager/perl5'
+    PERL_LOCAL_LIB_ROOT: '/home/manager/perl5'
+  become: true
+  become_user: manager
+
+- name: "Find MarkdownSite::CGI on remote"
+  find:
+    paths: "/home/manager/markdownsite/CGI/"
+    patterns: "MarkdownSite-CGI-*.tar.gz"
+  register: mds_cgi_glob
+
+- name: "Copy MarkdownSite::CGI to /var/www/pkgs.{{ config.panel.domain }}"
+  copy:
+    remote_src: true
+    src: "{{ item.path }}"
+    dest: "/var/www/pkgs.{{ config.panel.domain }}/MarkdownSite-CGI.tar.gz"
+    owner: www-data
+    group: www-data
+    mode: 0755
+  with_items:
+    - "{{ mds_cgi_glob.files }}"
+
+- name: "Find MarkdownSite::Panel on remote"
+  find:
+    paths: "/home/manager/markdownsite/Panel/"
+    patterns: "MarkdownSite-Panel-*.tar.gz"
+  register: mds_panel_glob
+
+- name: "Copy MarkdownSite::Panel to /var/www/pkgs.{{ config.panel.domain }}"
+  copy:
+    remote_src: true
+    src: "{{ item.path }}"
+    dest: "/var/www/pkgs.{{ config.panel.domain }}/MarkdownSite-Panel.tar.gz"
+    owner: www-data
+    group: www-data
+    mode: 0755
+  with_items:
+    - "{{ mds_panel_glob.files }}"
+
+- name: "Find MarkdownSite::Panel::DB on remote"
+  find:
+    paths: "/home/manager/markdownsite/Panel-DB/"
+    patterns: "MarkdownSite-Panel-DB-*.tar.gz"
+  register: mds_panel_db_glob
+
+- name: "Copy MarkdownSite::Panel::DB to /var/www/pkgs.{{ config.panel.domain }}"
+  copy:
+    remote_src: true
+    src: "{{ item.path }}"
+    dest: "/var/www/pkgs.{{ config.panel.domain }}/MarkdownSite-Panel-DB.tar.gz"
+    owner: www-data
+    group: www-data
+    mode: 0755
+  with_items:
+    - "{{ mds_panel_db_glob.files }}"
+
+- name: Import the database
+  shell: /home/manager/perl5/bin/mds-panel dbc < /home/manager/markdownsite/Panel-DB/etc/schema.sql > /home/manager/markdownsite/Panel-DB/etc/schema.log
+  args:
+    creates: /home/manager/markdownsite/Panel-DB/etc/schema.log
+  environment:
+    PATH:                '/home/manager/perl5/bin:/usr/local/bin:/usr/bin:/bin'
+    PERL5LIB:            '/home/manager/perl5/lib/perl5'
+    PERL_MB_OPT:         '--install_base "/home/manager/perl5"'
+    PERL_MM_OPT:         'INSTALL_BASE=/home/manager/perl5'
+    PERL_LOCAL_LIB_ROOT: '/home/manager/perl5'
+  become: true
+  become_user: manager
+
+- name: Start Markdownsite Panel
+  service:
+    name: markdownsite.panel
+    state: started
+    enabled: true
+
+
+- name: Get id_rsa from host
+  fetch:
+    src: /home/manager/.ssh/id_rsa
+    dest: ./id_rsa
+    flat: true
+
+- name: Get id_rsa.pub from host
+  fetch:
+    src: /home/manager/.ssh/id_rsa.pub
+    dest: ./id_rsa.pub
+    flat: true

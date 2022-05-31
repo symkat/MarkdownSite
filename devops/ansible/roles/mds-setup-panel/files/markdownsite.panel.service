@@ -1,0 +1,23 @@
+[Unit]
+Description=MarkdownSite Web Panel Service
+After=postgresql.target
+
+[Service]
+User=manager
+Group=manager
+
+Environment="PERL5LIB=/home/manager/perl5/lib/perl5"
+Environment="PERL_MB_OPT=--install_base \"/home/manager/perl5\""
+Environment="PERL_MM_OPT=INSTALL_BASE=/home/manager/perl5"
+Environment="PERL_LOCAL_LIB_ROOT=/home/manager/perl5"
+Environment="PATH=/home/manager/perl5/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"
+
+ExecStart=/home/manager/perl5/bin/hypnotoad -f script/mds-panel
+WorkingDirectory=/home/manager/markdownsite/Panel
+SyslogIdentifier=mds-panel
+Restart=on-failure
+Type=simple
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
