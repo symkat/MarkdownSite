@@ -111,6 +111,14 @@
     owner: 'root'
     group: 'root'
 
+- name: Add SSL-Aware lighty template
+  template:
+    dest: "/etc/ansible/roles/deploy-website/templates/lighttpd-conf-domain.j2"
+    src: "{{ role_path }}/templates/lighttpd-conf-domain.j2.j2"
+    owner: root
+    group: root
+    mode: 0644
+
 - name: "Delete /etc/ansible/hosts."
   file:
     path: /etc/ansible/hosts
