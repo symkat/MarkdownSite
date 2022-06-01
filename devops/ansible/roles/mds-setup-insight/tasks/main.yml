@@ -28,6 +28,11 @@
     ]
     state: present
 
+- name: Generate /etc/nginx/ssl-dhparams.pem
+  shell: openssl dhparam -out /etc/nginx/ssl-dhparams.pem 4096
+  args:
+    creates: /etc/nginx/ssl-dhparams.pem
+
 - name: Create graphite user
   user:
     name: graphite
@@ -41,11 +46,6 @@
 - include_tasks: grafana.yml
 
 - include_tasks: collectd.yml
-
-- name: Generate /etc/nginx/ssl-dhparams.pem
-  shell: openssl dhparam -out /etc/nginx/ssl-dhparams.pem 4096
-  args:
-    creates: /etc/nginx/ssl-dhparams.pem
 
 - name: Restart uwsgi (graphite-web)
   service:
