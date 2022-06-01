@@ -4,8 +4,27 @@ upstream myapp {
 
 server {
     server_name panel.{{ config.panel.domain }};
+    listen 443 ssl;
+    
+    # SSL Options
+    ssl_certificate /etc/letsencrypt/live/{{ config.panel.domain }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ config.panel.domain }}/privkey.pem;
 
-{% if config.panel.use_plausible %}
+    ssl_session_cache shared:le_nginx_SSL:10m;
+    ssl_session_timeout 1440m;
+    ssl_session_tickets off;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+
+    ssl_ciphers "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384";
+
+    ssl_dhparam /etc/nginx/ssl-dhparams.pem;
+
+    if ($host = www.{{ config.panel.domain }}) {
+        return 301 https://{{ config.panel.domain }}$request_uri;
+    }
+
     location = /js/script.js {
         # Change this if you use a different variant of the script
         proxy_pass https://plausible.io/js/plausible.js;
@@ -35,7 +54,6 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host  $host;
     }
-{% endif %}
 
     location / {
         proxy_pass http://myapp;
@@ -46,5 +64,10 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
+}
 
+server {
+    listen 80;
+    server_name panel.{{ config.panel.domain }};
+    return 301 https://$host$request_uri;
 }

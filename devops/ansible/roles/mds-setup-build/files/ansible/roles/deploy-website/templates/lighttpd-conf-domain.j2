@@ -1,8 +1,22 @@
-$HTTP["host"] =~ "^{{ site.domain }}$" {
-    server.document-root = "/var/www/{{ site.domain }}/html"
+$HTTP["host"] =~ "^{% raw %}{{ site.domain }}{% endraw %}$" {
+    $SERVER["socket"] == ":443" {
+        # SSL Settings
+        ssl.engine  = "enable"
+        ssl.pemfile = "/etc/letsencrypt/live/{{ config.panel.domain_for_users }}/cert.pem"
+        ssl.ca-file = "/etc/letsencrypt/live/{{ config.panel.domain_for_users }}/fullchain.pem"
+        ssl.privkey = "/etc/letsencrypt/live/{{ config.panel.domain_for_users }}/privkey.pem"
 
-    server.errorlog      = "/var/log/lighttpd/{{ site.domain }}.error.log"
-    accesslog.filename   = "/var/log/lighttpd/{{ site.domain }}.access.log"
+        # Docroot & Logs.
+        server.document-root = "/var/www/{% raw %}{{ site.domain }}{% endraw %}/html"
+        server.errorlog      = "/var/log/lighttpd/{% raw %}{{ site.domain }}{% endraw %}.error.log"
+        accesslog.filename   = "/var/log/lighttpd/{% raw %}{{ site.domain }}{% endraw %}.access.log"
 
-    magnet.attract-physical-path-to = ( "/etc/lighttpd/rewrite.lua" )
+        # Pass to Markdown::CGI if there is no static file to serve.
+        magnet.attract-physical-path-to = ( "/etc/lighttpd/rewrite.lua" )
+    }
+
+    # Redirect http -> https
+    $SERVER["socket"] == ":80" {
+        url.redirect = ( "^/(.*)" => "https://{% raw %}{{ site.domain }}{% endraw %}/$1" )
+    }
 }

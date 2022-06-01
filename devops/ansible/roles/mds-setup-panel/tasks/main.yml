@@ -132,7 +132,7 @@
 
 - name: "Install /etc/nginx/sites-enabled/{{ config.panel.domain }}"
   template:
-    src: "{{ role_path }}/templates/nginx-domain.conf"
+    src: "{{ role_path }}/templates/panel-nginx-domain.conf.j2"
     dest: "/etc/nginx/sites-enabled/{{ config.panel.domain }}"
     owner: root
     group: root
@@ -140,7 +140,7 @@
 
 - name: "Install /etc/nginx/sites-enabled/pkgs.{{ config.panel.domain }}"
   template:
-    src: "{{ role_path }}/templates/nginx-pkgs.conf"
+    src: "{{ role_path }}/templates/pkgs-nginx-domain.conf.j2"
     dest: "/etc/nginx/sites-enabled/pkgs.{{ config.panel.domain }}"
     owner: root
     group: root
@@ -153,6 +153,11 @@
     owner: www-data
     group: www-data
     mode: 0755
+
+- name: Generate /etc/nginx/ssl-dhparams.pem
+  shell: openssl dhparam -out /etc/nginx/ssl-dhparams.pem 4096
+  args:
+    creates: /etc/nginx/ssl-dhparams.pem
 
 - name: Add auth lines to pgsql hba config
   postgresql_pg_hba:

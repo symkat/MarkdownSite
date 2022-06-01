@@ -1,3 +1,12 @@
+- name: Ensure SSL Configuration
+  remote_user: root
+  hosts: all
+  vars:
+    ansible_ssh_common_args: -oControlMaster=auto -oControlPersist=60s -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no
+    config: "{{ lookup('file', 'config.yml' ) | from_yaml }}"
+  roles:
+    - mds-ssl
+
 - name: Configure Panel Server
   remote_user: root
   hosts: panel
@@ -34,11 +43,3 @@
   roles:
     - mds-setup-insight
 
-- name: Ensure SSL Configuration
-  remote_user: root
-  hosts: all
-  vars:
-    ansible_ssh_common_args: -oControlMaster=auto -oControlPersist=60s -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no
-    config: "{{ lookup('file', 'config.yml' ) | from_yaml }}"
-  roles:
-    - mds-ssl
