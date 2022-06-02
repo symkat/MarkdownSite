@@ -1,5 +1,5 @@
 server {
-    server_name pkgs.{{ config.panel.domain }};
+    server_name www.{{ config.panel.domain }} {{ config.panel.domain }};
     listen 443 ssl;
     
     # SSL Options
@@ -17,8 +17,12 @@ server {
 
     ssl_dhparam /etc/nginx/ssl-dhparams.pem;
     
-    root        /var/www/pkgs.{{ config.panel.domain }};
+    root        /var/www/{{ config.panel.domain }};
     
+    if ($host = www.{{ config.panel.domain }}) {
+        return 301 https://{{ config.panel.domain }}$request_uri;
+    }
+
     location / {
     
     }
@@ -27,7 +31,7 @@ server {
 
 server {
     listen 80;
-    server_name pkgs.{{ config.panel.domain }};
+    server_name www.{{ config.panel.domain }} {{ config.panel.domain }};
     return 301 https://$host$request_uri;
 }
 

@@ -130,10 +130,10 @@
     group: root
     mode: 0644
 
-- name: "Install /etc/nginx/sites-enabled/{{ config.panel.domain }}"
+- name: "Install /etc/nginx/sites-enabled/panel.{{ config.panel.domain }}"
   template:
     src: "{{ role_path }}/templates/panel-nginx-domain.conf.j2"
-    dest: "/etc/nginx/sites-enabled/{{ config.panel.domain }}"
+    dest: "/etc/nginx/sites-enabled/panel.{{ config.panel.domain }}"
     owner: root
     group: root
     mode: 0644
@@ -150,6 +150,22 @@
   file:
     state: directory
     path: "/var/www/pkgs.{{ config.panel.domain }}"
+    owner: www-data
+    group: www-data
+    mode: 0755
+
+- name: "Install /etc/nginx/sites-enabled/{{ config.panel.domain }}"
+  template:
+    src: "{{ role_path }}/templates/root-nginx-domain.conf.j2"
+    dest: "/etc/nginx/sites-enabled/{{ config.panel.domain }}"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Create /var/www/{{ config.panel.domain }}"
+  file:
+    state: directory
+    path: "/var/www/{{ config.panel.domain }}"
     owner: www-data
     group: www-data
     mode: 0755

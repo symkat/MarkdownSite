@@ -21,10 +21,6 @@ server {
 
     ssl_dhparam /etc/nginx/ssl-dhparams.pem;
 
-    if ($host = www.{{ config.panel.domain }}) {
-        return 301 https://{{ config.panel.domain }}$request_uri;
-    }
-
     location = /js/script.js {
         # Change this if you use a different variant of the script
         proxy_pass https://plausible.io/js/plausible.js;
