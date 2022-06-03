@@ -1,0 +1,51 @@
+---
+- name: "Create /var/www/{{ config.panel.domain }}/js"
+  file:
+    state: directory
+    path: "/var/www/{{ config.panel.domain }}/js"
+    owner: www-data
+    group: www-data
+    mode: 0755
+
+- name: "Create /var/www/{{ config.panel.domain }}/css"
+  file:
+    state: directory
+    path: "/var/www/{{ config.panel.domain }}/css"
+    owner: www-data
+    group: www-data
+    mode: 0755
+
+- name: Install CSS files
+  copy:
+    src: "{{ role_path }}/files/css/"
+    dest: "/var/www/{{ config.panel.domain }}/css"
+    mode: '0644'
+    directory_mode: '0755'
+    owner: 'www-data'
+    group: 'www-data'
+
+- name: Install JS files
+  copy:
+    src: "{{ role_path }}/files/js/"
+    dest: "/var/www/{{ config.panel.domain }}/js"
+    mode: '0644'
+    directory_mode: '0755'
+    owner: 'www-data'
+    group: 'www-data'
+
+- name: "Install /var/www/{{ config.panel.domain }}/index.html"
+  template:
+    src: "{{ role_path }}/templates/index.html.j2"
+    dest: "/var/www/{{ config.panel.domain }}/index.html"
+    owner: www-data
+    group: www-data
+    mode: 0644
+
+- name: "Install /var/www/{{ config.panel.domain }}/contact.html"
+  template:
+    src: "{{ role_path }}/templates/contact.html.j2"
+    dest: "/var/www/{{ config.panel.domain }}/contact.html"
+    owner: www-data
+    group: www-data
+    mode: 0644
+

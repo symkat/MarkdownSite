@@ -15,6 +15,7 @@
     config: "{{ lookup('file', 'config.yml' ) | from_yaml }}"
   roles:
     - mds-setup-panel
+    - mds-panel-homepage
 
 - name: Configure Build Servers
   remote_user: root
