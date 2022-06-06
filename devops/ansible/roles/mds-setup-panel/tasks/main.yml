@@ -51,32 +51,32 @@
 
 - name: Create db user account for markdownsite
   postgresql_user:
-    name: "{{ config.database.markdownsite.user }}"
-    password: "{{ config.database.markdownsite.pass }}"
+    name: "{{ database.markdownsite.user }}"
+    password: "{{ database.markdownsite.pass }}"
     state: present
   become_user: postgres
   become: true
 
 - name: Create db user account for minion
   postgresql_user:
-    name: "{{ config.database.minion.user }}"
-    password: "{{ config.database.minion.pass }}"
+    name: "{{ database.minion.user }}"
+    password: "{{ database.minion.pass }}"
     state: present
   become_user: postgres
   become: true
 
 - name: Create markdown database
   postgresql_db:
-    name: "{{ config.database.markdownsite.name }}"
-    owner: "{{ config.database.markdownsite.user }}"
+    name: "{{ database.markdownsite.name }}"
+    owner: "{{ database.markdownsite.user }}"
     state: present
   become_user: postgres
   become: true
 
 - name: Create minion database
   postgresql_db:
-    name: "{{ config.database.minion.name }}"
-    owner: "{{ config.database.minion.user }}"
+    name: "{{ database.minion.name }}"
+    owner: "{{ database.minion.user }}"
     state: present
   become_user: postgres
   become: true
@@ -182,14 +182,14 @@
     source: "{{ item.address }}/32" 
     method: md5
     create: true
-  with_items: "{{ config.database.allow_addresses }}"
+  with_items: "{{ database.allow_addresses }}"
 
-- name: "Bind PSQL to localhost and {{ config.database.bind }}"
+- name: "Bind PSQL to localhost and {{ database.bind }}"
   lineinfile:
     path: /etc/postgresql/13/main/postgresql.conf
     regexp: '^listen_addresses '
     insertafter: '^#listen_addresses'
-    line: "listen_addresses = 'localhost,{{ config.database.bind }}'"
+    line: "listen_addresses = 'localhost,{{ database.bind }}'"
 
 - name: start postgresql
   service:

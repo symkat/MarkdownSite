@@ -1,7 +1,7 @@
 ---
 database:
-  markdownsite: postgresql://{{ config.database.markdownsite.user }}:{{ config.database.markdownsite.pass }}@{{ config.database.markdownsite.host }}/markdownsite
-  minion: postgresql://{{ config.database.minion.user }}:{{ config.database.minion.pass }}@{{ config.database.minion.host }}/minion
+  markdownsite: postgresql://{{ database.markdownsite.user }}:{{ database.markdownsite.pass }}@{{ database.markdownsite.host }}/markdownsite
+  minion: postgresql://{{ database.minion.user }}:{{ database.minion.pass }}@{{ database.minion.host }}/minion
 domain: {{ config.panel.domain }}
 hosted_domain: {{ config.panel.domain_for_users }}
 
