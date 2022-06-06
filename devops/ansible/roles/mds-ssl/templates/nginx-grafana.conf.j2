@@ -1,6 +1,6 @@
 server {
     listen 443 ssl;
-    server_name {{ config.insight.grafana.domain }};
+    server_name {{ grafana.domain }};
 
     # SSL Options
     ssl_certificate /etc/letsencrypt/live/{{ config.panel.domain }}/fullchain.pem;
@@ -30,6 +30,6 @@ server {
 
 server {
     listen 80;
-    server_name {{ config.insight.grafana.domain }};
+    server_name {{ grafana.domain }};
     return 301 https://$host$request_uri;
 }
