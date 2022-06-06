@@ -29,10 +29,10 @@
     group: root
     mode: 0644
 
-- name: "Install /etc/nginx/sites-available/{{ config.insight.graphite.domain }}.conf"
+- name: "Install /etc/nginx/sites-available/{{ graphite.domain }}.conf"
   template:
     src: "{{ role_path }}/templates/nginx-graphite.conf.j2"
-    dest: "/etc/nginx/sites-available/{{ config.insight.graphite.domain }}.conf"
+    dest: "/etc/nginx/sites-available/{{ graphite.domain }}.conf"
     owner: root
     group: root
     mode: 0644
@@ -52,7 +52,7 @@
     owner: root
     group: root
     mode: '0644'
-  with_items: "{{ config.insight.basic_auth }}"
+  with_items: "{{ basic_auth }}"
 
 - name: "Install /opt/graphite/webapp/graphite/local_settings.py"
   template:
@@ -62,11 +62,11 @@
     group: root
     mode: 0644
 
-- name: "Create symlink for nginx domain: {{ config.insight.graphite.domain }}"
+- name: "Create symlink for nginx domain: {{ graphite.domain }}"
   file:
     state: link
-    path: "/etc/nginx/sites-enabled/{{ config.insight.graphite.domain }}.conf"
-    src: "/etc/nginx/sites-available/{{ config.insight.graphite.domain }}.conf"
+    path: "/etc/nginx/sites-enabled/{{ graphite.domain }}.conf"
+    src: "/etc/nginx/sites-available/{{ graphite.domain }}.conf"
 
 - name: "Create symlink for uwsgi graphite config"
   file:

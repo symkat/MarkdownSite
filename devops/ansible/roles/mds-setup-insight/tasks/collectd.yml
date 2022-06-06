@@ -65,7 +65,7 @@
     owner: root
     group: root
     mode: '0644'
-  with_items: "{{ config.insight.collectd_auth }}"
+  with_items: "{{ collectd_auth }}"
 
 - name: "Start & enable collectd"
   service:
