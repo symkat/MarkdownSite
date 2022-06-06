@@ -11,8 +11,8 @@ secrets:
 {% endfor %}
 
 smtp:
-  host: {{ config.smtp.host }} 
-  port: {{ config.smtp.port }}
-  sasl_username: {{ config.smtp.sasl_username }}
-  sasl_password: {{ config.smtp.sasl_password }}
+  host: {{ smtp.host }} 
+  port: {{ smtp.port }}
+  sasl_username: {{ smtp.sasl_username }}
+  sasl_password: {{ smtp.sasl_password }}
 mkit_path: {{ config.panel.mkit_path }}

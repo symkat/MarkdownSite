@@ -139,7 +139,7 @@
     owner: root
     group: root
     mode: '0644'
-  with_items: "{{ config.build.deploy_addresses }}"
+  with_items: "{{ deploy_addresses }}"
 
 - name: Install markdownsite.worker.service file.
   copy:
