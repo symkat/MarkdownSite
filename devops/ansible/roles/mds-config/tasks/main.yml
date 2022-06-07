@@ -1,0 +1,8 @@
+---
+- name: Install /etc/markdownsite.yml
+  template:
+    src: "{{ role_path }}/templates/markdownsite.yml.j2"
+    dest: /etc/markdownsite.yml
+    owner: root
+    group: root
+    mode: 0644
