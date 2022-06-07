@@ -201,9 +201,9 @@
     name: nginx
     state: restarted
 
-- name: "Git clone from {{ config.panel.markdownsite_repo }}"
+- name: "Git clone from {{ markdownsite_repo }}"
   git:
-    repo: "{{ config.panel.markdownsite_repo }}"
+    repo: "{{ markdownsite_repo }}"
     dest: /home/manager/markdownsite
     accept_hostkey: true
   become: true

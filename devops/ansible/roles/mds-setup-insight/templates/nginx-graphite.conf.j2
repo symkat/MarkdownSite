@@ -1,6 +1,6 @@
 server {
     listen 443 ssl;
-    server_name {{ config.insight.graphite.domain }};
+    server_name {{ graphite.domain }};
 
     # SSL Options
     ssl_certificate /etc/letsencrypt/live/{{ domain.system }}/fullchain.pem;
@@ -32,6 +32,6 @@ server {
 
 server {
     listen 80;
-    server_name {{ config.insight.graphite.domain }};
+    server_name {{ graphite.domain }};
     return 301 https://$host$request_uri;
 }
