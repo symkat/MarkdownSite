@@ -13,7 +13,7 @@
 - name: Install Certificates
   copy:
     dest: "/etc/letsencrypt/live"
-    src: "{{ role_path }}/files/letsencrypt/live/"
+    src: "{{ inventory_dir }}/files/letsencrypt/live/"
     directory_mode: 0700
     mode: 0600
     owner: root
