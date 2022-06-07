@@ -1,16 +1,16 @@
 ---
-- name: "Create /var/www/{{ config.panel.domain }}/js"
+- name: "Create /var/www/{{ domain.system }}/js"
   file:
     state: directory
-    path: "/var/www/{{ config.panel.domain }}/js"
+    path: "/var/www/{{ domain.system }}/js"
     owner: www-data
     group: www-data
     mode: 0755
 
-- name: "Create /var/www/{{ config.panel.domain }}/css"
+- name: "Create /var/www/{{ domain.system }}/css"
   file:
     state: directory
-    path: "/var/www/{{ config.panel.domain }}/css"
+    path: "/var/www/{{ domain.system }}/css"
     owner: www-data
     group: www-data
     mode: 0755
@@ -18,7 +18,7 @@
 - name: Install CSS files
   copy:
     src: "{{ role_path }}/files/css/"
-    dest: "/var/www/{{ config.panel.domain }}/css"
+    dest: "/var/www/{{ domain.system }}/css"
     mode: '0644'
     directory_mode: '0755'
     owner: 'www-data'
@@ -27,24 +27,24 @@
 - name: Install JS files
   copy:
     src: "{{ role_path }}/files/js/"
-    dest: "/var/www/{{ config.panel.domain }}/js"
+    dest: "/var/www/{{ domain.system }}/js"
     mode: '0644'
     directory_mode: '0755'
     owner: 'www-data'
     group: 'www-data'
 
-- name: "Install /var/www/{{ config.panel.domain }}/index.html"
+- name: "Install /var/www/{{ domain.system }}/index.html"
   template:
     src: "{{ role_path }}/templates/index.html.j2"
-    dest: "/var/www/{{ config.panel.domain }}/index.html"
+    dest: "/var/www/{{ domain.system }}/index.html"
     owner: www-data
     group: www-data
     mode: 0644
 
-- name: "Install /var/www/{{ config.panel.domain }}/contact.html"
+- name: "Install /var/www/{{ domain.system }}/contact.html"
   template:
     src: "{{ role_path }}/templates/contact.html.j2"
-    dest: "/var/www/{{ config.panel.domain }}/contact.html"
+    dest: "/var/www/{{ domain.system }}/contact.html"
     owner: www-data
     group: www-data
     mode: 0644

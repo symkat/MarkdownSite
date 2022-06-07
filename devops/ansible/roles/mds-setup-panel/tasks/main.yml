@@ -130,42 +130,42 @@
     group: root
     mode: 0644
 
-- name: "Install /etc/nginx/sites-enabled/panel.{{ config.panel.domain }}"
+- name: "Install /etc/nginx/sites-enabled/panel.{{ domain.system }}"
   template:
     src: "{{ role_path }}/templates/panel-nginx-domain.conf.j2"
-    dest: "/etc/nginx/sites-enabled/panel.{{ config.panel.domain }}"
+    dest: "/etc/nginx/sites-enabled/panel.{{ domain.system }}"
     owner: root
     group: root
     mode: 0644
 
-- name: "Install /etc/nginx/sites-enabled/pkgs.{{ config.panel.domain }}"
+- name: "Install /etc/nginx/sites-enabled/pkgs.{{ domain.system }}"
   template:
     src: "{{ role_path }}/templates/pkgs-nginx-domain.conf.j2"
-    dest: "/etc/nginx/sites-enabled/pkgs.{{ config.panel.domain }}"
+    dest: "/etc/nginx/sites-enabled/pkgs.{{ domain.system }}"
     owner: root
     group: root
     mode: 0644
 
-- name: "Create /var/www/pkgs.{{ config.panel.domain }}"
+- name: "Create /var/www/pkgs.{{ domain.system }}"
   file:
     state: directory
-    path: "/var/www/pkgs.{{ config.panel.domain }}"
+    path: "/var/www/pkgs.{{ domain.system }}"
     owner: www-data
     group: www-data
     mode: 0755
 
-- name: "Install /etc/nginx/sites-enabled/{{ config.panel.domain }}"
+- name: "Install /etc/nginx/sites-enabled/{{ domain.system }}"
   template:
     src: "{{ role_path }}/templates/root-nginx-domain.conf.j2"
-    dest: "/etc/nginx/sites-enabled/{{ config.panel.domain }}"
+    dest: "/etc/nginx/sites-enabled/{{ domain.system }}"
     owner: root
     group: root
     mode: 0644
 
-- name: "Create /var/www/{{ config.panel.domain }}"
+- name: "Create /var/www/{{ domain.system }}"
   file:
     state: directory
-    path: "/var/www/{{ config.panel.domain }}"
+    path: "/var/www/{{ domain.system }}"
     owner: www-data
     group: www-data
     mode: 0755
@@ -291,11 +291,11 @@
     patterns: "MarkdownSite-CGI-*.tar.gz"
   register: mds_cgi_glob
 
-- name: "Copy MarkdownSite::CGI to /var/www/pkgs.{{ config.panel.domain }}"
+- name: "Copy MarkdownSite::CGI to /var/www/pkgs.{{ domain.system }}"
   copy:
     remote_src: true
     src: "{{ item.path }}"
-    dest: "/var/www/pkgs.{{ config.panel.domain }}/MarkdownSite-CGI.tar.gz"
+    dest: "/var/www/pkgs.{{ domain.system }}/MarkdownSite-CGI.tar.gz"
     owner: www-data
     group: www-data
     mode: 0755
@@ -308,11 +308,11 @@
     patterns: "MarkdownSite-Panel-*.tar.gz"
   register: mds_panel_glob
 
-- name: "Copy MarkdownSite::Panel to /var/www/pkgs.{{ config.panel.domain }}"
+- name: "Copy MarkdownSite::Panel to /var/www/pkgs.{{ domain.system }}"
   copy:
     remote_src: true
     src: "{{ item.path }}"
-    dest: "/var/www/pkgs.{{ config.panel.domain }}/MarkdownSite-Panel.tar.gz"
+    dest: "/var/www/pkgs.{{ domain.system }}/MarkdownSite-Panel.tar.gz"
     owner: www-data
     group: www-data
     mode: 0755
@@ -325,11 +325,11 @@
     patterns: "MarkdownSite-Panel-DB-*.tar.gz"
   register: mds_panel_db_glob
 
-- name: "Copy MarkdownSite::Panel::DB to /var/www/pkgs.{{ config.panel.domain }}"
+- name: "Copy MarkdownSite::Panel::DB to /var/www/pkgs.{{ domain.system }}"
   copy:
     remote_src: true
     src: "{{ item.path }}"
-    dest: "/var/www/pkgs.{{ config.panel.domain }}/MarkdownSite-Panel-DB.tar.gz"
+    dest: "/var/www/pkgs.{{ domain.system }}/MarkdownSite-Panel-DB.tar.gz"
     owner: www-data
     group: www-data
     mode: 0755

@@ -3,8 +3,8 @@ server {
     server_name {{ grafana.domain }};
 
     # SSL Options
-    ssl_certificate /etc/letsencrypt/live/{{ config.panel.domain }}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/{{ config.panel.domain }}/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/{{ domain.system }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ domain.system }}/privkey.pem;
 
     ssl_session_cache shared:le_nginx_SSL:10m;
     ssl_session_timeout 1440m;

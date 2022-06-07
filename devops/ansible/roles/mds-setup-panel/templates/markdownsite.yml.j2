@@ -2,8 +2,8 @@
 database:
   markdownsite: postgresql://{{ database.markdownsite.user }}:{{ database.markdownsite.pass }}@{{ database.markdownsite.host }}/markdownsite
   minion: postgresql://{{ database.minion.user }}:{{ database.minion.pass }}@{{ database.minion.host }}/minion
-domain: {{ config.panel.domain }}
-hosted_domain: {{ config.panel.domain_for_users }}
+domain: {{ domain.system }}
+hosted_domain: {{ domain.hosted }}
 
 secrets:
 {% for secret in config.panel.secrets %}

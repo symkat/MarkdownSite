@@ -1,10 +1,10 @@
 server {
-    server_name www.{{ config.panel.domain }} {{ config.panel.domain }};
+    server_name www.{{ domain.system }} {{ domain.system }};
     listen 443 ssl;
     
     # SSL Options
-    ssl_certificate /etc/letsencrypt/live/{{ config.panel.domain }}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/{{ config.panel.domain }}/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/{{ domain.system }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ domain.system }}/privkey.pem;
 
     ssl_session_cache shared:le_nginx_SSL:10m;
     ssl_session_timeout 1440m;
@@ -17,10 +17,10 @@ server {
 
     ssl_dhparam /etc/nginx/ssl-dhparams.pem;
     
-    root        /var/www/{{ config.panel.domain }};
+    root        /var/www/{{ domain.system }};
     
-    if ($host = www.{{ config.panel.domain }}) {
-        return 301 https://{{ config.panel.domain }}$request_uri;
+    if ($host = www.{{ domain.system }}) {
+        return 301 https://{{ domain.system }}$request_uri;
     }
 
     location / {
@@ -31,7 +31,7 @@ server {
 
 server {
     listen 80;
-    server_name www.{{ config.panel.domain }} {{ config.panel.domain }};
+    server_name www.{{ domain.system }} {{ domain.system }};
     return 301 https://$host$request_uri;
 }
 

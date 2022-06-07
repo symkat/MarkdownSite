@@ -1,10 +1,10 @@
 server {
-    server_name pkgs.{{ config.panel.domain }};
+    server_name pkgs.{{ domain.system }};
     listen 443 ssl;
     
     # SSL Options
-    ssl_certificate /etc/letsencrypt/live/{{ config.panel.domain }}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/{{ config.panel.domain }}/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/{{ domain.system }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ domain.system }}/privkey.pem;
 
     ssl_session_cache shared:le_nginx_SSL:10m;
     ssl_session_timeout 1440m;
@@ -17,7 +17,7 @@ server {
 
     ssl_dhparam /etc/nginx/ssl-dhparams.pem;
     
-    root        /var/www/pkgs.{{ config.panel.domain }};
+    root        /var/www/pkgs.{{ domain.system }};
     
     location / {
     
@@ -27,7 +27,7 @@ server {
 
 server {
     listen 80;
-    server_name pkgs.{{ config.panel.domain }};
+    server_name pkgs.{{ domain.system }};
     return 301 https://$host$request_uri;
 }
 

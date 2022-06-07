@@ -2,9 +2,9 @@ $HTTP["host"] =~ "^{% raw %}{{ site.domain }}{% endraw %}$" {
     $SERVER["socket"] == ":443" {
         # SSL Settings
         ssl.engine  = "enable"
-        ssl.pemfile = "/etc/letsencrypt/live/{{ config.panel.domain_for_users }}/cert.pem"
-        ssl.ca-file = "/etc/letsencrypt/live/{{ config.panel.domain_for_users }}/fullchain.pem"
-        ssl.privkey = "/etc/letsencrypt/live/{{ config.panel.domain_for_users }}/privkey.pem"
+        ssl.pemfile = "/etc/letsencrypt/live/{{ domain.hosted }}/cert.pem"
+        ssl.ca-file = "/etc/letsencrypt/live/{{ domain.hosted }}/fullchain.pem"
+        ssl.privkey = "/etc/letsencrypt/live/{{ domain.hosted }}/privkey.pem"
 
         # Docroot & Logs.
         server.document-root = "/var/www/{% raw %}{{ site.domain }}{% endraw %}/html"
