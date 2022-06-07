@@ -97,7 +97,7 @@
 - name: Install ~minion/.ssh/id_rsa_ansible (for ansible-playbook)
   copy:
     dest: /home/minion/.ssh/id_rsa_ansible
-    src: ./id_rsa
+    src: "{{ inventory_dir }}/files/ssh/id_rsa"
     owner: minion
     group: minion
     mode: 0600

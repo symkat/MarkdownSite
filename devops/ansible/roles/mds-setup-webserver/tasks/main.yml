@@ -137,7 +137,7 @@
 
 - name: Get id_rsa contents
   set_fact:
-    public_key: "{{ lookup('file',playbook_dir + '/id_rsa.pub' ) }}"
+    public_key: "{{ lookup('file', inventory_dir + '/files/ssh/id_rsa.pub' ) }}"
 
 
 - name: "Add ansible sshkey into root user"

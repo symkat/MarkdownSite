@@ -359,11 +359,11 @@
 - name: Get id_rsa from host
   fetch:
     src: /home/manager/.ssh/id_rsa
-    dest: ./id_rsa
+    dest: "{{ inventory_dir }}/files/ssh/id_rsa"
     flat: true
 
 - name: Get id_rsa.pub from host
   fetch:
     src: /home/manager/.ssh/id_rsa.pub
-    dest: ./id_rsa.pub
+    dest: "{{ inventory_dir }}/files/ssh/id_rsa.pub"
     flat: true
