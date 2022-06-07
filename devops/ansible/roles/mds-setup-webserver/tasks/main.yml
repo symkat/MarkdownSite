@@ -26,7 +26,7 @@
 
 - name: Install MarkdownSite::CGI
   cpanm:
-    name: "{{ config.pkg.cgi }}"
+    name: "{{ pkg.cgi }}"
 
 - name: Download lighttpd
   get_url:

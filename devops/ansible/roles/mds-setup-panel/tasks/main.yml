@@ -29,11 +29,11 @@
 
       # - name: Install MarkdownSite::Panel::DB
       #   cpanm:
-      #     name: "{{ config.pkg.panel_db }}"
+      #     name: "{{ pkg.panel_db }}"
       # 
       # - name: Install MarkdownSite::Panel
       #   cpanm:
-      #     name: "{{ config.pkg.panel }}"
+      #     name: "{{ pkg.panel }}"
 
 - name: Install /etc/markdownsite.yml
   template:
