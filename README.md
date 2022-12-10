@@ -1,6 +1,6 @@
-![MarkdownSite Homepage](https://markdownsite.com/img/markdownsite.jpg)
+# No Longer Maintained
 
-**This is the codebase for [MarkdownSite](https://markdownsite.com/), an open-source hosting platform for static sites and markdown files.**
+Please note, this code base is no longer maintained.  For the successor, please see [MyJekyllBlog](https://github.com/symkat/MyJekyllBlog)
 
 ## What Is MarkdownSite?
 
